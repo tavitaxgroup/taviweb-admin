@@ -59,16 +59,14 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
       </div>
 
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[1000px]">
+        <table className="w-full text-left border-collapse min-w-[800px]">
           <thead>
             <tr className="bg-slate-900 text-white">
-              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[20%] text-left">Tên doanh nghiệp</th>
-              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[12%] text-left">Ngành nghề</th>
-              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[15%] text-left">Số điện thoại</th>
+              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[25%] text-left">Tên doanh nghiệp</th>
+              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[15%] text-left">Ngành nghề</th>
+              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[20%] text-left">Số điện thoại</th>
               <th className="p-4 font-bold uppercase text-xs tracking-wider w-[20%] text-left">Địa chỉ</th>
-              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[10%] text-center">Trạng thái Data</th>
-              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[10%] text-center">Trạng thái Sale</th>
-              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[13%] text-center sticky right-0 bg-slate-900 z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.2)]">Hành động</th>
+              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[20%] text-center sticky right-0 bg-slate-900 z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.2)]">Hành động & Trạng thái</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
@@ -90,42 +88,31 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
                 <td className="p-4 text-sm text-slate-600 truncate" title={lead.formatted_address}>
                   {lead.formatted_address}
                 </td>
-                <td className="p-4 text-center">
+                <td className="p-4 text-center flex items-center justify-center gap-2 sticky right-0 bg-white group-hover:bg-slate-50 transition-colors z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.05)] border-l border-slate-100 flex-wrap">
                   {lead.status === 'verified' ? (
-                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full text-xs font-bold border border-emerald-200 whitespace-nowrap">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span> Khách Xịn
+                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-md text-xs font-bold border border-emerald-200 whitespace-nowrap">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Khách Xịn
                     </span>
                   ) : lead.status === 'has_website' ? (
-                    <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-600 px-3 py-1 rounded-full text-xs font-bold border border-rose-200 whitespace-nowrap">
+                    <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-600 px-3 py-1.5 rounded-md text-xs font-bold border border-rose-200 whitespace-nowrap">
                        Đã Có Web
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold whitespace-nowrap">
+                    <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md text-xs font-bold border border-slate-200 whitespace-nowrap">
                        Mới cào
                     </span>
                   )}
-                </td>
-                <td className="p-4 text-center">
+                  
                   <SalesStatusSelect leadId={lead.id} initialStatus={lead.sales_status} />
-                </td>
-                <td className="p-4 text-center flex items-center justify-center gap-2 sticky right-0 bg-white group-hover:bg-slate-50 transition-colors z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.05)] border-l border-slate-100">
+                  
                   <a 
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.name + " " + lead.formatted_address)}`} 
                     target="_blank"
-                    className="bg-slate-200 hover:bg-slate-300 text-slate-700 px-3 py-2 rounded-lg text-xs font-bold shadow-sm transition-all whitespace-nowrap"
+                    className="bg-slate-800 hover:bg-slate-900 text-white px-3 py-1.5 rounded-md text-xs font-bold shadow-sm transition-all whitespace-nowrap"
                     title="Xem trên Google Maps"
                   >
                     📍 Maps
                   </a>
-                  {lead.status === 'verified' && lead.formatted_phone_number && (
-                    <a 
-                      href={`/demo/${lead.place_id}`} 
-                      target="_blank"
-                      className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-lg text-xs font-bold shadow-sm transition-all whitespace-nowrap"
-                    >
-                      👁️ Demo
-                    </a>
-                  )}
                 </td>
               </tr>
             ))}
