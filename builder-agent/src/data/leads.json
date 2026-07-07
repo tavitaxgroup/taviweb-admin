@@ -1,0 +1,49 @@
+[
+  {
+    "place_id": "ChIJ_mock_nhakhoa_1",
+    "name": "Nha Khoa Nụ Cười Việt - Quận 1",
+    "formatted_address": "45 Nguyễn Đình Chiểu, Đa Kao, Quận 1, Hồ Chí Minh, Vietnam",
+    "rating": 4.7,
+    "user_ratings_total": 120,
+    "types": [
+      "dentist",
+      "health",
+      "point_of_interest",
+      "establishment"
+    ],
+    "website": null,
+    "formatted_phone_number": "0901 234 567",
+    "image_url": "https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&w=800&q=80",
+    "review_text": "Phòng khám rất sạch sẽ, bác sĩ thân thiện và làm răng không hề đau. Tôi đã nhổ răng khôn ở đây và rất hài lòng!"
+  },
+  {
+    "place_id": "ChIJ_mock_nhakhoa_2",
+    "name": "Nha Khoa Thẩm Mỹ Quốc Tế Sài Gòn",
+    "formatted_address": "120 Lê Lợi, Bến Thành, Quận 1, Hồ Chí Minh, Vietnam",
+    "rating": 4.9,
+    "user_ratings_total": 340,
+    "types": [
+      "dentist",
+      "health",
+      "point_of_interest",
+      "establishment"
+    ],
+    "website": "https://www.facebook.com/nhakhoaquoctesaigon",
+    "formatted_phone_number": "0938 999 888"
+  },
+  {
+    "place_id": "ChIJ_mock_nhakhoa_3",
+    "name": "Phòng Khám Nha Khoa Dr. Bình",
+    "formatted_address": "12 Tôn Thất Tùng, Phạm Ngũ Lão, Quận 1, Hồ Chí Minh, Vietnam",
+    "rating": 5.0,
+    "user_ratings_total": 55,
+    "types": [
+      "dentist",
+      "health",
+      "point_of_interest",
+      "establishment"
+    ],
+    "website": null,
+    "formatted_phone_number": "0987 654 321"
+  }
+]
