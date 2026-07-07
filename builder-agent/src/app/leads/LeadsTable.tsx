@@ -68,12 +68,12 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
               <th className="p-4 font-bold uppercase text-xs tracking-wider w-[20%] text-left">Địa chỉ</th>
               <th className="p-4 font-bold uppercase text-xs tracking-wider w-[10%] text-center">Trạng thái Data</th>
               <th className="p-4 font-bold uppercase text-xs tracking-wider w-[10%] text-center">Trạng thái Sale</th>
-              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[13%] text-center">Hành động</th>
+              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[13%] text-center sticky right-0 bg-slate-900 z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.2)]">Hành động</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
             {filteredLeads.map((lead, idx) => (
-              <tr key={idx} className="hover:bg-slate-50 transition-colors">
+              <tr key={idx} className="hover:bg-slate-50 transition-colors group">
                 <td className="p-4 font-semibold text-slate-800 break-words" title={lead.name}>
                   {lead.name}
                 </td>
@@ -108,7 +108,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
                 <td className="p-4 text-center">
                   <SalesStatusSelect leadId={lead.id} initialStatus={lead.sales_status} />
                 </td>
-                <td className="p-4 text-center flex items-center justify-center gap-2">
+                <td className="p-4 text-center flex items-center justify-center gap-2 sticky right-0 bg-white group-hover:bg-slate-50 transition-colors z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.05)] border-l border-slate-100">
                   <a 
                     href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(lead.name + " " + lead.formatted_address)}`} 
                     target="_blank"
