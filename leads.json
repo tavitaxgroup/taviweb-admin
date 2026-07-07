@@ -1,0 +1,20 @@
+[
+  {
+    "place_id": "ChIJ_mock_nhakhoa_1",
+    "name": "Nha Khoa Nụ Cười Việt - Quận 1 (Scraped)",
+    "rating": 4.7,
+    "user_ratings_total": 120,
+    "formatted_address": "45 Nguyễn Đình Chiểu, Quận 1",
+    "website": null,
+    "formatted_phone_number": "0901 234 567"
+  },
+  {
+    "place_id": "ChIJ_mock_nhakhoa_2",
+    "name": "Nha Khoa Quốc Tế Sài Gòn (Scraped)",
+    "rating": 4.9,
+    "user_ratings_total": 340,
+    "formatted_address": "120 Lê Lợi, Quận 1",
+    "website": "https://facebook.com/nhakhoa",
+    "formatted_phone_number": "0938 999 888"
+  }
+]

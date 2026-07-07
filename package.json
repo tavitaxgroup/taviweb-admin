@@ -1,0 +1,30 @@
+{
+  "name": "webbuider_multi_agent_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "ts-node src/index.ts",
+    "discovery": "ts-node src/discovery.ts",
+    "qualify": "ts-node src/qualification.ts",
+    "enrich": "ts-node src/enrichment.ts",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "@supabase/supabase-js": "^2.110.0",
+    "@types/pg": "^8.20.0",
+    "axios": "^1.18.1",
+    "dotenv": "^17.4.2",
+    "pg": "^8.22.0",
+    "puppeteer": "^25.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^6.0.3"
+  }
+}

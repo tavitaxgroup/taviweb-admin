@@ -1,0 +1,28 @@
+{
+  "industries": [
+    { "id": "nha_khoa", "keyword": "Nha khoa" },
+    { "id": "spa", "keyword": "Spa thẩm mỹ" },
+    { "id": "tham_my_vien", "keyword": "Thẩm mỹ viện" },
+    { "id": "noi_that", "keyword": "Công ty thiết kế nội thất" },
+    { "id": "luat_su", "keyword": "Văn phòng luật sư" },
+    { "id": "trung_tam_tieng_anh", "keyword": "Trung tâm tiếng Anh" },
+    { "id": "phong_kham", "keyword": "Phòng khám đa khoa" },
+    { "id": "studio_chup_anh", "keyword": "Studio chụp ảnh cưới" },
+    { "id": "nha_hang", "keyword": "Nhà hàng sang trọng" },
+    { "id": "quan_cafe", "keyword": "Quán cafe đẹp" },
+    { "id": "salon_toc", "keyword": "Hair salon" },
+    { "id": "cong_ty_xay_dung", "keyword": "Công ty xây dựng" },
+    { "id": "dich_vu_ve_sinh", "keyword": "Dịch vụ vệ sinh công nghiệp" },
+    { "id": "garage_oto", "keyword": "Garage sửa chữa ô tô" },
+    { "id": "phong_gym", "keyword": "Phòng Gym Fitness" }
+  ],
+  "locations": [
+    "Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5", "Quận 6",
+    "Quận 7", "Quận 8", "Quận 9", "Quận 10", "Quận 11", "Quận 12",
+    "Bình Thạnh", "Gò Vấp", "Phú Nhuận", "Tân Bình", "Tân Phú",
+    "Bình Tân", "Thủ Đức", "Bình Chánh", "Nhà Bè", "Hóc Môn"
+  ],
+  "city": "Hồ Chí Minh",
+  "maxResultsPerQuery": 50,
+  "delayBetweenQueriesMs": 5000
+}
