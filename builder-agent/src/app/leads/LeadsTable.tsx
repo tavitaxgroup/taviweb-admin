@@ -56,6 +56,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
           >
             <option value="all">Tất cả</option>
             <option value="verified">Khách Xịn (Đã xác minh)</option>
+            <option value="facebook">Data Facebook</option>
             <option value="has_website">Đã Có Web</option>
             <option value="new">Mới cào</option>
           </select>
@@ -115,6 +116,10 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
                   {lead.status === 'verified' ? (
                     <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-md text-xs font-bold border border-emerald-200 whitespace-nowrap">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Khách Xịn
+                    </span>
+                  ) : lead.status === 'facebook' ? (
+                    <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-md text-xs font-bold border border-blue-200 whitespace-nowrap">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> FB Lead
                     </span>
                   ) : lead.status === 'has_website' ? (
                     <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-600 px-3 py-1.5 rounded-md text-xs font-bold border border-rose-200 whitespace-nowrap">

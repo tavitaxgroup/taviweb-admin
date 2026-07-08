@@ -6,6 +6,7 @@
   "scripts": {
     "start": "ts-node src/index.ts",
     "discovery": "ts-node src/discovery.ts",
+    "fb-discovery": "ts-node src/fb_discovery.ts",
     "qualify": "ts-node src/qualification.ts",
     "enrich": "ts-node src/enrichment.ts",
     "test": "echo \"Error: no test specified\" && exit 1"
