@@ -6,6 +6,10 @@ import SalesStatusSelect from './SalesStatusSelect';
 export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
   const [dataStatusFilter, setDataStatusFilter] = useState('all');
   const [salesStatusFilter, setSalesStatusFilter] = useState('all');
+  const [industryFilter, setIndustryFilter] = useState('all');
+
+  // Lấy danh sách ngành nghề độc nhất để làm menu thả xuống
+  const uniqueIndustries = Array.from(new Set(initialLeads.map(lead => lead.industry).filter(Boolean)));
 
   const filteredLeads = initialLeads.filter(lead => {
     let matchData = true;
@@ -18,12 +22,31 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
       matchSales = lead.sales_status === salesStatusFilter;
     }
 
-    return matchData && matchSales;
+    let matchIndustry = true;
+    if (industryFilter !== 'all') {
+      matchIndustry = lead.industry === industryFilter;
+    }
+
+    return matchData && matchSales && matchIndustry;
   });
 
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
       <div className="p-4 border-b border-slate-100 flex flex-wrap gap-4 items-center bg-slate-50">
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-slate-600">Ngành nghề:</span>
+          <select 
+            className="text-sm border-slate-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-blue-500 max-w-[200px]"
+            value={industryFilter}
+            onChange={(e) => setIndustryFilter(e.target.value)}
+          >
+            <option value="all">Tất cả</option>
+            {uniqueIndustries.map((industry: any, idx) => (
+              <option key={idx} value={industry}>{industry}</option>
+            ))}
+          </select>
+        </div>
+
         <div className="flex items-center gap-2">
           <span className="text-sm font-bold text-slate-600">Lọc Data:</span>
           <select 
