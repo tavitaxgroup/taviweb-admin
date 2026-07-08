@@ -7,6 +7,9 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
   const [dataStatusFilter, setDataStatusFilter] = useState('all');
   const [salesStatusFilter, setSalesStatusFilter] = useState('all');
   const [industryFilter, setIndustryFilter] = useState('all');
+  
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 50;
 
   // Lấy danh sách ngành nghề độc nhất để làm menu thả xuống
   const uniqueIndustries = Array.from(new Set(initialLeads.map(lead => lead.industry).filter(Boolean)));
@@ -30,6 +33,9 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
     return matchData && matchSales && matchIndustry;
   });
 
+  const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
+  const paginatedLeads = filteredLeads.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
       <div className="p-4 border-b border-slate-100 flex flex-wrap gap-4 items-center bg-slate-50">
@@ -38,7 +44,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
           <select 
             className="text-sm border-slate-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-blue-500 max-w-[200px]"
             value={industryFilter}
-            onChange={(e) => setIndustryFilter(e.target.value)}
+            onChange={(e) => { setIndustryFilter(e.target.value); setCurrentPage(1); }}
           >
             <option value="all">Tất cả</option>
             {uniqueIndustries.map((industry: any, idx) => (
@@ -52,7 +58,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
           <select 
             className="text-sm border-slate-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-blue-500"
             value={dataStatusFilter}
-            onChange={(e) => setDataStatusFilter(e.target.value)}
+            onChange={(e) => { setDataStatusFilter(e.target.value); setCurrentPage(1); }}
           >
             <option value="all">Tất cả</option>
             <option value="verified">Khách Xịn (Đã xác minh)</option>
@@ -67,7 +73,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
           <select 
             className="text-sm border-slate-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-blue-500"
             value={salesStatusFilter}
-            onChange={(e) => setSalesStatusFilter(e.target.value)}
+            onChange={(e) => { setSalesStatusFilter(e.target.value); setCurrentPage(1); }}
           >
             <option value="all">Tất cả</option>
             <option value="chưa sale">Chưa Sale</option>
@@ -94,7 +100,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
             </tr>
           </thead>
           <tbody className="divide-y divide-slate-100">
-            {filteredLeads.map((lead, idx) => (
+            {paginatedLeads.map((lead, idx) => (
               <tr key={idx} className="hover:bg-slate-50 transition-colors group">
                 <td className="p-4 font-semibold text-slate-800 break-words" title={lead.name}>
                   {lead.name}
@@ -153,6 +159,30 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <div className="p-4 border-t border-slate-100 flex items-center justify-between bg-slate-50">
+          <div className="text-sm text-slate-500 font-semibold">
+            Trang {currentPage} / {totalPages}
+          </div>
+          <div className="flex gap-2">
+            <button 
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+              className="px-3 py-1 rounded-md text-sm font-bold border border-slate-300 disabled:opacity-50 hover:bg-slate-200"
+            >
+              Trang trước
+            </button>
+            <button 
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+              className="px-3 py-1 rounded-md text-sm font-bold border border-slate-300 disabled:opacity-50 hover:bg-slate-200"
+            >
+              Trang sau
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

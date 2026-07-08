@@ -15,14 +15,28 @@ export async function getLeadById(id: string) {
 }
 
 export async function getAllLeads() {
-  const { data, error } = await supabase
-    .from('leads')
-    .select('*')
-    .order('created_at', { ascending: false });
-
-  if (error || !data) {
-    return [];
-  }
+  let allData: any[] = [];
+  let from = 0;
+  const limit = 1000;
   
-  return data;
+  while (true) {
+    const { data, error } = await supabase
+      .from('leads')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .range(from, from + limit - 1);
+
+    if (error || !data) {
+      break;
+    }
+    
+    allData = [...allData, ...data];
+    
+    if (data.length < limit) {
+      break;
+    }
+    from += limit;
+  }
+
+  return allData;
 }
