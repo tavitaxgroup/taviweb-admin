@@ -1,6 +1,9 @@
 import { getAllLeads } from '@/lib/data';
 import LeadsTable from './LeadsTable';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export default async function LeadsDashboard() {
   const leads = await getAllLeads();
   
