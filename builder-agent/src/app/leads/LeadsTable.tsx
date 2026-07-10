@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import SalesStatusSelect from './SalesStatusSelect';
 
 export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
+  const [dataSourceFilter, setDataSourceFilter] = useState('all');
   const [dataStatusFilter, setDataStatusFilter] = useState('all');
   const [salesStatusFilter, setSalesStatusFilter] = useState('all');
   const [industryFilter, setIndustryFilter] = useState('all');
@@ -15,9 +16,20 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
   const uniqueIndustries = Array.from(new Set(initialLeads.map(lead => lead.industry).filter(Boolean)));
 
   const filteredLeads = initialLeads.filter(lead => {
+    let matchDataSource = true;
+    if (dataSourceFilter === 'google') {
+      matchDataSource = !lead.place_id?.startsWith('FB_');
+    } else if (dataSourceFilter === 'facebook') {
+      matchDataSource = lead.place_id?.startsWith('FB_');
+    }
+
     let matchData = true;
     if (dataStatusFilter !== 'all') {
-      matchData = lead.status === dataStatusFilter;
+      if (dataStatusFilter === 'new') {
+        matchData = lead.status === 'new' || lead.status === 'facebook';
+      } else {
+        matchData = lead.status === dataStatusFilter;
+      }
     }
     
     let matchSales = true;
@@ -30,7 +42,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
       matchIndustry = lead.industry === industryFilter;
     }
 
-    return matchData && matchSales && matchIndustry;
+    return matchDataSource && matchData && matchSales && matchIndustry;
   });
 
   const totalPages = Math.ceil(filteredLeads.length / itemsPerPage);
@@ -54,22 +66,34 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-slate-600">Lọc Data:</span>
+          <span className="text-sm font-bold text-slate-600">Nguồn Data:</span>
+          <select 
+            className="text-sm border-slate-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-blue-500"
+            value={dataSourceFilter}
+            onChange={(e) => { setDataSourceFilter(e.target.value); setCurrentPage(1); }}
+          >
+            <option value="all">Tất cả</option>
+            <option value="google">Google Maps</option>
+            <option value="facebook">Facebook</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-bold text-slate-600">Trạng thái Data:</span>
           <select 
             className="text-sm border-slate-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-blue-500"
             value={dataStatusFilter}
             onChange={(e) => { setDataStatusFilter(e.target.value); setCurrentPage(1); }}
           >
             <option value="all">Tất cả</option>
-            <option value="verified">Khách Xịn (Đã xác minh)</option>
-            <option value="facebook">Data Facebook</option>
-            <option value="has_website">Đã Có Web</option>
             <option value="new">Mới cào</option>
+            <option value="verified">Khách Xịn (Đã xác minh)</option>
+            <option value="has_website">Đã Có Web</option>
           </select>
         </div>
         
         <div className="flex items-center gap-2">
-          <span className="text-sm font-bold text-slate-600">Lọc Sales:</span>
+          <span className="text-sm font-bold text-slate-600">Tình trạng Sales:</span>
           <select 
             className="text-sm border-slate-300 rounded-md py-1.5 px-3 outline-none focus:ring-2 focus:ring-blue-500"
             value={salesStatusFilter}
