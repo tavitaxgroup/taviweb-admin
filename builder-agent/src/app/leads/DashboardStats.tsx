@@ -3,7 +3,7 @@
 import React from 'react';
 import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer,
-  PieChart, Pie, Cell, Doughnut
+  PieChart, Pie, Cell
 } from 'recharts';
 import { extractCityDistrict } from '@/lib/utils';
 
