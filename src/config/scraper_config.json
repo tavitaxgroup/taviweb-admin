@@ -17,12 +17,13 @@
     { "id": "phong_gym", "keyword": "Phòng Gym Fitness" }
   ],
   "locations": [
-    "Quận 1", "Quận 2", "Quận 3", "Quận 4", "Quận 5", "Quận 6",
-    "Quận 7", "Quận 8", "Quận 9", "Quận 10", "Quận 11", "Quận 12",
-    "Bình Thạnh", "Gò Vấp", "Phú Nhuận", "Tân Bình", "Tân Phú",
-    "Bình Tân", "Thủ Đức", "Bình Chánh", "Nhà Bè", "Hóc Môn"
+    "Đà Nẵng", "Bình Dương", "Đồng Nai", "Cần Thơ", "Bà Rịa - Vũng Tàu", "Khánh Hòa", "Lâm Đồng",
+    "Quảng Nam", "Quảng Ngãi", "Bình Định", "Phú Yên", "Ninh Thuận", "Bình Thuận",
+    "Kon Tum", "Gia Lai", "Đắk Lắk", "Đắk Nông",
+    "Bình Phước", "Tây Ninh",
+    "Long An", "Tiền Giang", "Bến Tre", "Vĩnh Long", "Trà Vinh", "Hậu Giang", "Sóc Trăng", "Đồng Tháp", "An Giang", "Kiên Giang", "Bạc Liêu", "Cà Mau"
   ],
-  "city": "Hồ Chí Minh",
+  "city": "Việt Nam",
   "maxResultsPerQuery": 50,
   "delayBetweenQueriesMs": 5000
 }

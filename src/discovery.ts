@@ -64,9 +64,35 @@ async function runScraper() {
         await page.waitForSelector('a[href*="/maps/place/"]', { timeout: 15000 }).catch(() => {});
         await delay(2000);
 
+        // Cuộn màn hình để tải thêm kết quả
+        let linksSize = 0;
+        let retries = 0;
+        while (linksSize < config.maxResultsPerQuery && retries < 10) {
+            const result = await page.evaluate(() => {
+                const scrollableDiv = document.querySelector('div[role="feed"]') || document.querySelector('.m6QErb.DxyBCb.kA9KIf.dS8AEf.ecceSd');
+                if (scrollableDiv) {
+                    scrollableDiv.scrollTo(0, scrollableDiv.scrollHeight);
+                }
+                const links = Array.from(document.querySelectorAll('a[href*="/maps/place/"]'));
+                return {
+                    size: new Set(links.map(a => (a as HTMLAnchorElement).href)).size,
+                    reachedEnd: document.body.innerText.includes("Bạn đã xem hết kết quả") || document.body.innerText.includes("You've reached the end of the list")
+                };
+            });
+            
+            if (result.size === linksSize) {
+                if (result.reachedEnd) break;
+                retries++;
+            } else {
+                retries = 0;
+                linksSize = result.size;
+            }
+            await delay(2500);
+        }
+
         const placeLinks = await page.evaluate((max) => {
-          const links = Array.from(document.querySelectorAll('a[href*="/maps/place/"]'));
-          return [...new Set(links.map(a => (a as HTMLAnchorElement).href))].slice(0, max);
+            const links = Array.from(document.querySelectorAll('a[href*="/maps/place/"]'));
+            return [...new Set(links.map(a => (a as HTMLAnchorElement).href))].slice(0, max);
         }, config.maxResultsPerQuery);
 
         console.log(`Tìm thấy ${placeLinks.length} kết quả. Đang thu thập...`);
@@ -132,9 +158,16 @@ async function runScraper() {
                  reviewText = possibleReviews[0].innerText.replace(/\n/g, ' ').replace(/\.\.\.$/, '') + "...";
               }
 
+              let address = null;
+              const addressBtns = Array.from(document.querySelectorAll('button[data-item-id="address"]'));
+              if (addressBtns.length > 0) {
+                const aria = addressBtns[0].getAttribute('aria-label') || '';
+                address = aria.replace('Địa chỉ: ', '').replace('Address: ', '').trim();
+              }
+
               return {
                 place_id: "ID_" + Math.random().toString(36).substr(2, 9),
-                name, rating, user_ratings_total: reviews, website, formatted_phone_number: phone, image_url: imageUrl, review_text: reviewText
+                name, rating, user_ratings_total: reviews, website, formatted_phone_number: phone, image_url: imageUrl, review_text: reviewText, address
               };
             });
 
@@ -147,7 +180,7 @@ async function runScraper() {
                 place_id: data.place_id,
                 name: data.name,
                 industry: industry.id,
-                formatted_address: `${location}, ${config.city}`,
+                formatted_address: data.address || `${location}, ${config.city}`,
                 formatted_phone_number: data.formatted_phone_number || null,
                 website: data.website || null,
                 status: 'new',
