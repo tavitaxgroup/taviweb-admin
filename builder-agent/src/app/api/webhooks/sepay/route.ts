@@ -4,8 +4,8 @@ const SEPAY_SECRET_KEY = process.env.SEPAY_SECRET_KEY;
 
 export async function POST(req: Request) {
   try {
-    // 1. Xác thực bảo mật (tuỳ chọn theo chuẩn của SePay)
-    // Có thể kiểm tra header Authorization nếu có cấu hình trên SePay Dashboard
+    // 1. XÃ¡c thá»±c báº£o máº­t (tuá»³ chá»n theo chuáº©n cá»§a SePay)
+    // CÃ³ thá»ƒ kiá»ƒm tra header Authorization náº¿u cÃ³ cáº¥u hÃ¬nh trÃªn SePay Dashboard
     // const authHeader = req.headers.get('authorization');
     // if (authHeader !== `Apikey ${SEPAY_SECRET_KEY}`) {
     //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -17,14 +17,14 @@ export async function POST(req: Request) {
     // SePay Payload: { transferAmount: 399000, content: "TVW1234ABCD ...", transferType: "in" }
     const { transferAmount, content, transferType } = body;
 
-    // Chỉ xử lý tiền vào
+    // Chá»‰ xá»­ lÃ½ tiá»n vÃ o
     if (transferType !== 'in' && transferAmount > 0) {
       return NextResponse.json({ success: true, message: 'Ignored non-inward transaction' });
     }
 
-    // 2. Tìm mã giao dịch trong nội dung chuyển khoản
-    // Format mã của chúng ta là TVW[8chars][4chars] -> độ dài 15 chars (e.g. TVW8EBAF72BA4B2)
-    // Tách các từ trong nội dung ra và tìm chuỗi bắt đầu bằng TVW
+    // 2. TÃ¬m mÃ£ giao dá»‹ch trong ná»™i dung chuyá»ƒn khoáº£n
+    // Format mÃ£ cá»§a chÃºng ta lÃ  TVW[8chars][4chars] -> Ä‘á»™ dÃ i 15 chars (e.g. TVW8EBAF72BA4B2)
+    // TÃ¡ch cÃ¡c tá»« trong ná»™i dung ra vÃ  tÃ¬m chuá»—i báº¯t Ä‘áº§u báº±ng TVW
     const words = (content || '').toUpperCase().split(/[^A-Z0-9]/);
     const transactionCode = words.find((w: string) => w.startsWith('TVW') && w.length >= 7);
 
@@ -32,7 +32,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, message: 'No matching transaction code found in content' });
     }
 
-    // 3. Tìm giao dịch trong Database
+    // 3. TÃ¬m giao dá»‹ch trong Database
     const { data: transaction, error: txError } = await supabase
       .from('transactions')
       .select('*')
@@ -45,13 +45,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, message: 'Transaction not found or already processed' });
     }
 
-    // 4. Kiểm tra số tiền
+    // 4. Kiá»ƒm tra sá»‘ tiá»n
     if (Number(transferAmount) < Number(transaction.amount)) {
       console.log('Insufficient amount for transaction:', transactionCode);
       return NextResponse.json({ success: true, message: 'Insufficient amount' });
     }
 
-    // 5. Cập nhật trạng thái Giao dịch thành SUCCESS
+    // 5. Cáº­p nháº­t tráº¡ng thÃ¡i Giao dá»‹ch thÃ nh SUCCESS
     const { error: updateTxError } = await supabase
       .from('transactions')
       .update({ status: 'SUCCESS' })
@@ -68,8 +68,8 @@ export async function POST(req: Request) {
     else if (transaction.package_name === 'Gói Nâng Cao') addedQuota = 100000;
     else if (transaction.package_name === 'AI Enterprise') addedQuota = 500000;
 
-    // 7. Cập nhật Tenant (Ghi đè hoặc Cộng dồn - ở đây ta cộng dồn)
-    // Đầu tiên lấy quota hiện tại
+    // 7. Cáº­p nháº­t Tenant (Ghi Ä‘Ã¨ hoáº·c Cá»™ng dá»“n - á»Ÿ Ä‘Ã¢y ta cá»™ng dá»“n)
+    // Ä áº§u tiÃªn láº¥y quota hiá»‡n táº¡i
     const { data: tenant } = await supabase
       .from('tenants')
       .select('ai_quota')
@@ -98,3 +98,4 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+
