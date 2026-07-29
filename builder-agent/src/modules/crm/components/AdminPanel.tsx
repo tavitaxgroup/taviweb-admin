@@ -40,15 +40,21 @@ export default function AdminPanel() {
          console.error(e);
        }
     } else if (activeTab === 'quota') {
-       try {
-         const { supabase } = await import('@/lib/supabase');
-        const { data, error } = await supabase.from('tenants').select('ai_quota, ai_used').eq('id', user.tenant_id).single();
+       fetchQuotaInfo();
+    }
+  };
+
+  const fetchQuotaInfo = async () => {
+    if (!user?.tenant_id) return;
+    try {
+      const { supabase } = await import('@/lib/supabase');
+        const { data, error } = await supabase.from('tenants').select('ai_quota, ai_used, package_name').eq('id', user.tenant_id).single();
          if (data && !error) {
            const total = data.ai_quota || 50000;
            setQuotaInfo({ 
              total, 
              used: data.ai_used || 0,
-             packageName: total > 100000 ? 'AI Enterprise' : (total > 50000 ? 'Gói Nâng Cao' : (total > 10000 ? 'Gói Tiêu Chuẩn' : 'Gói Cơ Bản'))
+             packageName: data.package_name || 'Gói Cơ Bản'
            });
          } else {
            // Fallback Mock Data
@@ -66,8 +72,13 @@ export default function AdminPanel() {
            packageName: 'Gói Tiêu Chuẩn'
          });
        }
-    }
   };
+
+  useEffect(() => {
+    if (user?.tenant_id) {
+      fetchQuotaInfo();
+    }
+  }, [user?.tenant_id]);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -81,6 +92,7 @@ export default function AdminPanel() {
             setIsProcessingPayment(false);
             setPaymentSuccess(true);
             toast.success(`Giao dịch đối soát thành công! Tài khoản đã được nâng cấp lên ${checkoutPackage.name}.`);
+            fetchQuotaInfo();
             loadData();
             
             // Tự động đóng modal sau 3 giây
