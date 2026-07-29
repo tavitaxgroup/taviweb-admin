@@ -463,11 +463,11 @@ export default function AdminPanel() {
             <div className="w-full md:w-5/12 bg-indigo-50 p-10 flex flex-col items-center justify-center border-r border-indigo-100">
                <h2 className="text-xl font-black text-indigo-900 mb-6 uppercase tracking-wide">Quét mã thanh toán</h2>
                <div className="bg-white p-3 rounded-2xl shadow-xl mb-6 relative">
-                 <img 
-                   src={`https://img.vietqr.io/image/mbbank-999988889999-compact2.png?amount=${checkoutPackage.amount}&addInfo=${checkoutPackage.transactionCode}&accountName=TAVIWEB`} 
-                   alt="QR Code" 
-                   className="w-full h-auto rounded-xl"
-                 />
+                  <img 
+                    src={`https://qr.sepay.vn/img?bank=${process.env.NEXT_PUBLIC_BANK_BIN || 'MB'}&acc=${process.env.NEXT_PUBLIC_BANK_ACCOUNT || '999988889999'}&amount=${checkoutPackage.amount}&des=${checkoutPackage.transactionCode}`} 
+                    alt="QR Code" 
+                    className="w-full max-w-[280px] mx-auto rounded-lg border-2 border-indigo-100 shadow-md"
+                  />
                </div>
                <p className="text-sm text-indigo-700 text-center font-medium">
                   Mở App Ngân hàng và quét mã QR. Hệ thống sẽ tự động đối soát sau 1 phút.
