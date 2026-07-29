@@ -1,24 +1,37 @@
 import React, { useEffect, useState } from 'react';
-import { CRMUser } from '../types';
+import { CRMUser, CRMRole } from '../types';
 import { CRMService } from '../api/crm.service';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function TeamManagement() {
+  const { user } = useAuth();
   const [users, setUsers] = useState<CRMUser[]>([]);
+  const [roles, setRoles] = useState<CRMRole[]>([]);
   const [loading, setLoading] = useState(false);
   const [showForm, setShowForm] = useState(false);
-  const [newUser, setNewUser] = useState({ name: '', email: '', role: 'sale' as 'sale' | 'admin' });
+  const [newUser, setNewUser] = useState({ name: '', email: '', role_id: '' });
 
   useEffect(() => {
-    loadUsers();
-  }, []);
+    if (user?.tenant_id) {
+      loadData();
+    }
+  }, [user?.tenant_id]);
 
-  const loadUsers = async () => {
+  const loadData = async () => {
+    if (!user?.tenant_id) return;
     setLoading(true);
     try {
-      const data = await CRMService.getUsers();
-      setUsers(data);
+      const [u, r] = await Promise.all([
+        CRMService.getUsers(user.tenant_id),
+        CRMService.getRoles(user.tenant_id)
+      ]);
+      setUsers(u);
+      setRoles(r);
+      if (r.length > 0) {
+        setNewUser(prev => ({ ...prev, role_id: r[0].id }));
+      }
     } catch (error) {
-      console.error('Failed to load users', error);
+      console.error('Failed to load data', error);
     } finally {
       setLoading(false);
     }
@@ -26,12 +39,16 @@ export default function TeamManagement() {
 
   const handleAddUser = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newUser.name || !newUser.email) return;
+    if (!newUser.name || !newUser.email || !newUser.role_id || !user?.tenant_id) return;
     try {
-      await CRMService.createUser(newUser);
+      await CRMService.createUser(user.tenant_id, {
+        name: newUser.name,
+        email: newUser.email,
+        role_id: newUser.role_id
+      });
       setShowForm(false);
-      setNewUser({ name: '', email: '', role: 'sale' });
-      loadUsers();
+      setNewUser({ name: '', email: '', role_id: roles[0]?.id || '' });
+      loadData();
     } catch (error) {
       console.error('Failed to add user', error);
       alert('Có lỗi xảy ra khi thêm nhân viên');
@@ -75,12 +92,13 @@ export default function TeamManagement() {
           <div>
             <label className="block text-sm font-medium text-slate-700 mb-1">Phân quyền</label>
             <select 
-              value={newUser.role}
-              onChange={(e) => setNewUser({...newUser, role: e.target.value as 'admin' | 'sale'})}
+              value={newUser.role_id}
+              onChange={(e) => setNewUser({...newUser, role_id: e.target.value})}
               className="w-full border border-slate-300 rounded px-3 py-2 text-sm outline-none focus:border-blue-500"
             >
-              <option value="sale">Nhân viên Sale (Sale Rep)</option>
-              <option value="admin">Quản lý (Admin)</option>
+              {roles.map(r => (
+                <option key={r.id} value={r.id}>{r.name}</option>
+              ))}
             </select>
           </div>
           <button type="submit" className="bg-emerald-600 hover:bg-emerald-700 text-white py-2 rounded font-medium text-sm">
@@ -108,11 +126,9 @@ export default function TeamManagement() {
                   <td className="p-3 text-sm font-medium text-slate-800">{user.name}</td>
                   <td className="p-3 text-sm text-slate-600">{user.email}</td>
                   <td className="p-3 text-sm">
-                    {user.role === 'admin' ? (
-                      <span className="bg-purple-100 text-purple-700 px-2 py-1 rounded text-xs font-bold">Admin</span>
-                    ) : (
-                      <span className="bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-bold">Sale Rep</span>
-                    )}
+                    <span className="bg-indigo-100 text-indigo-700 px-2 py-1 rounded text-xs font-bold">
+                      {user.role_data?.name || 'Chưa gán quyền'}
+                    </span>
                   </td>
                   <td className="p-3 text-sm text-slate-500">
                     {new Date(user.created_at).toLocaleDateString('vi-VN')}

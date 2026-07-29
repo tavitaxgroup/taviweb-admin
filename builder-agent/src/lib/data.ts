@@ -1,6 +1,7 @@
 import { supabase } from './supabase';
 
-export async function getLeadById(id: string) {
+export async function getLeadById(tenantId: string, id: string, isSuperAdmin: boolean = false) {
+  if (!isSuperAdmin) return null;
   const { data, error } = await supabase
     .from('leads')
     .select('*')
@@ -14,7 +15,11 @@ export async function getLeadById(id: string) {
   return data;
 }
 
-export async function getAllLeads() {
+export async function getAllLeads(tenantId: string, isSuperAdmin: boolean = false) {
+  if (!isSuperAdmin) {
+    return []; // Tài khoản thường không được xem kho Leads tổng
+  }
+
   let allData: any[] = [];
   let from = 0;
   const limit = 1000;

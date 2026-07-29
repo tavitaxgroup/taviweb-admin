@@ -30,7 +30,7 @@ export async function POST(req: Request) {
     // Format mã của chúng ta là TVW[8chars][4chars] -> độ dài 15 chars (e.g. TVW8EBAF72BA4B2)
     // Tách các từ trong nội dung ra và tìm chuỗi bắt đầu bằng TVW
     const words = (content || '').toUpperCase().split(/[^A-Z0-9]/);
-    const transactionCode = words.find(w => w.startsWith('TVW') && w.length >= 7);
+    const transactionCode = words.find((w: string) => w.startsWith('TVW') && w.length >= 7);
 
     if (!transactionCode) {
       return NextResponse.json({ success: true, message: 'No matching transaction code found in content' });
