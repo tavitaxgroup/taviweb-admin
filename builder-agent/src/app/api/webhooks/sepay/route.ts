@@ -81,7 +81,8 @@ export async function POST(req: Request) {
     const { error: updateTenantError } = await supabase
       .from('tenants')
       .update({ 
-        ai_quota: currentQuota + addedQuota
+        ai_quota: currentQuota + addedQuota,
+        package_name: transaction.package_name
       })
       .eq('id', transaction.tenant_id);
 

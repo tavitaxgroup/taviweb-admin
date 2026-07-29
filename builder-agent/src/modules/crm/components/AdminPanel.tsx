@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { CRMService } from '../api/crm.service';
 import { useAuth } from '../contexts/AuthContext';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, CheckCircle2 } from 'lucide-react';
+import { toast } from 'react-hot-toast';
 
 export default function AdminPanel() {
   const { user } = useAuth();
@@ -13,6 +14,7 @@ export default function AdminPanel() {
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [checkoutPackage, setCheckoutPackage] = useState<{name: string, price: string, amount: number, transactionId?: string, transactionCode?: string} | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isCreatingTx, setIsCreatingTx] = useState(false);
 
   useEffect(() => {
@@ -76,10 +78,16 @@ export default function AdminPanel() {
           if (data.status === 'SUCCESS') {
             clearInterval(interval);
             setIsProcessingPayment(false);
-            alert(`🎉 Giao dịch đối soát thành công! Tài khoản của bạn đã được nâng cấp lên ${checkoutPackage.name}.`);
-            setCheckoutPackage(null);
-            setShowUpgradeModal(false);
-            loadData();
+            setPaymentSuccess(true);
+            toast.success(`Giao dịch đối soát thành công! Tài khoản đã được nâng cấp lên ${checkoutPackage.name}.`);
+            fetchQuotaInfo();
+            
+            // Tự động đóng modal sau 3 giây
+            setTimeout(() => {
+              setCheckoutPackage(null);
+              setShowUpgradeModal(false);
+              setPaymentSuccess(false);
+            }, 3000);
           }
         } catch (e) {
           console.error(e);
@@ -453,7 +461,7 @@ export default function AdminPanel() {
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
           <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row">
             <button 
-              onClick={() => { setCheckoutPackage(null); setIsProcessingPayment(false); }}
+              onClick={() => { setCheckoutPackage(null); setIsProcessingPayment(false); setPaymentSuccess(false); }}
               className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-bold text-2xl z-20"
             >
               &times;
@@ -476,42 +484,66 @@ export default function AdminPanel() {
             
             {/* Cột Phải - Thông tin & Xác nhận */}
             <div className="w-full md:w-7/12 p-10 flex flex-col justify-between bg-white relative">
-               {isProcessingPayment && (
-                 <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
-                    <RefreshCw className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
-                    <h3 className="text-xl font-bold text-slate-800">Hệ thống đang đối soát...</h3>
-                    <p className="text-slate-500 mt-2">Vui lòng chờ giây lát.</p>
+               {paymentSuccess ? (
+                 <div className="absolute inset-0 bg-white z-10 flex flex-col items-center justify-center text-center p-10">
+                    <CheckCircle2 className="w-20 h-20 text-emerald-500 mb-6" />
+                    <h2 className="text-3xl font-black text-slate-900 mb-4">Thanh toán thành công!</h2>
+                    <p className="text-lg text-slate-600 mb-8">Hệ thống đã nhận được số tiền <strong className="text-indigo-600">{new Intl.NumberFormat('vi-VN').format(checkoutPackage.amount)} VNĐ</strong> và tự động nâng cấp gói <strong className="text-indigo-600">{checkoutPackage.name}</strong> cho doanh nghiệp của bạn.</p>
+                    <button onClick={() => { setCheckoutPackage(null); setShowUpgradeModal(false); setPaymentSuccess(false); }} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl shadow-lg transition-colors">
+                      Trải nghiệm ngay
+                    </button>
                  </div>
+               ) : (
+                 <>
+                   {isProcessingPayment && (
+                     <div className="absolute inset-0 bg-white/90 backdrop-blur-sm z-10 flex flex-col items-center justify-center">
+                        <RefreshCw className="w-12 h-12 text-indigo-600 animate-spin mb-4" />
+                        <h3 className="text-xl font-bold text-slate-800">Hệ thống đang đối soát...</h3>
+                        <p className="text-slate-500 mt-2">Vui lòng chờ giây lát.</p>
+                     </div>
+                   )}
+
+                   <div>
+                     <div className="inline-block px-3 py-1 bg-rose-100 text-rose-700 font-bold text-xs rounded-full mb-4">Mã giao dịch: {checkoutPackage.transactionCode}</div>
+                     <h2 className="text-3xl font-black text-slate-900 mb-2">{checkoutPackage.name}</h2>
+                     <p className="text-4xl font-black text-indigo-600 mb-8">{new Intl.NumberFormat('vi-VN').format(checkoutPackage.amount)} <span className="text-xl text-slate-500 font-medium">VNĐ</span></p>
+                     
+                     <div className="space-y-4">
+                       <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+                         <span className="text-slate-500 font-medium">Ngân hàng</span>
+                         <span className="font-bold text-slate-800 text-lg uppercase">{process.env.NEXT_PUBLIC_BANK_BIN || 'ACB'}</span>
+                       </div>
+                       <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
+                         <span className="text-slate-500 font-medium">Số tài khoản</span>
+                         <div className="flex items-center gap-3">
+                            <span className="font-bold text-slate-800 text-lg tracking-wider">{process.env.NEXT_PUBLIC_BANK_ACCOUNT || '15946861'}</span>
+                            <button className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-md text-sm font-bold transition-colors" onClick={() => {navigator.clipboard.writeText(process.env.NEXT_PUBLIC_BANK_ACCOUNT || '15946861'); toast.success("Đã copy STK")}}>Copy</button>
+                         </div>
+                       </div>
+                       <div className="flex justify-between items-center bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                         <span className="text-indigo-600 font-medium">Nội dung (Bắt buộc)</span>
+                         <div className="flex items-center gap-3">
+                            <span className="font-black text-indigo-800 text-lg">{checkoutPackage.transactionCode}</span>
+                            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md text-sm font-bold transition-colors shadow-sm" onClick={() => {navigator.clipboard.writeText(checkoutPackage.transactionCode || ''); toast.success("Đã copy nội dung")}}>Copy</button>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+
+                   <div className="mt-10">
+                     <button 
+                        onClick={() => {
+                          setIsProcessingPayment(true);
+                        }}
+                        disabled={isProcessingPayment}
+                        className="w-full bg-slate-900 hover:bg-black text-white font-black py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all text-lg flex justify-center items-center gap-3"
+                     >
+                       {isProcessingPayment ? 'Đang chờ đối soát...' : 'Tôi đã chuyển khoản thành công'}
+                     </button>
+                     <p className="text-xs text-slate-400 text-center mt-4">Sau khi chuyển khoản, click nút trên để hệ thống kiểm tra và kích hoạt gói ngay lập tức.</p>
+                   </div>
+                 </>
                )}
-
-               <div>
-                 <div className="inline-block px-3 py-1 bg-rose-100 text-rose-700 font-bold text-xs rounded-full mb-4">Mã giao dịch: {checkoutPackage.transactionCode}</div>
-                 <h2 className="text-3xl font-black text-slate-900 mb-2">{checkoutPackage.name}</h2>
-                 <p className="text-4xl font-black text-indigo-600 mb-8">{new Intl.NumberFormat('vi-VN').format(checkoutPackage.amount)} <span className="text-xl text-slate-500 font-medium">VNĐ</span></p>
-                 
-                 <div className="space-y-4">
-                   <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
-                     <span className="text-slate-500 font-medium">Ngân hàng</span>
-                     <span className="font-bold text-slate-800 text-lg">MB Bank</span>
-                   </div>
-                   <div className="flex justify-between items-center bg-slate-50 p-4 rounded-xl border border-slate-100">
-                     <span className="text-slate-500 font-medium">Số tài khoản</span>
-                     <div className="flex items-center gap-3">
-                        <span className="font-bold text-slate-800 text-lg tracking-wider">999988889999</span>
-                        <button className="bg-indigo-100 hover:bg-indigo-200 text-indigo-700 px-3 py-1 rounded-md text-sm font-bold transition-colors" onClick={() => {navigator.clipboard.writeText("999988889999"); alert("Đã copy STK")}}>Copy</button>
-                     </div>
-                   </div>
-                   <div className="flex justify-between items-center bg-indigo-50 p-4 rounded-xl border border-indigo-100">
-                     <span className="text-indigo-600 font-medium">Nội dung (Bắt buộc)</span>
-                     <div className="flex items-center gap-3">
-                        <span className="font-black text-indigo-800 text-lg">{checkoutPackage.transactionCode}</span>
-                        <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md text-sm font-bold transition-colors shadow-sm" onClick={() => {navigator.clipboard.writeText(checkoutPackage.transactionCode || ''); alert("Đã copy nội dung")}}>Copy</button>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-
-               <div className="mt-10">
                  <button 
                     onClick={() => {
                       setIsProcessingPayment(true);
