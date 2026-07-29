@@ -80,7 +80,7 @@ export default function AdminPanel() {
             setIsProcessingPayment(false);
             setPaymentSuccess(true);
             toast.success(`Giao dịch đối soát thành công! Tài khoản đã được nâng cấp lên ${checkoutPackage.name}.`);
-            fetchQuotaInfo();
+            loadData();
             
             // Tự động đóng modal sau 3 giây
             setTimeout(() => {
@@ -544,21 +544,10 @@ export default function AdminPanel() {
                    </div>
                  </>
                )}
-                 <button 
-                    onClick={() => {
-                      setIsProcessingPayment(true);
-                    }}
-                    disabled={isProcessingPayment}
-                    className="w-full bg-slate-900 hover:bg-black text-white font-black py-4 rounded-xl shadow-xl hover:shadow-2xl transition-all text-lg flex justify-center items-center gap-3"
-                 >
-                   <span>Tôi Đã Chuyển Khoản</span>
-                   <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="3" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                 </button>
-                 <p className="text-center text-slate-400 text-xs mt-4">Hệ thống an toàn và bảo mật 100%.</p>
+
                </div>
             </div>
           </div>
-        </div>
       )}
     </div>
   );
