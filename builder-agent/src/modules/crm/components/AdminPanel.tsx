@@ -464,7 +464,7 @@ export default function AdminPanel() {
                <h2 className="text-xl font-black text-indigo-900 mb-6 uppercase tracking-wide">Quét mã thanh toán</h2>
                <div className="bg-white p-3 rounded-2xl shadow-xl mb-6 relative">
                   <img 
-                    src={`https://qr.sepay.vn/img?bank=${process.env.NEXT_PUBLIC_BANK_BIN || 'ACB'}&acc=${process.env.NEXT_PUBLIC_BANK_ACCOUNT || '15946861'}&amount=${checkoutPackage.amount}&des=${checkoutPackage.transactionCode}`} 
+                    src={`https://img.vietqr.io/image/${(process.env.NEXT_PUBLIC_BANK_BIN || 'acb').toLowerCase()}-${process.env.NEXT_PUBLIC_BANK_ACCOUNT || '15946861'}-compact2.png?amount=${checkoutPackage.amount}&addInfo=${checkoutPackage.transactionCode}&accountName=TAVIWEB`} 
                     alt="QR Code" 
                     className="w-full max-w-[280px] mx-auto rounded-lg border-2 border-indigo-100 shadow-md"
                   />
