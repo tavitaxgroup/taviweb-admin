@@ -370,15 +370,21 @@ export default function AdminPanel() {
       </div>
 
       {/* MODAL BẢNG GIÁ NÂNG CẤP */}
-      {showUpgradeModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative">
-            <button 
-              onClick={() => setShowUpgradeModal(false)}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-bold text-xl"
+       {showUpgradeModal && (
+          <div 
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowUpgradeModal(false)}
+          >
+            <div 
+              className="bg-white rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl relative"
+              onClick={(e) => e.stopPropagation()}
             >
-              &times;
-            </button>
+              <button 
+               onClick={() => setShowUpgradeModal(false)}
+                className="sticky top-4 float-right right-4 text-slate-400 hover:text-slate-700 font-bold text-3xl px-4 z-50"
+              >
+                &times;
+              </button>
             <div className="p-8 text-center border-b border-slate-100 relative">
               <h2 className="text-2xl font-black text-slate-800">Chọn Gói Phù Hợp Với Doanh Nghiệp Bạn</h2>
               <p className="text-slate-500 mt-2">Nâng cấp để nhận thêm Hạn mức AI Token và hàng loạt tính năng tự động hóa mạnh mẽ.</p>
@@ -481,15 +487,21 @@ export default function AdminPanel() {
       )}
 
       {/* MODAL THANH TOÁN QUÉT MÃ QR */}
-      {checkoutPackage && (
-        <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md">
-          <div className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row">
-            <button 
-              onClick={() => { setCheckoutPackage(null); setIsProcessingPayment(false); setPaymentSuccess(false); }}
-              className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-bold text-2xl z-20"
+       {checkoutPackage && (
+          <div 
+            className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/70 backdrop-blur-md"
+            onClick={() => { setCheckoutPackage(null); setIsProcessingPayment(false); setPaymentSuccess(false); }}
+          >
+            <div 
+              className="bg-white rounded-3xl w-full max-w-4xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row"
+              onClick={(e) => e.stopPropagation()}
             >
-              &times;
-            </button>
+              <button 
+                onClick={() => { setCheckoutPackage(null); setIsProcessingPayment(false); setPaymentSuccess(false); }}
+                className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-bold text-3xl z-50 w-10 h-10 flex items-center justify-center rounded-full bg-slate-100 hover:bg-slate-200"
+              >
+                &times;
+              </button>
             
             {/* Cột Trái - QR Code */}
             <div className="w-full md:w-5/12 bg-indigo-50 p-10 flex flex-col items-center justify-center border-r border-indigo-100">
