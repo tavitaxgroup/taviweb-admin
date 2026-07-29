@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const getSupabaseAdmin = () => createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
-);
+import { supabase } from '@/lib/supabase';
 const SEPAY_SECRET_KEY = process.env.SEPAY_SECRET_KEY;
 
 export async function POST(req: Request) {
@@ -37,10 +32,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: true, message: 'No matching transaction code found in content' });
     }
 
-    const supabaseAdmin = getSupabaseAdmin();
-
     // 3. Tìm giao dịch trong Database
-    const { data: transaction, error: txError } = await supabaseAdmin
+    const { data: transaction, error: txError } = await supabase
       .from('transactions')
       .select('*')
       .eq('transaction_code', transactionCode)
@@ -59,7 +52,7 @@ export async function POST(req: Request) {
     }
 
     // 5. Cập nhật trạng thái Giao dịch thành SUCCESS
-    const { error: updateTxError } = await supabaseAdmin
+    const { error: updateTxError } = await supabase
       .from('transactions')
       .update({ status: 'SUCCESS' })
       .eq('id', transaction.id);
@@ -77,7 +70,7 @@ export async function POST(req: Request) {
 
     // 7. Cập nhật Tenant (Ghi đè hoặc Cộng dồn - ở đây ta cộng dồn)
     // Đầu tiên lấy quota hiện tại
-    const { data: tenant } = await supabaseAdmin
+    const { data: tenant } = await supabase
       .from('tenants')
       .select('ai_quota')
       .eq('id', transaction.tenant_id)
@@ -85,7 +78,7 @@ export async function POST(req: Request) {
       
     const currentQuota = tenant?.ai_quota || 0;
 
-    const { error: updateTenantError } = await supabaseAdmin
+    const { error: updateTenantError } = await supabase
       .from('tenants')
       .update({ 
         ai_quota: currentQuota + addedQuota

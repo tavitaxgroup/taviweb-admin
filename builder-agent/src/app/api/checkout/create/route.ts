@@ -1,10 +1,5 @@
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const getSupabaseAdmin = () => createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
-  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
-);
+import { supabase } from '@/lib/supabase';
 
 export async function POST(req: Request) {
   try {
@@ -20,8 +15,7 @@ export async function POST(req: Request) {
     const randomStr = Math.random().toString(36).substring(2, 6).toUpperCase();
     const transactionCode = `TVW${tenantShort}${randomStr}`;
 
-    const supabaseAdmin = getSupabaseAdmin();
-    const { data, error } = await supabaseAdmin
+    const { data, error } = await supabase
       .from('transactions')
       .insert({
         tenant_id,
