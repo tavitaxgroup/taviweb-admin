@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabaseUrl = process.env.SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey);
+const getSupabaseAdmin = () => createClient(
+  process.env.SUPABASE_URL || 'https://placeholder.supabase.co',
+  process.env.SUPABASE_SERVICE_ROLE_KEY || 'placeholder'
+);
 const SEPAY_SECRET_KEY = process.env.SEPAY_SECRET_KEY;
 
 export async function POST(req: Request) {
@@ -35,6 +36,8 @@ export async function POST(req: Request) {
     if (!transactionCode) {
       return NextResponse.json({ success: true, message: 'No matching transaction code found in content' });
     }
+
+    const supabaseAdmin = getSupabaseAdmin();
 
     // 3. Tìm giao dịch trong Database
     const { data: transaction, error: txError } = await supabaseAdmin
