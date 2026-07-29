@@ -16,6 +16,7 @@ export default function AdminPanel() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isCreatingTx, setIsCreatingTx] = useState(false);
+  const [isTestMode, setIsTestMode] = useState(false);
 
   useEffect(() => {
     setOriginUrl(window.location.origin);
@@ -366,15 +367,26 @@ export default function AdminPanel() {
             >
               &times;
             </button>
-            <div className="p-8 text-center border-b border-slate-100">
+            <div className="p-8 text-center border-b border-slate-100 relative">
               <h2 className="text-2xl font-black text-slate-800">Chọn Gói Phù Hợp Với Doanh Nghiệp Bạn</h2>
               <p className="text-slate-500 mt-2">Nâng cấp để nhận thêm Hạn mức AI Token và hàng loạt tính năng tự động hóa mạnh mẽ.</p>
+              
+              <div className="absolute top-8 right-8 flex items-center gap-2">
+                <input 
+                  type="checkbox" 
+                  id="testMode" 
+                  checked={isTestMode} 
+                  onChange={(e) => setIsTestMode(e.target.checked)}
+                  className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
+                />
+                <label htmlFor="testMode" className="text-sm font-bold text-slate-600 cursor-pointer select-none">Môi trường Test (Giá ảo)</label>
+              </div>
             </div>
             <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50">
               {/* Gói 1 */}
               <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
                 <h3 className="font-bold text-slate-700 text-lg">Gói Cơ Bản</h3>
-                <p className="text-2xl font-black text-indigo-600 my-4">99K<span className="text-sm text-slate-500 font-normal">/tháng</span></p>
+                <p className="text-2xl font-black text-indigo-600 my-4">{isTestMode ? '2K' : '99K'}<span className="text-sm text-slate-500 font-normal">/tháng</span></p>
                 <ul className="text-sm text-slate-600 space-y-3 mb-6 flex-1">
                   <li>✓ Hiện diện nhanh (Web tĩnh)</li>
                   <li>✓ Template có sẵn</li>
@@ -383,7 +395,7 @@ export default function AdminPanel() {
                 </ul>
                 <button 
                   disabled={quotaInfo?.packageName === 'Gói Cơ Bản' || isCreatingTx}
-                  onClick={() => handleCreateCheckout('Gói Cơ Bản', '99K/tháng', 99000)}
+                  onClick={() => handleCreateCheckout('Gói Cơ Bản', isTestMode ? '2K/tháng' : '99K/tháng', isTestMode ? 2000 : 99000)}
                   className={`w-full font-bold py-2 rounded-lg transition-colors ${quotaInfo?.packageName === 'Gói Cơ Bản' ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
                 >
                   {quotaInfo?.packageName === 'Gói Cơ Bản' ? 'Đang sử dụng' : 'Đăng ký ngay'}
@@ -394,7 +406,7 @@ export default function AdminPanel() {
               <div className="bg-indigo-600 p-6 rounded-xl border border-indigo-700 shadow-lg text-white flex flex-col relative transform md:-translate-y-4">
                 <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full">ĐỀ XUẤT</div>
                 <h3 className="font-bold text-indigo-100 text-lg">Gói Tiêu Chuẩn</h3>
-                <p className="text-2xl font-black text-white my-4">399K<span className="text-sm text-indigo-200 font-normal">/tháng</span></p>
+                <p className="text-2xl font-black text-white my-4">{isTestMode ? '5K' : '399K'}<span className="text-sm text-indigo-200 font-normal">/tháng</span></p>
                 <ul className="text-sm text-indigo-100 space-y-3 mb-6 flex-1">
                   <li>✓ Tùy chỉnh Template</li>
                   <li>✓ Kết nối Google Sheets</li>
@@ -403,7 +415,7 @@ export default function AdminPanel() {
                 </ul>
                 <button 
                   disabled={quotaInfo?.packageName === 'Gói Tiêu Chuẩn' || isCreatingTx}
-                  onClick={() => handleCreateCheckout('Gói Tiêu Chuẩn', '399K/tháng', 399000)}
+                  onClick={() => handleCreateCheckout('Gói Tiêu Chuẩn', isTestMode ? '5K/tháng' : '399K/tháng', isTestMode ? 5000 : 399000)}
                   className={`w-full font-bold py-2 rounded-lg transition-colors ${quotaInfo?.packageName === 'Gói Tiêu Chuẩn' ? 'bg-indigo-800 text-indigo-300 cursor-not-allowed' : 'bg-white hover:bg-indigo-50 text-indigo-700'}`}
                 >
                   {quotaInfo?.packageName === 'Gói Tiêu Chuẩn' ? 'Đang sử dụng' : 'Đăng ký ngay'}
@@ -413,7 +425,7 @@ export default function AdminPanel() {
               {/* Gói 3 */}
               <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
                 <h3 className="font-bold text-slate-700 text-lg">Gói Nâng Cao</h3>
-                <p className="text-2xl font-black text-indigo-600 my-4">1.490K<span className="text-sm text-slate-500 font-normal">/tháng</span></p>
+                <p className="text-2xl font-black text-indigo-600 my-4">{isTestMode ? '10K' : '1.490K'}<span className="text-sm text-slate-500 font-normal">/tháng</span></p>
                 <ul className="text-sm text-slate-600 space-y-3 mb-6 flex-1">
                   <li>✓ Quản trị toàn diện (SME)</li>
                   <li>✓ Tùy chỉnh UI/UX riêng</li>
@@ -422,7 +434,7 @@ export default function AdminPanel() {
                 </ul>
                 <button 
                   disabled={quotaInfo?.packageName === 'Gói Nâng Cao' || isCreatingTx}
-                  onClick={() => handleCreateCheckout('Gói Nâng Cao', '1.490K/tháng', 1490000)}
+                  onClick={() => handleCreateCheckout('Gói Nâng Cao', isTestMode ? '10K/tháng' : '1.490K/tháng', isTestMode ? 10000 : 1490000)}
                   className={`w-full font-bold py-2 rounded-lg transition-colors ${quotaInfo?.packageName === 'Gói Nâng Cao' ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
                 >
                   {quotaInfo?.packageName === 'Gói Nâng Cao' ? 'Đang sử dụng' : 'Đăng ký ngay'}
@@ -432,7 +444,7 @@ export default function AdminPanel() {
               {/* Gói 4 */}
               <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm text-white flex flex-col">
                 <h3 className="font-bold text-slate-300 text-lg">AI Enterprise</h3>
-                <p className="text-2xl font-black text-white my-4">5.500K<span className="text-sm text-slate-400 font-normal">/tháng</span></p>
+                <p className="text-2xl font-black text-white my-4">{isTestMode ? '20K' : '5.500K'}<span className="text-sm text-slate-400 font-normal">/tháng</span></p>
                 <ul className="text-sm text-slate-400 space-y-3 mb-6 flex-1">
                   <li>✓ Tự động hóa CSKH (AI)</li>
                   <li>✓ Trợ lý AI (Gemini/Claude)</li>
@@ -441,7 +453,7 @@ export default function AdminPanel() {
                 </ul>
                 <button 
                   disabled={quotaInfo?.packageName === 'AI Enterprise' || isCreatingTx}
-                  onClick={() => handleCreateCheckout('AI Enterprise', '5.500K/tháng', 5500000)}
+                  onClick={() => handleCreateCheckout('AI Enterprise', isTestMode ? '20K/tháng' : '5.500K/tháng', isTestMode ? 20000 : 5500000)}
                   className={`w-full font-bold py-2 rounded-lg transition-colors ${quotaInfo?.packageName === 'AI Enterprise' ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
                 >
                   {quotaInfo?.packageName === 'AI Enterprise' ? 'Đang sử dụng' : 'Thanh toán ngay'}
