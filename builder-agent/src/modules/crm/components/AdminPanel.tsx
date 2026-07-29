@@ -390,18 +390,29 @@ export default function AdminPanel() {
               <p className="text-slate-500 mt-2">Nâng cấp để nhận thêm Hạn mức AI Token và hàng loạt tính năng tự động hóa mạnh mẽ.</p>
               
               <div className="absolute top-8 right-8 flex items-center gap-2">
-                <input 
-                  type="checkbox" 
-                  id="testMode" 
-                  checked={isTestMode} 
-                  onChange={(e) => setIsTestMode(e.target.checked)}
-                  className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
-                />
-                <label htmlFor="testMode" className="text-sm font-bold text-slate-600 cursor-pointer select-none">Môi trường Test (Giá ảo)</label>
+                  <input 
+                    type="checkbox" 
+                    id="testMode" 
+                    checked={isTestMode} 
+                    onChange={(e) => setIsTestMode(e.target.checked)}
+                    className="w-4 h-4 text-indigo-600 rounded border-gray-300 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <label htmlFor="testMode" className="text-sm font-bold text-slate-600 cursor-pointer select-none">Môi trường Test (Giá ảo)</label>
+                </div>
               </div>
-            </div>
-            <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50">
-              {/* Gói 1 */}
+              <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50">
+                {(() => {
+                  const packageTiers: Record<string, number> = {
+                    'Gói Cơ Bản': 1,
+                    'Gói Tiêu Chuẩn': 2,
+                    'Gói Nâng Cao': 3,
+                    'AI Enterprise': 4
+                  };
+                  const currentTier = packageTiers[quotaInfo?.packageName || ''] || 0;
+                  
+                  return (
+                    <>
+                {/* Gói 1 */}
               <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
                 <h3 className="font-bold text-slate-700 text-lg">Gói Cơ Bản</h3>
                 <p className="text-2xl font-black text-indigo-600 my-4">{isTestMode ? '2K' : '99K'}<span className="text-sm text-slate-500 font-normal">/tháng</span></p>
@@ -412,11 +423,11 @@ export default function AdminPanel() {
                   <li>✓ Subdomain miễn phí</li>
                 </ul>
                 <button 
-                  disabled={quotaInfo?.packageName === 'Gói Cơ Bản' || isCreatingTx}
+                  disabled={currentTier >= 1 || isCreatingTx}
                   onClick={() => handleCreateCheckout('Gói Cơ Bản', isTestMode ? '2K/tháng' : '99K/tháng', isTestMode ? 2000 : 99000)}
-                  className={`w-full font-bold py-2 rounded-lg transition-colors ${quotaInfo?.packageName === 'Gói Cơ Bản' ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
+                  className={`w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= 1 ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
                 >
-                  {quotaInfo?.packageName === 'Gói Cơ Bản' ? 'Đang sử dụng' : 'Đăng ký ngay'}
+                  {currentTier === 1 ? 'Đang sử dụng' : (currentTier > 1 ? 'Gói thấp hơn' : 'Đăng ký ngay')}
                 </button>
               </div>
               
@@ -432,11 +443,11 @@ export default function AdminPanel() {
                   <li>✓ Tên miền tùy chọn</li>
                 </ul>
                 <button 
-                  disabled={quotaInfo?.packageName === 'Gói Tiêu Chuẩn' || isCreatingTx}
+                  disabled={currentTier >= 2 || isCreatingTx}
                   onClick={() => handleCreateCheckout('Gói Tiêu Chuẩn', isTestMode ? '5K/tháng' : '399K/tháng', isTestMode ? 5000 : 399000)}
-                  className={`w-full font-bold py-2 rounded-lg transition-colors ${quotaInfo?.packageName === 'Gói Tiêu Chuẩn' ? 'bg-indigo-800 text-indigo-300 cursor-not-allowed' : 'bg-white hover:bg-indigo-50 text-indigo-700'}`}
+                  className={`w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= 2 ? 'bg-indigo-800 text-indigo-300 cursor-not-allowed' : 'bg-white hover:bg-indigo-50 text-indigo-700'}`}
                 >
-                  {quotaInfo?.packageName === 'Gói Tiêu Chuẩn' ? 'Đang sử dụng' : 'Đăng ký ngay'}
+                  {currentTier === 2 ? 'Đang sử dụng' : (currentTier > 2 ? 'Gói thấp hơn' : 'Nâng cấp ngay')}
                 </button>
               </div>
 
@@ -451,11 +462,11 @@ export default function AdminPanel() {
                   <li>✓ Hỗ trợ Support tận nơi</li>
                 </ul>
                 <button 
-                  disabled={quotaInfo?.packageName === 'Gói Nâng Cao' || isCreatingTx}
+                  disabled={currentTier >= 3 || isCreatingTx}
                   onClick={() => handleCreateCheckout('Gói Nâng Cao', isTestMode ? '10K/tháng' : '1.490K/tháng', isTestMode ? 10000 : 1490000)}
-                  className={`w-full font-bold py-2 rounded-lg transition-colors ${quotaInfo?.packageName === 'Gói Nâng Cao' ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
+                  className={`w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= 3 ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
                 >
-                  {quotaInfo?.packageName === 'Gói Nâng Cao' ? 'Đang sử dụng' : 'Đăng ký ngay'}
+                  {currentTier === 3 ? 'Đang sử dụng' : (currentTier > 3 ? 'Gói thấp hơn' : 'Nâng cấp ngay')}
                 </button>
               </div>
 
@@ -470,13 +481,16 @@ export default function AdminPanel() {
                   <li>✓ Support SLA 24/7</li>
                 </ul>
                 <button 
-                  disabled={quotaInfo?.packageName === 'AI Enterprise' || isCreatingTx}
+                  disabled={currentTier >= 4 || isCreatingTx}
                   onClick={() => handleCreateCheckout('AI Enterprise', isTestMode ? '20K/tháng' : '5.500K/tháng', isTestMode ? 20000 : 5500000)}
-                  className={`w-full font-bold py-2 rounded-lg transition-colors ${quotaInfo?.packageName === 'AI Enterprise' ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
+                  className={`w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= 4 ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
                 >
-                  {quotaInfo?.packageName === 'AI Enterprise' ? 'Đang sử dụng' : 'Thanh toán ngay'}
+                  {currentTier === 4 ? 'Đang sử dụng' : 'Thanh toán ngay'}
                 </button>
               </div>
+                    </>
+                  );
+                })()}
             </div>
             
             <div className="p-6 bg-white text-center rounded-b-2xl border-t border-slate-100">
