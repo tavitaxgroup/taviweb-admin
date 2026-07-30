@@ -33,13 +33,12 @@ export default function WorkspacesPage() {
     setLoading(true);
     const { data } = await supabase.from('tenants').select('*').order('created_at', { ascending: false });
     if (data) {
-      // Mock data cho Quota do DB chưa có
-      const enrichedData = data.map((t, i) => {
-        const total = t.ai_quota || 50000;
-        const used = t.ai_used || Math.floor(Math.random() * 45000) + 1000;
+      const enrichedData = data.map((t) => {
+        const total = t.ai_quota || 0;
+        const used = t.ai_used || 0;
         return {
           ...t,
-          ai_package: i === 0 ? 'Gói Pro' : (i === 1 ? 'Gói Enterprise' : 'Gói Basic'),
+          ai_package: t.package_name || 'Chưa đăng ký',
           ai_used: used,
           ai_total: total
         };
