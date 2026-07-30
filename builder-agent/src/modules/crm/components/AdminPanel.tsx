@@ -402,13 +402,12 @@ export default function AdminPanel() {
               </div>
               <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50">
                 {(() => {
-                  const packageTiers: Record<string, number> = {
-                    'Gói Cơ Bản': 1,
-                    'Gói Tiêu Chuẩn': 2,
-                    'Gói Nâng Cao': 3,
-                    'AI Enterprise': 4
-                  };
-                  const currentTier = packageTiers[quotaInfo?.packageName || ''] || 0;
+                  let currentTier = 0;
+                  const pName = (quotaInfo?.packageName || '').toLowerCase().trim();
+                  if (pName.includes('cơ bản') || pName.includes('c bn') || pName.includes('cơ b')) currentTier = 1;
+                  else if (pName.includes('tiêu chuẩn') || pName.includes('tiAu') || pName.includes('tiêu')) currentTier = 2;
+                  else if (pName.includes('nâng cao') || pName.includes('nang') || pName.includes('nâng')) currentTier = 3;
+                  else if (pName.includes('enterprise')) currentTier = 4;
                   
                   return (
                     <>
