@@ -129,10 +129,23 @@ export default function WorkspacesPage() {
     }
   }
 
-  function handleRefillToken(id: string, name: string) {
+  async function handleRefillToken(id: string, name: string) {
     const amount = parseInt(prompt(`Nhập số Token muốn nạp thêm cho ${name}:`, '50000') || '0');
     if (amount > 0) {
-      setTenants(tenants.map(t => t.id === id ? { ...t, ai_total: t.ai_total + amount } : t));
+      const tenant = tenants.find(t => t.id === id);
+      const newTotal = (tenant?.ai_total || 0) + amount;
+      const { error } = await supabase.from('tenants').update({ ai_quota: newTotal }).eq('id', id);
+      if (error) alert('Lỗi: ' + error.message);
+      else setTenants(tenants.map(t => t.id === id ? { ...t, ai_total: newTotal, ai_quota: newTotal } : t));
+    }
+  }
+
+  async function handleChangePackage(id: string, name: string) {
+    const pkg = prompt(`Nhập tên gói mới cho ${name} \n(Gói Cơ Bản / Gói Tiêu Chuẩn / Gói Nâng Cao / AI Enterprise):`);
+    if (pkg) {
+      const { error } = await supabase.from('tenants').update({ package_name: pkg.trim() }).eq('id', id);
+      if (error) alert('Lỗi: ' + error.message);
+      else setTenants(tenants.map(t => t.id === id ? { ...t, ai_package: pkg.trim(), package_name: pkg.trim() } : t));
     }
   }
 
@@ -283,6 +296,13 @@ export default function WorkspacesPage() {
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={() => handleChangePackage(t.id, t.name)}
+                          className="px-3 py-1.5 text-xs font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg border border-indigo-100 shadow-sm transition-colors"
+                          title="Đổi Gói"
+                        >
+                          Đổi Gói
+                        </button>
                         <button 
                           onClick={() => handleRefillToken(t.id, t.name)}
                           className="px-3 py-1.5 text-xs font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg border border-emerald-100 shadow-sm transition-colors"
