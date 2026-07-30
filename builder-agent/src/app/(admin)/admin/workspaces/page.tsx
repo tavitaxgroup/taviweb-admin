@@ -7,6 +7,7 @@ import { Copy, CheckCircle2, Factory, Globe, LayoutTemplate, Zap, Building2, Ext
 
 export default function WorkspacesPage() {
   const [tenants, setTenants] = useState<any[]>([]);
+  const [dbPackages, setDbPackages] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   
@@ -27,7 +28,13 @@ export default function WorkspacesPage() {
 
   useEffect(() => {
     fetchTenants();
+    fetchPackages();
   }, []);
+
+  async function fetchPackages() {
+    const { data } = await supabase.from('packages').select('*').order('tier');
+    if (data) setDbPackages(data);
+  }
 
   async function fetchTenants() {
     setLoading(true);
@@ -140,12 +147,33 @@ export default function WorkspacesPage() {
     }
   }
 
-  async function handleChangePackage(id: string, name: string) {
-    const pkg = prompt(`Nhập tên gói mới cho ${name} \n(Gói Cơ Bản / Gói Tiêu Chuẩn / Gói Nâng Cao / AI Enterprise):`);
-    if (pkg) {
-      const { error } = await supabase.from('tenants').update({ package_name: pkg.trim() }).eq('id', id);
-      if (error) alert('Lỗi: ' + error.message);
-      else setTenants(tenants.map(t => t.id === id ? { ...t, ai_package: pkg.trim(), package_name: pkg.trim() } : t));
+  async function handleSelectPackage(id: string, pkgName: string) {
+    const pkg = dbPackages.find(p => p.name === pkgName);
+    const tenant = tenants.find(t => t.id === id);
+    
+    let newQuota = tenant?.ai_total || 0;
+    
+    if (pkg && pkg.added_quota > 0) {
+      if (window.confirm(`Bạn có muốn tự động NẠP THÊM ${pkg.added_quota.toLocaleString()} Token của [${pkg.name}] cho hệ thống này không?`)) {
+        newQuota += pkg.added_quota;
+      }
+    }
+
+    const { error } = await supabase.from('tenants').update({ 
+      package_name: pkgName || null,
+      ai_quota: newQuota
+    }).eq('id', id);
+
+    if (error) {
+      alert('Lỗi: ' + error.message);
+    } else {
+      setTenants(tenants.map(t => t.id === id ? { 
+        ...t, 
+        ai_package: pkgName || 'Chưa đăng ký', 
+        package_name: pkgName,
+        ai_total: newQuota,
+        ai_quota: newQuota 
+      } : t));
     }
   }
 
@@ -276,9 +304,16 @@ export default function WorkspacesPage() {
                         return (
                           <div className="w-full min-w-[150px]">
                             <div className="flex items-center justify-between mb-1.5">
-                              <span className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-200 uppercase">
-                                {t.ai_package}
-                              </span>
+                              <select 
+                                value={t.package_name || ''}
+                                onChange={(e) => handleSelectPackage(t.id, e.target.value)}
+                                className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-200 outline-none cursor-pointer max-w-[100px] text-ellipsis"
+                              >
+                                <option value="">Chưa đăng ký</option>
+                                {dbPackages.map(p => (
+                                  <option key={p.id} value={p.name}>{p.name}</option>
+                                ))}
+                              </select>
                               <span className={`text-xs font-bold ${isWarning ? 'text-rose-500' : 'text-emerald-500'}`}>{percent}%</span>
                             </div>
                             <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden mb-1">
@@ -296,13 +331,6 @@ export default function WorkspacesPage() {
                     </td>
                     <td className="p-4">
                       <div className="flex items-center justify-end gap-2 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
-                        <button 
-                          onClick={() => handleChangePackage(t.id, t.name)}
-                          className="px-3 py-1.5 text-xs font-bold bg-indigo-50 text-indigo-600 hover:bg-indigo-600 hover:text-white rounded-lg border border-indigo-100 shadow-sm transition-colors"
-                          title="Đổi Gói"
-                        >
-                          Đổi Gói
-                        </button>
                         <button 
                           onClick={() => handleRefillToken(t.id, t.name)}
                           className="px-3 py-1.5 text-xs font-bold bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white rounded-lg border border-emerald-100 shadow-sm transition-colors"
