@@ -154,9 +154,7 @@ export default function WorkspacesPage() {
     let newQuota = tenant?.ai_total || 0;
     
     if (pkg && pkg.added_quota > 0) {
-      if (window.confirm(`Bạn có muốn tự động NẠP THÊM ${pkg.added_quota.toLocaleString()} Token của [${pkg.name}] cho hệ thống này không?`)) {
-        newQuota += pkg.added_quota;
-      }
+      newQuota += pkg.added_quota;
     }
 
     const { error } = await supabase.from('tenants').update({ 
