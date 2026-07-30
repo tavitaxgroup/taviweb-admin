@@ -151,10 +151,10 @@ export default function WorkspacesPage() {
     const pkg = dbPackages.find(p => p.name === pkgName);
     const tenant = tenants.find(t => t.id === id);
     
+    // Đổi gói thì set tổng quota bằng chính hạn mức của gói đó
     let newQuota = tenant?.ai_total || 0;
-    
     if (pkg && pkg.added_quota > 0) {
-      newQuota += pkg.added_quota;
+      newQuota = pkg.added_quota;
     }
 
     const { error } = await supabase.from('tenants').update({ 
