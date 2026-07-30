@@ -439,7 +439,6 @@ export default function AdminPanel() {
                   
                   return (
                     <>
-                    <>
                     {packages.length === 0 ? (
                       <div className="col-span-1 md:col-span-4 text-center py-8 text-slate-500">Đang tải danh sách gói...</div>
                     ) : packages.map((pkg) => {
