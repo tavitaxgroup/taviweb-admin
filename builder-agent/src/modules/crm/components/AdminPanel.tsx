@@ -4,11 +4,24 @@ import { useAuth } from '../contexts/AuthContext';
 import { RefreshCw, CheckCircle2 } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 
+type Package = {
+  id: string;
+  name: string;
+  tier: number;
+  price_prod: number;
+  price_test: number;
+  added_quota: number;
+  features: string[];
+  is_recommended: boolean;
+};
+
 export default function AdminPanel() {
+
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<'users' | 'products' | 'kpis' | 'integrations' | 'quota'>('users');
   const [users, setUsers] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
+  const [packages, setPackages] = useState<Package[]>([]);
   const [quotaInfo, setQuotaInfo] = useState<{used: number, total: number, packageName: string} | null>(null);
   const [originUrl, setOriginUrl] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -79,6 +92,21 @@ export default function AdminPanel() {
       fetchQuotaInfo();
     }
   }, [user?.tenant_id]);
+
+  useEffect(() => {
+    const fetchPackages = async () => {
+      try {
+        const { supabase } = await import('@/lib/supabase');
+        const { data, error } = await supabase.from('packages').select('*').order('tier');
+        if (data && !error) {
+          setPackages(data);
+        }
+      } catch (e) {
+        console.error('Error fetching packages', e);
+      }
+    };
+    fetchPackages();
+  }, []);
 
   useEffect(() => {
     let interval: NodeJS.Timeout;
@@ -411,82 +439,58 @@ export default function AdminPanel() {
                   
                   return (
                     <>
-                {/* Gói 1 */}
-              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                <h3 className="font-bold text-slate-700 text-lg">Gói Cơ Bản</h3>
-                <p className="text-2xl font-black text-indigo-600 my-4">{isTestMode ? '2K' : '99K'}<span className="text-sm text-slate-500 font-normal">/tháng</span></p>
-                <ul className="text-sm text-slate-600 space-y-3 mb-6 flex-1">
-                  <li>✓ Hiện diện nhanh (Web tĩnh)</li>
-                  <li>✓ Template có sẵn</li>
-                  <li>✓ Contact Form</li>
-                  <li>✓ Subdomain miễn phí</li>
-                </ul>
-                <button 
-                  disabled={currentTier >= 1 || isCreatingTx}
-                  onClick={() => handleCreateCheckout('Gói Cơ Bản', isTestMode ? '2K/tháng' : '99K/tháng', isTestMode ? 2000 : 99000)}
-                  className={`w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= 1 ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
-                >
-                  {currentTier === 1 ? 'Đang sử dụng' : (currentTier > 1 ? 'Gói thấp hơn' : 'Đăng ký ngay')}
-                </button>
-              </div>
-              
-              {/* Gói 2 */}
-              <div className="bg-indigo-600 p-6 rounded-xl border border-indigo-700 shadow-lg text-white flex flex-col relative transform md:-translate-y-4">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full">ĐỀ XUẤT</div>
-                <h3 className="font-bold text-indigo-100 text-lg">Gói Tiêu Chuẩn</h3>
-                <p className="text-2xl font-black text-white my-4">{isTestMode ? '5K' : '399K'}<span className="text-sm text-indigo-200 font-normal">/tháng</span></p>
-                <ul className="text-sm text-indigo-100 space-y-3 mb-6 flex-1">
-                  <li>✓ Tùy chỉnh Template</li>
-                  <li>✓ Kết nối Google Sheets</li>
-                  <li>✓ Tích hợp Zalo Chat</li>
-                  <li>✓ Tên miền tùy chọn</li>
-                </ul>
-                <button 
-                  disabled={currentTier >= 2 || isCreatingTx}
-                  onClick={() => handleCreateCheckout('Gói Tiêu Chuẩn', isTestMode ? '5K/tháng' : '399K/tháng', isTestMode ? 5000 : 399000)}
-                  className={`w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= 2 ? 'bg-indigo-800 text-indigo-300 cursor-not-allowed' : 'bg-white hover:bg-indigo-50 text-indigo-700'}`}
-                >
-                  {currentTier === 2 ? 'Đang sử dụng' : (currentTier > 2 ? 'Gói thấp hơn' : 'Nâng cấp ngay')}
-                </button>
-              </div>
+                    <>
+                    {packages.length === 0 ? (
+                      <div className="col-span-1 md:col-span-4 text-center py-8 text-slate-500">Đang tải danh sách gói...</div>
+                    ) : packages.map((pkg) => {
+                      const price = isTestMode ? pkg.price_test : pkg.price_prod;
+                      const priceFormatted = (price / 1000).toLocaleString('vi-VN') + 'K';
+                      
+                      let containerClass = "bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col";
+                      let titleClass = "font-bold text-slate-700 text-lg";
+                      let priceClass = "text-2xl font-black text-indigo-600 my-4";
+                      let featureListClass = "text-sm text-slate-600 space-y-3 mb-6 flex-1";
+                      let buttonClass = `w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= pkg.tier ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`;
+                      
+                      if (pkg.is_recommended) {
+                        containerClass = "bg-indigo-600 p-6 rounded-xl border border-indigo-700 shadow-lg text-white flex flex-col relative transform md:-translate-y-4";
+                        titleClass = "font-bold text-indigo-100 text-lg";
+                        priceClass = "text-2xl font-black text-white my-4";
+                        featureListClass = "text-sm text-indigo-100 space-y-3 mb-6 flex-1";
+                        buttonClass = `w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= pkg.tier ? 'bg-indigo-800 text-indigo-300 cursor-not-allowed' : 'bg-white hover:bg-indigo-50 text-indigo-700'}`;
+                      } else if (pkg.tier === 4) {
+                        containerClass = "bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm text-white flex flex-col";
+                        titleClass = "font-bold text-slate-300 text-lg";
+                        priceClass = "text-2xl font-black text-white my-4";
+                        featureListClass = "text-sm text-slate-400 space-y-3 mb-6 flex-1";
+                        buttonClass = `w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= pkg.tier ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`;
+                      }
 
-              {/* Gói 3 */}
-              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col">
-                <h3 className="font-bold text-slate-700 text-lg">Gói Nâng Cao</h3>
-                <p className="text-2xl font-black text-indigo-600 my-4">{isTestMode ? '10K' : '1.490K'}<span className="text-sm text-slate-500 font-normal">/tháng</span></p>
-                <ul className="text-sm text-slate-600 space-y-3 mb-6 flex-1">
-                  <li>✓ Quản trị toàn diện (SME)</li>
-                  <li>✓ Tùy chỉnh UI/UX riêng</li>
-                  <li>✓ CRM Mini, Booking</li>
-                  <li>✓ Hỗ trợ Support tận nơi</li>
-                </ul>
-                <button 
-                  disabled={currentTier >= 3 || isCreatingTx}
-                  onClick={() => handleCreateCheckout('Gói Nâng Cao', isTestMode ? '10K/tháng' : '1.490K/tháng', isTestMode ? 10000 : 1490000)}
-                  className={`w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= 3 ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`}
-                >
-                  {currentTier === 3 ? 'Đang sử dụng' : (currentTier > 3 ? 'Gói thấp hơn' : 'Nâng cấp ngay')}
-                </button>
-              </div>
+                      let buttonText = 'Đăng ký ngay';
+                      if (currentTier === pkg.tier) buttonText = 'Đang sử dụng';
+                      else if (currentTier > pkg.tier) buttonText = 'Gói thấp hơn';
+                      else if (pkg.tier === 4) buttonText = 'Thanh toán ngay';
+                      else if (currentTier > 0) buttonText = 'Nâng cấp ngay';
+                      else buttonText = 'Đăng ký ngay';
 
-              {/* Gói 4 */}
-              <div className="bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm text-white flex flex-col">
-                <h3 className="font-bold text-slate-300 text-lg">AI Enterprise</h3>
-                <p className="text-2xl font-black text-white my-4">{isTestMode ? '20K' : '5.500K'}<span className="text-sm text-slate-400 font-normal">/tháng</span></p>
-                <ul className="text-sm text-slate-400 space-y-3 mb-6 flex-1">
-                  <li>✓ Tự động hóa CSKH (AI)</li>
-                  <li>✓ Trợ lý AI (Gemini/Claude)</li>
-                  <li>✓ Kèm sẵn Hạn mức Token lớn</li>
-                  <li>✓ Support SLA 24/7</li>
-                </ul>
-                <button 
-                  disabled={currentTier >= 4 || isCreatingTx}
-                  onClick={() => handleCreateCheckout('AI Enterprise', isTestMode ? '20K/tháng' : '5.500K/tháng', isTestMode ? 20000 : 5500000)}
-                  className={`w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= 4 ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`}
-                >
-                  {currentTier === 4 ? 'Đang sử dụng' : 'Thanh toán ngay'}
-                </button>
-              </div>
+                      return (
+                        <div key={pkg.id} className={containerClass}>
+                          {pkg.is_recommended && <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full">ĐỀ XUẤT</div>}
+                          <h3 className={titleClass}>{pkg.name}</h3>
+                          <p className={priceClass}>{priceFormatted}<span className={`text-sm font-normal ${pkg.is_recommended ? 'text-indigo-200' : (pkg.tier === 4 ? 'text-slate-400' : 'text-slate-500')}`}>/tháng</span></p>
+                          <ul className={featureListClass}>
+                            {pkg.features.map((f, i) => <li key={i}>✓ {f}</li>)}
+                          </ul>
+                          <button 
+                            disabled={currentTier >= pkg.tier || isCreatingTx}
+                            onClick={() => handleCreateCheckout(pkg.name, `${priceFormatted}/tháng`, price)}
+                            className={buttonClass}
+                          >
+                            {buttonText}
+                          </button>
+                        </div>
+                      );
+                    })}
                     </>
                   );
                 })()}

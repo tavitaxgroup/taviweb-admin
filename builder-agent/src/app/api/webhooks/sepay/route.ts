@@ -61,12 +61,14 @@ export async function POST(req: Request) {
       throw updateTxError;
     }
 
-    // 6. Quy đổi Hạn mức AI Token theo Gói
-    let addedQuota = 0;
-    if (transaction.package_name === 'Gói Cơ Bản') addedQuota = 10000;
-    else if (transaction.package_name === 'Gói Tiêu Chuẩn') addedQuota = 50000;
-    else if (transaction.package_name === 'Gói Nâng Cao') addedQuota = 100000;
-    else if (transaction.package_name === 'AI Enterprise') addedQuota = 500000;
+    // 6. Quy đổi Hạn mức AI Token theo Gói (Từ DB)
+    const { data: packageData } = await supabase
+      .from('packages')
+      .select('added_quota')
+      .eq('name', transaction.package_name)
+      .single();
+
+    const addedQuota = packageData?.added_quota || 0;
 
     // 7. Cáº­p nháº­t Tenant (Ghi Ä‘Ã¨ hoáº·c Cá»™ng dá»“n - á»Ÿ Ä‘Ã¢y ta cá»™ng dá»“n)
     // Ä áº§u tiÃªn láº¥y quota hiá»‡n táº¡i
