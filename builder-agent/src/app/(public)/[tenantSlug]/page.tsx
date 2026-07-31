@@ -4,6 +4,7 @@ import { supabase } from "@/lib/supabase";
 import { getTemplateComponent } from "@/lib/templates/templateRegistry";
 import { CompanyHome } from "@/components/company/CompanyHome";
 import { buildDemoPageData } from "@/lib/demo/buildDemoPageData";
+import ChatbotWidget from "@/components/ChatbotWidget";
 
 type Props = {
   params: Promise<{ tenantSlug: string }>;
@@ -65,21 +66,34 @@ export default async function TenantHomePage({ params }: Props) {
 
       const data = buildDemoPageData(mockLead, tenant.template_key);
       
-      return <TemplateComponent data={data} />;
+      return (
+        <>
+          <TemplateComponent data={data} />
+          <ChatbotWidget tenantId={tenant.id} />
+        </>
+      );
     }
   }
 
   // Fallback to the default CompanyHome for the 'tavi' main site
   if (tenant.slug === 'tavi') {
-    return <CompanyHome />;
+    return (
+      <>
+        <CompanyHome />
+        <ChatbotWidget tenantId={tenant.id} />
+      </>
+    );
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <div className="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-100 max-w-md">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">{tenant.name}</h1>
-        <p className="text-gray-500">Website đang trong quá trình xây dựng.</p>
+    <>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center p-8 bg-white rounded-xl shadow-sm border border-gray-100 max-w-md">
+          <h1 className="text-2xl font-bold text-gray-800 mb-2">{tenant.name}</h1>
+          <p className="text-gray-500">Website đang trong quá trình xây dựng.</p>
+        </div>
       </div>
-    </div>
+      <ChatbotWidget tenantId={tenant.id} />
+    </>
   );
 }

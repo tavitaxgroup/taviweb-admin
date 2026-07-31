@@ -4,9 +4,12 @@ import React from 'react';
 import { usePathname } from 'next/navigation';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
+import { useAuth } from '@/modules/crm/contexts/AuthContext';
+import ChatbotWidget from '../ChatbotWidget';
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { user } = useAuth();
   const isAuthPage = pathname === '/admin/crm/login' || pathname === '/crm/login' || pathname === '/login' || pathname?.includes('/login');
 
   if (isAuthPage) {
@@ -28,6 +31,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           {children}
         </main>
       </div>
+      {user?.tenant_id && <ChatbotWidget tenantId={user.tenant_id} />}
     </>
   );
 }

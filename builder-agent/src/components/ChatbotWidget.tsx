@@ -4,32 +4,14 @@ import React, { useState, useRef, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
 
-export default function ChatbotWidget() {
+export default function ChatbotWidget({ tenantId }: { tenantId?: string }) {
   const [isOpen, setIsOpen] = useState(false);
   const [localInput, setLocalInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  useEffect(() => {
-    const originalFetch = window.fetch;
-    window.fetch = async (...args) => {
-      let [url, options] = args;
-      if (typeof url === 'string' && url.includes('/api/chat')) {
-        options = options || {};
-        
-        const newHeaders = new Headers(options.headers);
-        newHeaders.set('x-tenant-id', '6064025b-7fe4-4840-a27f-2d5da65e15fa');
-        
-        options.headers = newHeaders;
-        args[1] = options;
-      }
-      return originalFetch(...args);
-    };
-    return () => {
-      window.fetch = originalFetch;
-    };
-  }, []);
-  
-  const { messages, sendMessage, status, error } = useChat({
+  const { messages, append, status, error } = useChat({
+    api: '/api/chat',
+    body: { tenantId },
     onError: (err: any) => {
       console.error('Chat error:', err);
       alert('Có lỗi khi gửi tin nhắn: ' + (err.message || 'Unknown error'));
@@ -151,7 +133,7 @@ export default function ChatbotWidget() {
           onSubmit={(e) => {
             e.preventDefault();
             if (!localInput.trim()) return;
-            sendMessage({ text: localInput });
+            append({ role: 'user', content: localInput });
             setLocalInput('');
           }} 
           className="relative flex items-center"

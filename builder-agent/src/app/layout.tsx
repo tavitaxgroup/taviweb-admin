@@ -12,7 +12,6 @@ const robotoMono = Roboto_Mono({
   subsets: ["latin"],
 });
 
-import ChatbotWidget from '@/components/ChatbotWidget';
 
 export default function RootLayout({
   children,
@@ -27,7 +26,6 @@ export default function RootLayout({
       <body className="h-full w-full">
         {children}
         <ToastProvider />
-        <ChatbotWidget />
       </body>
     </html>
   );

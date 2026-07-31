@@ -114,14 +114,14 @@ export async function POST(req: Request) {
         waitUntil(
           (async () => {
             try {
-              // Trừ Token (Sử dụng RPC hoặc transaction)
-              // Vì Supabase không hỗ trợ increment direct trên JS Client, ta dùng rpc 'increment_ai_used'
-              // Hoặc update thủ công nếu không quá khắt khe về concurrency
+              // Trừ Token (Sử dụng RPC để nguyên tử hóa giao dịch và tránh race condition)
+              await supabase.rpc('increment_ai_used', {
+                tenant_id: tenantId,
+                amount: tokensUsed
+              });
+
+              // Lấy ai_used mới để tính remaining (trong thực tế có thể query lại nếu cần chính xác tuyệt đối, nhưng ở đây có thể dự tính)
               const newUsed = tenant.ai_used + tokensUsed;
-              await supabase
-                .from('tenants')
-                .update({ ai_used: newUsed })
-                .eq('id', tenantId);
 
               // Ghi Audit Log
               await supabase.from('audit_logs').insert({
