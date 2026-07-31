@@ -26,6 +26,7 @@ export default function CRMView() {
   const [deals, setDeals] = useState<CRMDeal[]>([]);
   const [selectedDeal, setSelectedDeal] = useState<CRMDeal | null>(null);
   const [loading, setLoading] = useState(true);
+  const [templateKey, setTemplateKey] = useState<string>('');
   
   // Filters & Views state
   const [searchQuery, setSearchQuery] = useState('');
@@ -48,6 +49,13 @@ export default function CRMView() {
   useEffect(() => {
     if (user) {
       loadPipelines();
+      
+      // Fetch tenant template key to conditionally show modules (like LMS)
+      import('@/lib/supabase').then(({ supabase }) => {
+        supabase.from('tenants').select('template_key').eq('id', user.tenant_id).single().then(({data}) => {
+          if (data) setTemplateKey(data.template_key);
+        });
+      });
     }
   }, [user, viewMode]); // Tải lại pipeline mỗi khi chuyển tab (vd: từ Builder về Kanban)
 
@@ -193,23 +201,28 @@ export default function CRMView() {
               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="16" height="20" x="4" y="2" rx="2"/><line x1="8" x2="16" y1="6" y2="6"/><line x1="16" x2="16" y1="14" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
               Tính Giá Bán
             </button>
-            <div className="h-4 w-px bg-slate-300 mx-1"></div>
-            <button
-              onClick={() => setViewMode('lms_courses')}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
-                viewMode === 'lms_courses' ? 'bg-white shadow-md text-indigo-700 scale-105' : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
-              }`}
-            >
-              Khóa học
-            </button>
-            <button
-              onClick={() => setViewMode('lms_classes')}
-              className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
-                viewMode === 'lms_classes' ? 'bg-white shadow-md text-indigo-700 scale-105' : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
-              }`}
-            >
-              Lớp học
-            </button>
+            
+            {(templateKey === 'english-center' || templateKey === 'trung_tam_tieng_anh' || templateKey === 'lms') && (
+              <>
+                <div className="h-4 w-px bg-slate-300 mx-1"></div>
+                <button
+                  onClick={() => setViewMode('lms_courses')}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
+                    viewMode === 'lms_courses' ? 'bg-white shadow-md text-indigo-700 scale-105' : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
+                  }`}
+                >
+                  Khóa học
+                </button>
+                <button
+                  onClick={() => setViewMode('lms_classes')}
+                  className={`flex items-center gap-2 px-4 py-2 text-sm font-bold rounded-lg transition-all duration-300 ${
+                    viewMode === 'lms_classes' ? 'bg-white shadow-md text-indigo-700 scale-105' : 'text-slate-500 hover:text-indigo-600 hover:bg-white/60'
+                  }`}
+                >
+                  Lớp học
+                </button>
+              </>
+            )}
           </div>
           
           <button  

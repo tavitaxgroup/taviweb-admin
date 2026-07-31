@@ -4,10 +4,29 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(request: Request) {
   try {
-    const { name, slug, templateKey, modules } = await request.json();
+    const { name, slug, templateKey, modules, packageId, durationMonths } = await request.json();
 
     if (!name || !slug) {
       return NextResponse.json({ error: 'Thiếu thông tin bắt buộc' }, { status: 400 });
+    }
+
+    // Prepare package info
+    let aiQuota = 0;
+    let packageExpiresAt = null;
+    let finalPackageId = null;
+
+    if (packageId) {
+      // Fetch the package details
+      const { data: pkgData } = await supabase.from('packages').select('added_quota').eq('id', packageId).single();
+      if (pkgData) {
+        aiQuota = pkgData.added_quota;
+        finalPackageId = packageId;
+        
+        // Calculate expiration date
+        const expires = new Date();
+        expires.setMonth(expires.getMonth() + (durationMonths || 1));
+        packageExpiresAt = expires.toISOString();
+      }
     }
 
     // 1. Insert into tenants
@@ -19,7 +38,11 @@ export async function POST(request: Request) {
           slug,
           template_key: templateKey,
           active_modules: modules,
-          contact_info: { phone: '', email: '' }
+          contact_info: { phone: '', email: '' },
+          package_id: finalPackageId,
+          ai_quota: aiQuota,
+          ai_used: 0,
+          package_expires_at: packageExpiresAt
         }
       ])
       .select()
@@ -42,13 +65,12 @@ export async function POST(request: Request) {
           email: adminEmail,
           password_hash: passwordHash,
           name: `Quản trị viên (${name})`,
-          role: 'admin', // Role is 'admin' (tenant_admin in context of tenant_id)
+          role: 'admin',
           tenant_id: tenantData.id
         }
       ]);
 
     if (userError) {
-      // Rollback tenant creation could be done here, but ignoring for prototype simplicity
       return NextResponse.json({ error: 'Lỗi tạo tài khoản quản trị: ' + userError.message }, { status: 500 });
     }
 

@@ -22,7 +22,7 @@ export default function AdminPanel() {
   const [users, setUsers] = useState<any[]>([]);
   const [products, setProducts] = useState<any[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
-  const [quotaInfo, setQuotaInfo] = useState<{used: number, total: number, packageName: string} | null>(null);
+  const [quotaInfo, setQuotaInfo] = useState<{used: number, total: number, packageName: string, expiresAt?: string | null} | null>(null);
   const [originUrl, setOriginUrl] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [checkoutPackage, setCheckoutPackage] = useState<{name: string, price: string, amount: number, transactionId?: string, transactionCode?: string} | null>(null);
@@ -30,6 +30,7 @@ export default function AdminPanel() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isCreatingTx, setIsCreatingTx] = useState(false);
   const [isTestMode, setIsTestMode] = useState(false);
+  const [duration, setDuration] = useState<number>(1);
 
   useEffect(() => {
     setOriginUrl(window.location.origin);
@@ -61,13 +62,14 @@ export default function AdminPanel() {
     if (!user?.tenant_id) return;
     try {
       const { supabase } = await import('@/lib/supabase');
-        const { data, error } = await supabase.from('tenants').select('ai_quota, ai_used, package_name').eq('id', user.tenant_id).single();
+        const { data, error } = await supabase.from('tenants').select('ai_quota, ai_used, package_name, package_expires_at').eq('id', user.tenant_id).single();
          if (data && !error) {
            const total = data.ai_quota || 50000;
            setQuotaInfo({ 
              total, 
              used: data.ai_used || 0,
-             packageName: data.package_name || 'Gói Cơ Bản'
+             packageName: data.package_name || 'Gói Cơ Bản',
+             expiresAt: data.package_expires_at || null
            });
          } else {
            // Fallback Mock Data
@@ -138,19 +140,24 @@ export default function AdminPanel() {
     return () => clearInterval(interval);
   }, [checkoutPackage]);
 
-  const handleCreateCheckout = async (name: string, price: string, amount: number) => {
+  const handleUpgrade = async (name: string, price: number) => {
     if (!user?.tenant_id) return;
     setIsCreatingTx(true);
     try {
       const res = await fetch('/api/checkout/create', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ tenant_id: user.tenant_id, amount, package_name: name })
+        body: JSON.stringify({ 
+          tenant_id: user.tenant_id, 
+          amount: price, 
+          package_name: name,
+          duration: duration 
+        })
       });
       const data = await res.json();
       if (data.success) {
         setCheckoutPackage({
-          name, price, amount,
+          name, price: `${(price / 1000).toLocaleString('vi-VN')}K`, amount: price,
           transactionId: data.transaction.id,
           transactionCode: data.transaction.transaction_code
         });
@@ -344,8 +351,48 @@ export default function AdminPanel() {
             </div>
             
             {quotaInfo ? (
-              <div className="bg-slate-50 p-6 rounded-xl border border-slate-200 max-w-2xl">
-                <div className="flex justify-between items-center mb-6 border-b border-slate-200 pb-4">
+              <div className="bg-slate-50 border border-slate-200 p-6 rounded-2xl relative overflow-hidden">
+                {(() => {
+                  if (quotaInfo.expiresAt) {
+                    const daysLeft = Math.ceil((new Date(quotaInfo.expiresAt).getTime() - Date.now()) / (1000 * 3600 * 24));
+                    if (daysLeft <= 0) {
+                      return (
+                        <div className="bg-rose-50 border border-rose-200 text-rose-700 px-4 py-3 rounded-lg mb-6 flex items-start gap-3 shadow-sm">
+                          <span className="text-xl">⚠️</span>
+                          <div>
+                            <p className="font-bold">Gói dịch vụ đã hết hạn!</p>
+                            <p className="text-sm mt-0.5">Vui lòng gia hạn ngay để tiếp tục sử dụng các tính năng tự động hóa và AI.</p>
+                          </div>
+                        </div>
+                      );
+                    } else if (daysLeft <= 7) {
+                      return (
+                        <div className="bg-amber-50 border border-amber-200 text-amber-800 px-4 py-3 rounded-lg mb-6 flex items-start gap-3 shadow-sm">
+                          <span className="text-xl">⏳</span>
+                          <div>
+                            <p className="font-bold">Gói dịch vụ sắp hết hạn trong {daysLeft} ngày tới</p>
+                            <p className="text-sm mt-0.5">Hạn cuối: {new Date(quotaInfo.expiresAt).toLocaleDateString('vi-VN')}. Hãy gia hạn sớm để không bị gián đoạn dịch vụ.</p>
+                          </div>
+                        </div>
+                      );
+                    } else {
+                      return (
+                        <div className="bg-emerald-50 border border-emerald-100 text-emerald-700 px-4 py-2 rounded-lg mb-6 flex items-center justify-between shadow-sm">
+                          <div className="flex items-center gap-2">
+                            <span className="text-lg">✅</span>
+                            <span className="text-sm font-bold">Gói dịch vụ đang hoạt động tốt</span>
+                          </div>
+                          <span className="text-xs font-bold bg-emerald-100 px-2 py-1 rounded">
+                            Hạn sử dụng: {new Date(quotaInfo.expiresAt).toLocaleDateString('vi-VN')}
+                          </span>
+                        </div>
+                      );
+                    }
+                  }
+                  return null;
+                })()}
+
+                <div className="flex justify-between items-center mb-6 border-b border-slate-200 pb-4 relative z-10">
                   <div>
                     <p className="text-sm text-slate-500 mb-1">Gói hiện tại của bạn</p>
                     <div className="inline-flex items-center gap-2 bg-indigo-50 border border-indigo-100 px-3 py-1.5 rounded-lg">
@@ -428,6 +475,15 @@ export default function AdminPanel() {
                   <label htmlFor="testMode" className="text-sm font-bold text-slate-600 cursor-pointer select-none">Môi trường Test (Giá ảo)</label>
                 </div>
               </div>
+              
+              <div className="flex justify-center mt-6 mb-[-10px] relative z-10">
+                <div className="inline-flex bg-slate-200/50 p-1 rounded-xl shadow-inner">
+                  <button onClick={() => setDuration(1)} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${duration === 1 ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>1 Tháng</button>
+                  <button onClick={() => setDuration(6)} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${duration === 6 ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>6 Tháng <span className="text-xs text-rose-500 ml-1">-10%</span></button>
+                  <button onClick={() => setDuration(12)} className={`px-5 py-2 rounded-lg text-sm font-bold transition-all ${duration === 12 ? 'bg-white shadow text-indigo-600' : 'text-slate-500 hover:text-slate-700'}`}>1 Năm <span className="text-xs text-rose-500 ml-1">-20%</span></button>
+                </div>
+              </div>
+
               <div className="p-8 grid grid-cols-1 md:grid-cols-4 gap-6 bg-slate-50">
                 {(() => {
                   let currentTier = 0;
@@ -442,47 +498,49 @@ export default function AdminPanel() {
                     {packages.length === 0 ? (
                       <div className="col-span-1 md:col-span-4 text-center py-8 text-slate-500">Đang tải danh sách gói...</div>
                     ) : packages.map((pkg) => {
-                      const price = isTestMode ? pkg.price_test : pkg.price_prod;
-                      const priceFormatted = (price / 1000).toLocaleString('vi-VN') + 'K';
+                      const basePrice = isTestMode ? pkg.price_test : pkg.price_prod;
+                      let multiplier = 1;
+                      if (duration === 6) multiplier = 6 * 0.9;
+                      if (duration === 12) multiplier = 12 * 0.8;
+                      const finalPrice = basePrice * multiplier;
+                      const priceFormatted = (finalPrice / 1000).toLocaleString('vi-VN') + 'K';
                       
                       let containerClass = "bg-white p-6 rounded-xl border border-slate-200 shadow-sm flex flex-col";
                       let titleClass = "font-bold text-slate-700 text-lg";
                       let priceClass = "text-2xl font-black text-indigo-600 my-4";
                       let featureListClass = "text-sm text-slate-600 space-y-3 mb-6 flex-1";
-                      let buttonClass = `w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= pkg.tier ? 'bg-indigo-50 text-indigo-400 cursor-not-allowed' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}`;
+                      let buttonClass = `w-full font-bold py-2 rounded-lg transition-colors bg-slate-100 hover:bg-slate-200 text-slate-700`;
                       
                       if (pkg.is_recommended) {
                         containerClass = "bg-indigo-600 p-6 rounded-xl border border-indigo-700 shadow-lg text-white flex flex-col relative transform md:-translate-y-4";
                         titleClass = "font-bold text-indigo-100 text-lg";
                         priceClass = "text-2xl font-black text-white my-4";
                         featureListClass = "text-sm text-indigo-100 space-y-3 mb-6 flex-1";
-                        buttonClass = `w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= pkg.tier ? 'bg-indigo-800 text-indigo-300 cursor-not-allowed' : 'bg-white hover:bg-indigo-50 text-indigo-700'}`;
+                        buttonClass = `w-full font-bold py-2 rounded-lg transition-colors bg-white hover:bg-indigo-50 text-indigo-700`;
                       } else if (pkg.tier === 4) {
                         containerClass = "bg-slate-900 p-6 rounded-xl border border-slate-800 shadow-sm text-white flex flex-col";
                         titleClass = "font-bold text-slate-300 text-lg";
                         priceClass = "text-2xl font-black text-white my-4";
                         featureListClass = "text-sm text-slate-400 space-y-3 mb-6 flex-1";
-                        buttonClass = `w-full font-bold py-2 rounded-lg transition-colors ${currentTier >= pkg.tier ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-indigo-600 hover:bg-indigo-500 text-white'}`;
+                        buttonClass = `w-full font-bold py-2 rounded-lg transition-colors bg-indigo-600 hover:bg-indigo-500 text-white`;
                       }
 
                       let buttonText = 'Đăng ký ngay';
-                      if (currentTier === pkg.tier) buttonText = 'Đang sử dụng';
-                      else if (currentTier > pkg.tier) buttonText = 'Gói thấp hơn';
-                      else if (pkg.tier === 4) buttonText = 'Thanh toán ngay';
-                      else if (currentTier > 0) buttonText = 'Nâng cấp ngay';
-                      else buttonText = 'Đăng ký ngay';
+                      if (currentTier === pkg.tier) buttonText = 'Gia hạn gói';
+                      else if (currentTier > pkg.tier) buttonText = 'Hạ cấp';
+                      else buttonText = 'Nâng cấp ngay';
 
                       return (
                         <div key={pkg.id} className={containerClass}>
                           {pkg.is_recommended && <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-rose-500 text-white text-xs font-bold px-3 py-1 rounded-full">ĐỀ XUẤT</div>}
                           <h3 className={titleClass}>{pkg.name}</h3>
-                          <p className={priceClass}>{priceFormatted}<span className={`text-sm font-normal ${pkg.is_recommended ? 'text-indigo-200' : (pkg.tier === 4 ? 'text-slate-400' : 'text-slate-500')}`}>/tháng</span></p>
+                          <p className={priceClass}>{priceFormatted}<span className={`text-sm font-normal ${pkg.is_recommended ? 'text-indigo-200' : (pkg.tier === 4 ? 'text-slate-400' : 'text-slate-500')}`}>/{duration === 1 ? 'tháng' : duration + ' tháng'}</span></p>
                           <ul className={featureListClass}>
                             {pkg.features.map((f, i) => <li key={i}>✓ {f}</li>)}
                           </ul>
                           <button 
-                            disabled={currentTier >= pkg.tier || isCreatingTx}
-                            onClick={() => handleCreateCheckout(pkg.name, `${priceFormatted}/tháng`, price)}
+                            disabled={isCreatingTx}
+                            onClick={() => handleUpgrade(pkg.name, finalPrice)}
                             className={buttonClass}
                           >
                             {buttonText}

@@ -20,6 +20,8 @@ export default function WorkspacesPage() {
   const [slug, setSlug] = useState('');
   const [templateKey, setTemplateKey] = useState('nha_khoa');
   const [modules, setModules] = useState<string[]>(['crm']);
+  const [selectedPackageId, setSelectedPackageId] = useState<string>('');
+  const [selectedDuration, setSelectedDuration] = useState<number>(1);
 
   // Success state
   const [newCredentials, setNewCredentials] = useState<{email: string, password: string, slug: string} | null>(null);
@@ -45,9 +47,11 @@ export default function WorkspacesPage() {
         const used = t.ai_used || 0;
         return {
           ...t,
-          ai_package: t.package_name || 'Chưa đăng ký',
+          ai_package: dbPackages.find(p => p.id === t.package_id)?.name || 'Chưa đăng ký',
+          package_name: dbPackages.find(p => p.id === t.package_id)?.name,
           ai_used: used,
-          ai_total: total
+          ai_total: total,
+          package_expires_at: t.package_expires_at
         };
       });
       setTenants(enrichedData);
@@ -60,6 +64,8 @@ export default function WorkspacesPage() {
     setSlug('');
     setTemplateKey('nha_khoa');
     setModules(['crm']);
+    setSelectedPackageId('');
+    setSelectedDuration(1);
     setEditingTenantId(null);
     setNewCredentials(null);
   }
@@ -76,6 +82,8 @@ export default function WorkspacesPage() {
     setSlug(t.slug);
     setTemplateKey(t.template_key || 'nha_khoa');
     setModules(t.active_modules || ['crm']);
+    setSelectedPackageId(t.package_id || '');
+    setSelectedDuration(1);
     setIsModalOpen(true);
   }
 
@@ -90,7 +98,14 @@ export default function WorkspacesPage() {
         // Edit Mode
         const { error } = await supabase
           .from('tenants')
-          .update({ name, slug, template_key: templateKey, active_modules: modules })
+          .update({ 
+            name, 
+            slug, 
+            template_key: templateKey, 
+            active_modules: modules 
+            // Note: Package and duration edit might need to handle ai_quota reset manually, 
+            // but for now we'll rely on the manual package select in the table for edits.
+          })
           .eq('id', editingTenantId);
         
         if (error) throw error;
@@ -101,7 +116,7 @@ export default function WorkspacesPage() {
         const res = await fetch('/api/admin/tenants', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name, slug, templateKey, modules })
+          body: JSON.stringify({ name, slug, templateKey, modules, packageId: selectedPackageId, durationMonths: selectedDuration })
         });
 
         const data = await res.json();
@@ -147,8 +162,8 @@ export default function WorkspacesPage() {
     }
   }
 
-  async function handleSelectPackage(id: string, pkgName: string) {
-    const pkg = dbPackages.find(p => p.name === pkgName);
+  async function handleSelectPackage(id: string, pkgId: string) {
+    const pkg = dbPackages.find(p => p.id === pkgId);
     const tenant = tenants.find(t => t.id === id);
     
     // Đổi gói thì set tổng quota bằng chính hạn mức của gói đó
@@ -158,7 +173,7 @@ export default function WorkspacesPage() {
     }
 
     const { error } = await supabase.from('tenants').update({ 
-      package_name: pkgName || null,
+      package_id: pkgId || null,
       ai_quota: newQuota
     }).eq('id', id);
 
@@ -167,8 +182,9 @@ export default function WorkspacesPage() {
     } else {
       setTenants(tenants.map(t => t.id === id ? { 
         ...t, 
-        ai_package: pkgName || 'Chưa đăng ký', 
-        package_name: pkgName,
+        package_id: pkgId,
+        ai_package: pkg?.name || 'Chưa đăng ký', 
+        package_name: pkg?.name,
         ai_total: newQuota,
         ai_quota: newQuota 
       } : t));
@@ -303,13 +319,13 @@ export default function WorkspacesPage() {
                           <div className="w-full min-w-[150px]">
                             <div className="flex items-center justify-between mb-1.5">
                               <select 
-                                value={t.package_name || ''}
+                                value={t.package_id || ''}
                                 onChange={(e) => handleSelectPackage(t.id, e.target.value)}
                                 className="bg-slate-100 text-slate-600 px-2 py-0.5 rounded text-[10px] font-bold border border-slate-200 outline-none cursor-pointer max-w-[100px] text-ellipsis"
                               >
                                 <option value="">Chưa đăng ký</option>
                                 {dbPackages.map(p => (
-                                  <option key={p.id} value={p.name}>{p.name}</option>
+                                  <option key={p.id} value={p.id}>{p.name}</option>
                                 ))}
                               </select>
                               <span className={`text-xs font-bold ${isWarning ? 'text-rose-500' : 'text-emerald-500'}`}>{percent}%</span>
@@ -323,6 +339,11 @@ export default function WorkspacesPage() {
                             <div className="font-mono text-[10px] text-slate-400 text-right">
                               <strong className={isWarning ? 'text-rose-600' : 'text-slate-700'}>{t.ai_used.toLocaleString()}</strong> / {t.ai_total.toLocaleString()}
                             </div>
+                            {t.package_expires_at && (
+                              <div className="text-[10px] text-slate-500 text-right mt-1 font-semibold">
+                                HSD: {new Date(t.package_expires_at).toLocaleDateString('vi-VN')}
+                              </div>
+                            )}
                           </div>
                         );
                       })()}
@@ -473,6 +494,31 @@ export default function WorkspacesPage() {
                     </label>
                   </div>
                 </div>
+
+                {!editingTenantId && (
+                  <div>
+                    <label className="block text-sm font-bold text-slate-700 mb-2">Đăng ký Gói AI & Token</label>
+                    <div className="grid grid-cols-1 gap-3 mb-3">
+                      <select 
+                        value={selectedPackageId}
+                        onChange={e => setSelectedPackageId(e.target.value)}
+                        className="w-full px-3 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm font-semibold"
+                      >
+                        <option value="">Chưa đăng ký (Dùng thử)</option>
+                        {dbPackages.map(p => (
+                          <option key={p.id} value={p.id}>{p.name} - {p.added_quota.toLocaleString()} Token/tháng</option>
+                        ))}
+                      </select>
+                    </div>
+                    {selectedPackageId && (
+                      <div className="flex gap-2">
+                        <button type="button" onClick={() => setSelectedDuration(1)} className={`flex-1 py-2 text-xs font-bold rounded-lg border ${selectedDuration === 1 ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>1 Tháng</button>
+                        <button type="button" onClick={() => setSelectedDuration(6)} className={`flex-1 py-2 text-xs font-bold rounded-lg border ${selectedDuration === 6 ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>6 Tháng (-10%)</button>
+                        <button type="button" onClick={() => setSelectedDuration(12)} className={`flex-1 py-2 text-xs font-bold rounded-lg border ${selectedDuration === 12 ? 'bg-indigo-50 border-indigo-500 text-indigo-700' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'}`}>1 Năm (-20%)</button>
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 <div className="pt-4 border-t border-slate-100 flex justify-end gap-3">
                   <button 

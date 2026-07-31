@@ -6,16 +6,37 @@ import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
 
 export default function ChatbotWidget() {
   const [isOpen, setIsOpen] = useState(false);
+  const [localInput, setLocalInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   
-  // Mặc định gọi đến /api/chat. Nếu lỗi (ví dụ hết hạn mức), API sẽ trả về lỗi
-  // useChat sẽ tự động lo việc hiển thị tin nhắn user ngay lập tức và hiệu ứng gõ phím của AI
-  const { messages, input, setInput, handleInputChange, handleSubmit, isLoading, error } = useChat({
-    api: '/api/chat',
+  useEffect(() => {
+    const originalFetch = window.fetch;
+    window.fetch = async (...args) => {
+      let [url, options] = args;
+      if (typeof url === 'string' && url.includes('/api/chat')) {
+        options = options || {};
+        
+        const newHeaders = new Headers(options.headers);
+        newHeaders.set('x-tenant-id', '6064025b-7fe4-4840-a27f-2d5da65e15fa');
+        
+        options.headers = newHeaders;
+        args[1] = options;
+      }
+      return originalFetch(...args);
+    };
+    return () => {
+      window.fetch = originalFetch;
+    };
+  }, []);
+  
+  const { messages, sendMessage, status, error } = useChat({
     onError: (err: any) => {
       console.error('Chat error:', err);
+      alert('Có lỗi khi gửi tin nhắn: ' + (err.message || 'Unknown error'));
     }
-  } as any) as any;
+  });
+
+  const isLoading = status === 'submitted' || status === 'streaming';
 
   // Tự động cuộn xuống khi có tin nhắn mới
   useEffect(() => {
@@ -88,7 +109,10 @@ export default function ChatbotWidget() {
                 ? 'bg-indigo-600 text-white rounded-tr-none' 
                 : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none'
             }`}>
-              {m.content}
+              {/* @ai-sdk/react v4 uses parts instead of content */}
+              {m.parts ? m.parts.map((part: any, i: number) => (
+                part.type === 'text' ? <span key={i}>{part.text}</span> : null
+              )) : (m.content || '')}
             </div>
 
             {m.role === 'user' && (
@@ -123,25 +147,25 @@ export default function ChatbotWidget() {
 
       {/* Input Area */}
       <div className="p-3 bg-white border-t border-slate-100 shrink-0">
-        <form onSubmit={handleSubmit} className="relative flex items-center">
+        <form 
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!localInput.trim()) return;
+            sendMessage({ text: localInput });
+            setLocalInput('');
+          }} 
+          className="relative flex items-center"
+        >
           <input
-            value={input || ''}
-            onChange={(e) => {
-              if (handleInputChange) {
-                handleInputChange(e);
-              } else if (setInput) {
-                setInput(e.target.value);
-              }
-            }}
+            value={localInput}
+            onChange={(e) => setLocalInput(e.target.value)}
             placeholder="Nhập câu hỏi của bạn..."
-            disabled={isLoading || error != null}
             maxLength={500}
             className="w-full pl-4 pr-12 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 transition disabled:opacity-70 disabled:cursor-not-allowed"
           />
           <button 
             type="submit" 
-            disabled={isLoading || !input?.trim() || error != null}
-            className="absolute right-2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:bg-slate-300"
+            className="absolute right-2 p-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
           >
             <Send className="w-4 h-4" />
           </button>

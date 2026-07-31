@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             name: 'Dev Admin',
             email: 'admin@dev.local',
             role: 'admin',
-            tenant_id: '00000000-0000-0000-0000-000000000000'
+            tenant_id: '6064025b-7fe4-4840-a27f-2d5da65e15fa'
           });
         } else {
           setUser(null);
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           name: 'Dev Admin',
           email: 'admin@dev.local',
           role: 'admin',
-          tenant_id: '00000000-0000-0000-0000-000000000000'
+          tenant_id: '6064025b-7fe4-4840-a27f-2d5da65e15fa'
         });
       } else {
         setUser(null);

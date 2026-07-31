@@ -32,7 +32,7 @@ export default async function LeadsDashboard() {
     return <div>Không tìm thấy thông tin tenant.</div>;
   }
 
-  const isSuperAdmin = user.role === 'superadmin' || user.role === 'admin' && user.tenant_id === '00000000-0000-0000-0000-000000000000';
+  const isSuperAdmin = user.role === 'superadmin' || user.role === 'admin' && user.tenant_id === '6064025b-7fe4-4840-a27f-2d5da65e15fa';
   const leads = await getAllLeads(user.tenant_id, isSuperAdmin);
 
   return (

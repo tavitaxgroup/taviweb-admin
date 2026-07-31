@@ -3,7 +3,7 @@ import { supabase } from '@/lib/supabase';
 
 export async function POST(req: Request) {
   try {
-    const { tenant_id, amount, package_name } = await req.json();
+    const { tenant_id, amount, package_name, duration } = await req.json();
 
     if (!tenant_id || !amount || !package_name) {
       return NextResponse.json({ error: 'Missing parameters' }, { status: 400 });
@@ -22,7 +22,8 @@ export async function POST(req: Request) {
         amount,
         package_name,
         transaction_code: transactionCode,
-        status: 'PENDING'
+        status: 'PENDING',
+        duration_months: duration || 1
       })
       .select()
       .single();

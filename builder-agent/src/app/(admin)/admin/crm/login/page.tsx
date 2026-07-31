@@ -94,7 +94,7 @@ export default function LoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all shadow-inner"
-                  placeholder="admin@tavi.com"
+                  placeholder="admin@taviweb.com"
                 />
               </div>
             </div>
@@ -140,7 +140,7 @@ export default function LoginPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between items-center text-slate-300 bg-slate-900/40 p-2 rounded-lg border border-white/5">
                     <span className="text-slate-400 font-medium">Admin:</span>
-                    <span className="font-mono text-indigo-300">admin@tavi.com <span className="text-slate-500">/</span> admin123</span>
+                    <span className="font-mono text-indigo-300">admin@taviweb.com <span className="text-slate-500">/</span> admin123</span>
                   </div>
                   <div className="flex justify-between items-center text-slate-300 bg-slate-900/40 p-2 rounded-lg border border-white/5">
                     <span className="text-slate-400 font-medium">Sale:</span>

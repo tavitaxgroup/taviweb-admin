@@ -42,10 +42,10 @@ export function AdminSidebar() {
         <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-3 mb-4">Workspace</div>
         
         {MENU_ITEMS.map((item) => {
-          if (item.path === '/admin/leads' && user?.tenant_id !== '00000000-0000-0000-0000-000000000000') return null;
+          if (item.path === '/admin/leads' && user?.tenant_id !== '6064025b-7fe4-4840-a27f-2d5da65e15fa') return null;
           
           // RBAC: Only Super Admin (TAVI) can see SaaS Factory
-          if (item.path === '/admin/workspaces' && user?.tenant_id !== '00000000-0000-0000-0000-000000000000') return null;
+          if (item.path === '/admin/workspaces' && user?.tenant_id !== '6064025b-7fe4-4840-a27f-2d5da65e15fa') return null;
           
           const isActive = pathname === item.path || (item.path !== '/admin' && pathname.startsWith(item.path));
           return (
@@ -76,7 +76,7 @@ export function AdminSidebar() {
           if (item.path === '/admin/settings/team' && !hasPermission('manage_users')) return null;
           if (item.path === '/admin/settings/roles' && !hasPermission('manage_roles')) return null;
           if (item.path === '/admin/settings' && !hasPermission('manage_settings')) return null;
-          if (item.path === '/admin/ai-hub' && user?.tenant_id !== '00000000-0000-0000-0000-000000000000') return null;
+          if (item.path === '/admin/ai-hub' && user?.tenant_id !== '6064025b-7fe4-4840-a27f-2d5da65e15fa') return null;
           
           const isActive = pathname === item.path || pathname.startsWith(item.path);
           return (

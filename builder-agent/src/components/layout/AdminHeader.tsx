@@ -97,7 +97,7 @@ export function AdminHeader() {
               </div>
               
               <Link 
-                href="/settings/account" 
+                href="/admin/settings/account" 
                 onClick={() => setShowProfileMenu(false)}
                 className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-700 hover:bg-slate-50 hover:text-indigo-600 transition-colors"
               >
