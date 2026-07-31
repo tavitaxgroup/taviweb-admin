@@ -51,7 +51,7 @@ export async function GET() {
           password_hash: passwordHash,
           name: 'Sếp Tổng',
           role: 'staff', // staff role để ẩn các tính năng admin/cài đặt
-          tenant_id: tenant.id,
+          tenant_id: tenant!.id,
           status: 'active'
         }]);
 
@@ -61,7 +61,7 @@ export async function GET() {
       const passwordHash = await bcrypt.hash(password, 10);
       await adminSupabase
         .from('crm_users')
-        .update({ password_hash: passwordHash, password, role: 'staff', tenant_id: tenant.id })
+        .update({ password_hash: passwordHash, password, role: 'staff', tenant_id: tenant!.id })
         .eq('email', email);
     }
 
