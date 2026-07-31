@@ -10,4 +10,13 @@ if (supabaseKey.includes('your-anon-key-here')) {
   supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxscG9zdmdycWpzcnFrdGFocnR3Iiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc4MzQwNDM3NywiZXhwIjoyMDk4OTgwMzc3fQ.3ESmqkafBVkIe5nnh2egk8Mr4iOI2332KmdH312aS-A";
 }
 
-export const supabase = createClient(supabaseUrl, supabaseKey);
+const isServer = typeof window === 'undefined';
+const effectiveKey = isServer 
+  ? (process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey) 
+  : supabaseKey;
+
+export const supabase = createClient(supabaseUrl, effectiveKey);
+
+// Dành cho các Server API Routes cần quyền cao nhất (Bypass RLS) - Giữ lại để tương thích ngược
+const serviceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey;
+export const adminSupabase = createClient(supabaseUrl, serviceRoleKey);
