@@ -40,21 +40,26 @@ export default function WorkspacesPage() {
 
   async function fetchTenants() {
     setLoading(true);
-    const { data } = await supabase.from('tenants').select('*').order('created_at', { ascending: false });
-    if (data) {
-      const enrichedData = data.map((t) => {
-        const total = t.ai_quota || 0;
-        const used = t.ai_used || 0;
-        return {
-          ...t,
-          ai_package: dbPackages.find(p => p.id === t.package_id)?.name || 'Chưa đăng ký',
-          package_name: dbPackages.find(p => p.id === t.package_id)?.name,
-          ai_used: used,
-          ai_total: total,
-          package_expires_at: t.package_expires_at
-        };
-      });
-      setTenants(enrichedData);
+    try {
+      const res = await fetch('/api/admin/tenants', { cache: 'no-store' });
+      const data = await res.json();
+      if (res.ok && data) {
+        const enrichedData = data.map((t: any) => {
+          const total = t.ai_quota || 0;
+          const used = t.ai_used || 0;
+          return {
+            ...t,
+            ai_package: dbPackages.find(p => p.id === t.package_id)?.name || 'Chưa đăng ký',
+            package_name: dbPackages.find(p => p.id === t.package_id)?.name,
+            ai_used: used,
+            ai_total: total,
+            package_expires_at: t.package_expires_at
+          };
+        });
+        setTenants(enrichedData);
+      }
+    } catch (e) {
+      console.error(e);
     }
     setLoading(false);
   }
@@ -96,19 +101,19 @@ export default function WorkspacesPage() {
     try {
       if (editingTenantId) {
         // Edit Mode
-        const { error } = await supabase
-          .from('tenants')
-          .update({ 
-            name, 
-            slug, 
-            template_key: templateKey, 
-            active_modules: modules 
-            // Note: Package and duration edit might need to handle ai_quota reset manually, 
-            // but for now we'll rely on the manual package select in the table for edits.
+        const res = await fetch('/api/admin/tenants', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            id: editingTenantId,
+            name,
+            slug,
+            template_key: templateKey,
+            active_modules: modules
           })
-          .eq('id', editingTenantId);
+        });
         
-        if (error) throw error;
+        if (!res.ok) throw new Error('Lỗi cập nhật');
         await fetchTenants();
         setIsModalOpen(false);
       } else {
@@ -142,8 +147,8 @@ export default function WorkspacesPage() {
 
   async function handleDeleteTenant(id: string, tenantName: string) {
     if (window.confirm(`⚠️ BÁO ĐỘNG ĐỎ: Bạn có chắc chắn muốn XÓA VĨNH VIỄN khách hàng "${tenantName}" không?\n\nToàn bộ dữ liệu của họ sẽ bị xóa và không thể khôi phục!`)) {
-      const { error } = await supabase.from('tenants').delete().eq('id', id);
-      if (error) {
+      const res = await fetch(`/api/admin/tenants?id=${id}`, { method: 'DELETE' });
+      if (!res.ok) {
         alert('Có lỗi xảy ra khi xóa!');
       } else {
         setTenants(tenants.filter(t => t.id !== id));
@@ -156,8 +161,12 @@ export default function WorkspacesPage() {
     if (amount > 0) {
       const tenant = tenants.find(t => t.id === id);
       const newTotal = (tenant?.ai_total || 0) + amount;
-      const { error } = await supabase.from('tenants').update({ ai_quota: newTotal }).eq('id', id);
-      if (error) alert('Lỗi: ' + error.message);
+      const res = await fetch('/api/admin/tenants', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id, ai_quota: newTotal })
+      });
+      if (!res.ok) alert('Lỗi hệ thống');
       else setTenants(tenants.map(t => t.id === id ? { ...t, ai_total: newTotal, ai_quota: newTotal } : t));
     }
   }
@@ -172,13 +181,14 @@ export default function WorkspacesPage() {
       newQuota = pkg.added_quota;
     }
 
-    const { error } = await supabase.from('tenants').update({ 
-      package_id: pkgId || null,
-      ai_quota: newQuota
-    }).eq('id', id);
+    const res = await fetch('/api/admin/tenants', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id, package_id: pkgId || null, ai_quota: newQuota })
+    });
 
-    if (error) {
-      alert('Lỗi: ' + error.message);
+    if (!res.ok) {
+      alert('Lỗi hệ thống');
     } else {
       setTenants(tenants.map(t => t.id === id ? { 
         ...t, 

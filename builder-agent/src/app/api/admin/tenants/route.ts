@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { supabase } from '@/lib/supabase';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const { name, slug, templateKey, modules, packageId, durationMonths } = await request.json();
@@ -87,5 +89,45 @@ export async function POST(request: Request) {
   } catch (error: any) {
     console.error('Create Tenant Error:', error);
     return NextResponse.json({ error: 'Lỗi máy chủ nội bộ' }, { status: 500 });
+  }
+}
+
+export async function GET() {
+  try {
+    const { data, error } = await supabase.from('tenants').select('*').order('created_at', { ascending: false });
+    if (error) throw error;
+    return NextResponse.json(data);
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Lỗi lấy danh sách khách hàng' }, { status: 500 });
+  }
+}
+
+export async function PUT(request: Request) {
+  try {
+    const body = await request.json();
+    const { id, ...updates } = body;
+    if (!id) return NextResponse.json({ error: 'Thiếu ID' }, { status: 400 });
+
+    const { error } = await supabase.from('tenants').update(updates).eq('id', id);
+    if (error) throw error;
+    
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Lỗi cập nhật khách hàng' }, { status: 500 });
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    if (!id) return NextResponse.json({ error: 'Thiếu ID' }, { status: 400 });
+
+    const { error } = await supabase.from('tenants').delete().eq('id', id);
+    if (error) throw error;
+    
+    return NextResponse.json({ success: true });
+  } catch (error: any) {
+    return NextResponse.json({ error: 'Lỗi xóa khách hàng' }, { status: 500 });
   }
 }

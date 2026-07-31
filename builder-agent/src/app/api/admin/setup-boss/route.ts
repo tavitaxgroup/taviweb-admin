@@ -21,7 +21,6 @@ export async function GET() {
         .insert([{
           name: 'Công ty của Sếp',
           slug: tenantSlug,
-          domain: `${tenantSlug}.taviweb.com`,
           status: 'active',
           ai_quota: 100,
           ai_used: 0,

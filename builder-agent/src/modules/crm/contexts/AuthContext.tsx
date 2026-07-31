@@ -81,7 +81,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   const login = (userData: User) => {
     setUser(userData);
-    router.push('/admin/crm');
+    window.location.href = '/admin/crm';
   };
 
   const logout = async () => {

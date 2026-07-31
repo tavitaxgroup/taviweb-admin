@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { cookies } from 'next/headers';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { supabase } from '@/lib/supabase';
+import { adminSupabase } from '@/lib/supabase';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tavi-super-secret-key-for-jwt-123';
 
@@ -14,8 +14,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email và mật khẩu là bắt buộc' }, { status: 400 });
     }
 
-    // Lấy thông tin user từ DB
-    const { data: user, error } = await supabase
+    // Lấy thông tin user từ DB (Dùng adminSupabase để bypass RLS)
+    const { data: user, error } = await adminSupabase
       .from('crm_users')
       .select('id, name, email, role, password_hash, tenant_id')
       .eq('email', email)
