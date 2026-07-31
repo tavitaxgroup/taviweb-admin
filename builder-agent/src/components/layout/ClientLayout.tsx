@@ -7,7 +7,7 @@ import { AdminHeader } from './AdminHeader';
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const isAuthPage = pathname === '/crm/login' || pathname === '/login';
+  const isAuthPage = pathname === '/admin/crm/login' || pathname === '/crm/login' || pathname === '/login' || pathname?.includes('/login');
 
   if (isAuthPage) {
     return (
