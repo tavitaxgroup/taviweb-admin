@@ -117,7 +117,7 @@ export async function searchKnowledge(tenantId: string, query: string, limit: nu
     // Tạm thời query dùng RPC chuẩn của pgvector
     const { data, error } = await supabase.rpc('match_knowledge_chunks', {
       query_embedding: embedding,
-      match_threshold: 0.7,
+      match_threshold: 0.5,
       match_count: limit,
       p_tenant_id: tenantId
     });
