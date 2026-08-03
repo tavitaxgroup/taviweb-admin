@@ -2,6 +2,8 @@ import { notFound } from "next/navigation";
 import { supabase } from "@/lib/supabase";
 import PublicBookingForm from "@/modules/booking/components/PublicBookingForm";
 
+export const dynamic = 'force-dynamic';
+
 export default async function PublicBookingPage({ params }: { params: Promise<{ tenantSlug: string }> }) {
   const resolvedParams = await params;
   
