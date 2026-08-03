@@ -76,7 +76,7 @@ export default function TenantChatbotSettings() {
       const res = await fetch('/api/admin/knowledge/ingest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: ragContent, source_type: \`custom:\${Date.now()}\` }),
+        body: JSON.stringify({ content: ragContent, source_type: `custom:${Date.now()}` }),
       });
       const data = await res.json();
       if (data.success) {

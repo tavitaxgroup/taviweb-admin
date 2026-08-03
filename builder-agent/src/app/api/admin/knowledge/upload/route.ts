@@ -69,7 +69,7 @@ export async function POST(request: Request) {
     }
 
     // Nạp dữ liệu vào RAG
-    const result = await ingestKnowledge(tenantId, extractedText, \`document:\${file.name}\`);
+    const result = await ingestKnowledge(tenantId, extractedText, `document:${file.name}`);
 
     if (!result.success) {
       return NextResponse.json({ error: result.error }, { status: 500 });
