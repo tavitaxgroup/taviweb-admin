@@ -87,7 +87,7 @@ export async function ingestKnowledge(tenantId: string, content: string, sourceT
     const insertData = chunks.map((chunk, i) => ({
       tenant_id: tenantId,
       content: chunk,
-      embedding: embeddings[i].slice(0, 768),
+      embedding: embeddings[i],
       source_type: sourceType,
     }));
 
@@ -116,7 +116,7 @@ export async function searchKnowledge(tenantId: string, query: string, limit: nu
     // Nhưng vì ta đang dùng pgvector query trực tiếp hoặc RPC
     // Tạm thời query dùng RPC chuẩn của pgvector
     const { data, error } = await supabase.rpc('match_knowledge_chunks', {
-      query_embedding: embedding.slice(0, 768),
+      query_embedding: embedding,
       match_threshold: 0.7,
       match_count: limit,
       p_tenant_id: tenantId

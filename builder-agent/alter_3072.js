@@ -8,7 +8,7 @@ const { Client } = require('pg');
     
     await client.query('DROP INDEX IF EXISTS knowledge_chunks_embedding_idx');
     await client.query('ALTER TABLE knowledge_chunks ALTER COLUMN embedding TYPE vector(3072)');
-    await client.query('CREATE INDEX knowledge_chunks_embedding_idx ON public.knowledge_chunks USING hnsw (embedding vector_cosine_ops)');
+    // await client.query('CREATE INDEX knowledge_chunks_embedding_idx ON public.knowledge_chunks USING hnsw (embedding vector_cosine_ops)');
     
     const sql = `
 CREATE OR REPLACE FUNCTION match_knowledge_chunks (
