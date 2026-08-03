@@ -5,8 +5,7 @@ import jwt from 'jsonwebtoken';
 import mammoth from 'mammoth';
 import * as xlsx from 'xlsx';
 
-// CommonJS import for pdf-parse to avoid ESM default export issues in Turbopack
-const pdfParse = require('pdf-parse');
+export const dynamic = 'force-dynamic';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tavi-super-secret-key-for-jwt-123';
 
@@ -41,6 +40,8 @@ export async function POST(request: Request) {
     const fileName = file.name.toLowerCase();
 
     if (fileName.endsWith('.pdf')) {
+      const pdfParseModule = await import('pdf-parse');
+      const pdfParse = (pdfParseModule as any).default || pdfParseModule;
       const data = await pdfParse(buffer);
       extractedText = data.text;
     } else if (fileName.endsWith('.docx')) {
