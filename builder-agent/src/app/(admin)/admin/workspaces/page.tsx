@@ -490,6 +490,23 @@ export default function WorkspacesPage() {
                 </div>
 
                 <div>
+                  <label className="block text-sm font-bold text-slate-700 mb-1">Template Giao diện <span className="text-rose-500">*</span></label>
+                  <div className="relative">
+                    <LayoutTemplate className="w-5 h-5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                    <select
+                      required
+                      value={templateKey}
+                      onChange={e => setTemplateKey(e.target.value)}
+                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition-all appearance-none"
+                    >
+                      {industryCatalog.map(ind => (
+                        <option key={ind.key} value={ind.key}>{ind.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-sm font-bold text-slate-700 mb-2">Modules kích hoạt</label>
                   <div className="space-y-2">
                     <label className={`flex items-center space-x-3 p-3 rounded-xl border transition-all cursor-pointer ${modules.includes('crm') ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'}`}>
