@@ -42,6 +42,7 @@ CREATE TABLE public.tenants (
     ai_used INTEGER DEFAULT 0,
     package_expires_at TIMESTAMPTZ,
     contact_info JSONB DEFAULT '{}'::jsonb,
+    system_prompt TEXT,
     created_at TIMESTAMPTZ DEFAULT now()
 );
 

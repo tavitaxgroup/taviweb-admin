@@ -18,6 +18,7 @@ const BOTTOM_MENU = [
   { name: 'Cài đặt Quy trình', path: '/admin/settings/pipelines', icon: Target },
   { name: 'Quản lý Team', path: '/admin/settings/team', icon: Users },
   { name: 'Phân quyền (Roles)', path: '/admin/settings/roles', icon: Shield },
+  { name: 'Trợ lý AI (Chatbot)', path: '/admin/settings/chatbot', icon: Bot },
   { name: 'Cài đặt hệ thống', path: '/admin/settings', icon: Settings },
   { name: 'Trung tâm AI', path: '/admin/ai-hub', icon: Bot },
 ];
@@ -75,6 +76,7 @@ export function AdminSidebar() {
           if (item.path === '/admin/settings/pipelines' && !hasPermission('manage_pipelines')) return null;
           if (item.path === '/admin/settings/team' && !hasPermission('manage_users')) return null;
           if (item.path === '/admin/settings/roles' && !hasPermission('manage_roles')) return null;
+          if (item.path === '/admin/settings/chatbot' && !hasPermission('manage_settings')) return null;
           if (item.path === '/admin/settings' && !hasPermission('manage_settings')) return null;
           if (item.path === '/admin/ai-hub' && user?.tenant_id !== '6064025b-7fe4-4840-a27f-2d5da65e15fa') return null;
           

@@ -5,26 +5,67 @@ import { supabase } from '../supabase'; // Supabase client from @/lib/supabase
 const EMBEDDING_MODEL = google.textEmbeddingModel('gemini-embedding-2');
 
 /**
- * Hàm cắt văn bản thành các chunk nhỏ
+ * Hàm cắt văn bản thành các chunk nhỏ sử dụng Recursive Text Splitting với Overlap
  */
-export function chunkText(text: string, maxTokens: number = 300): string[] {
-  // Đơn giản hóa: Cắt theo đoạn văn hoặc số ký tự (1 token ~ 4 ký tự)
-  const maxLength = maxTokens * 4;
+export function chunkText(text: string, chunkSize: number = 1000, chunkOverlap: number = 200): string[] {
+  const separators = ['\n\n', '\n', '. ', ' ', ''];
   const chunks: string[] = [];
-  let currentChunk = '';
 
-  const sentences = text.split(/(?<=[.?!])\s+/);
+  function splitRecursive(textToSplit: string, separatorIndex: number): string[] {
+    if (textToSplit.length <= chunkSize) return [textToSplit];
+    
+    const separator = separators[separatorIndex];
+    if (separator === undefined) {
+      // Fallback nếu không có ký tự tách nào khả thi
+      const result: string[] = [];
+      let i = 0;
+      while (i < textToSplit.length) {
+        result.push(textToSplit.slice(i, i + chunkSize));
+        i += (chunkSize - chunkOverlap > 0 ? chunkSize - chunkOverlap : chunkSize);
+      }
+      return result;
+    }
+
+    const splits = textToSplit.split(separator);
+    const goodSplits: string[] = [];
+    
+    for (const split of splits) {
+      // Đảm bảo không mất ký tự separator (trừ trường hợp rỗng)
+      const content = split + (separator === ' ' || separator === '' ? '' : separator);
+      if (content.length <= chunkSize) {
+        goodSplits.push(content);
+      } else {
+        goodSplits.push(...splitRecursive(content, separatorIndex + 1));
+      }
+    }
+    return goodSplits;
+  }
+
+  const rawSplits = splitRecursive(text, 0);
+  let currentChunk = '';
   
-  for (const sentence of sentences) {
-    if (currentChunk.length + sentence.length > maxLength) {
-      if (currentChunk.trim()) chunks.push(currentChunk.trim());
-      currentChunk = sentence + ' ';
+  for (let i = 0; i < rawSplits.length; i++) {
+    const split = rawSplits[i];
+    if (currentChunk.length + split.length > chunkSize && currentChunk.trim().length > 0) {
+      chunks.push(currentChunk.trim());
+      
+      // Tính toán Overlap
+      let overlapText = '';
+      if (chunkOverlap > 0 && currentChunk.length > chunkOverlap) {
+        overlapText = currentChunk.slice(-chunkOverlap);
+        const lastSpace = overlapText.indexOf(' ');
+        if (lastSpace !== -1) overlapText = overlapText.slice(lastSpace + 1);
+      }
+      currentChunk = overlapText + split;
     } else {
-      currentChunk += sentence + ' ';
+      currentChunk += split;
     }
   }
-  
-  if (currentChunk.trim()) chunks.push(currentChunk.trim());
+
+  if (currentChunk.trim()) {
+    chunks.push(currentChunk.trim());
+  }
+
   return chunks;
 }
 
