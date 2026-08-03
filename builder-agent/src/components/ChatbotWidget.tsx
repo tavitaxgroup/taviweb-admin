@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useChat } from '@ai-sdk/react';
 import { MessageSquare, X, Send, Bot, User, Sparkles } from 'lucide-react';
+import ReactMarkdown from 'react-markdown';
 
 export default function ChatbotWidget({ tenantId }: { tenantId?: string }) {
   const [isOpen, setIsOpen] = useState(false);
@@ -58,7 +59,17 @@ export default function ChatbotWidget({ tenantId }: { tenantId?: string }) {
 
   // Khung Chat khi mở ra
   return (
-    <div className="fixed bottom-6 right-6 w-[350px] sm:w-[400px] h-[600px] max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50 border border-slate-200 animate-scale-in">
+    <>
+      <style dangerouslySetInnerHTML={{__html: `
+        .chatbot-prose ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .chatbot-prose ol { list-style-type: decimal; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
+        .chatbot-prose li { margin-bottom: 0.25rem; }
+        .chatbot-prose strong { font-weight: 600; color: #111827; }
+        .chatbot-prose h3 { font-weight: 600; font-size: 1.05rem; margin-top: 1rem; margin-bottom: 0.5rem; color: #111827; }
+        .chatbot-prose p { margin-bottom: 0.5rem; }
+        .chatbot-prose p:last-child { margin-bottom: 0; }
+      `}} />
+      <div className="fixed bottom-6 right-6 w-[350px] sm:w-[400px] h-[600px] max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50 border border-slate-200 animate-scale-in">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-600 to-indigo-700 p-4 flex justify-between items-center text-white shrink-0">
         <div className="flex items-center gap-3">
@@ -106,12 +117,18 @@ export default function ChatbotWidget({ tenantId }: { tenantId?: string }) {
             <div className={`p-3 rounded-2xl text-sm shadow-sm max-w-[85%] whitespace-pre-wrap ${
               m.role === 'user' 
                 ? 'bg-indigo-600 text-white rounded-tr-none' 
-                : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none'
+                : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none chatbot-prose'
             }`}>
               {/* @ai-sdk/react v4 uses parts instead of content */}
-              {m.parts ? m.parts.map((part: any, i: number) => (
-                part.type === 'text' ? <span key={i}>{part.text}</span> : null
-              )) : (m.content || '')}
+              {m.role === 'user' ? (
+                m.parts ? m.parts.map((part: any, i: number) => (
+                  part.type === 'text' ? <span key={i}>{part.text}</span> : null
+                )) : (m.content || '')
+              ) : (
+                <ReactMarkdown>
+                  {m.parts ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') : (m.content || '')}
+                </ReactMarkdown>
+              )}
             </div>
 
             {m.role === 'user' && (
@@ -174,5 +191,6 @@ export default function ChatbotWidget({ tenantId }: { tenantId?: string }) {
         </div>
       </div>
     </div>
+    </>
   );
 }
