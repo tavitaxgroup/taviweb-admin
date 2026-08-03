@@ -16,20 +16,18 @@ export default function StandaloneBookingAdminPage() {
   const [tenantSlug, setTenantSlug] = useState<string>('');
 
   useEffect(() => {
-    if (user?.tenant_id) {
+    if (user?.tenant) {
+      setTemplateKey(user.tenant.template_key || 'salon_toc');
+      setTenantSlug(user.tenant.slug || '');
+    } else if (user?.tenant_id) {
+      // Fallback cho trường hợp user.tenant chưa được load kịp
       import('@/modules/booking/api/booking.service').then(({ BookingService }) => {
         BookingService.getTemplateKey(user.tenant_id as string).then(key => {
           setTemplateKey(key);
         });
       });
-      // Fetch tenant slug for the public link
-      import('@/lib/supabase').then(({ supabase }) => {
-        supabase.from('tenants').select('slug').eq('id', user.tenant_id).single().then(({ data }) => {
-          if (data?.slug) setTenantSlug(data.slug);
-        });
-      });
     }
-  }, [user?.tenant_id]);
+  }, [user]);
 
   if (loading) {
     return <div className="flex h-screen items-center justify-center bg-slate-50"><div className="animate-spin h-8 w-8 border-4 border-indigo-600 rounded-full border-t-transparent"></div></div>;

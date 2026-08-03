@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     // Lấy thông tin user TƯƠI từ Database kèm theo quyền (để lỡ đổi quyền thì cập nhật luôn)
     const { data: user, error } = await supabase
       .from('crm_users')
-      .select('id, name, email, role, role_id, tenant_id, role_data:crm_roles(*)')
+      .select('id, name, email, role, role_id, tenant_id, role_data:crm_roles(*), tenant:tenants(slug, template_key)')
       .eq('id', decoded.id)
       .single();
 

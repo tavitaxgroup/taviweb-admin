@@ -11,6 +11,10 @@ export interface User {
   role_id?: string;
   tenant_id?: string;
   permissions?: string[];
+  tenant?: {
+    slug: string;
+    template_key: string;
+  };
 }
 
 interface AuthContextType {
@@ -53,7 +57,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             name: 'Dev Admin',
             email: 'admin@dev.local',
             role: 'admin',
-            tenant_id: '6064025b-7fe4-4840-a27f-2d5da65e15fa'
+            tenant_id: '6064025b-7fe4-4840-a27f-2d5da65e15fa',
+            tenant: { slug: 'tavi-admin', template_key: 'nha_khoa' }
           });
         } else {
           setUser(null);
@@ -69,7 +74,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           name: 'Dev Admin',
           email: 'admin@dev.local',
           role: 'admin',
-          tenant_id: '6064025b-7fe4-4840-a27f-2d5da65e15fa'
+          tenant_id: '6064025b-7fe4-4840-a27f-2d5da65e15fa',
+          tenant: { slug: 'tavi-admin', template_key: 'nha_khoa' }
         });
       } else {
         setUser(null);
