@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { Bot, Save, FileText, Database, Trash2, CheckCircle, RefreshCw } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { Bot, Save, FileText, Database, Trash2, CheckCircle, RefreshCw, Upload, File } from 'lucide-react';
 
 interface KnowledgeChunk {
   id: string;
@@ -20,6 +20,9 @@ export default function TenantChatbotSettings() {
   
   const [chunks, setChunks] = useState<KnowledgeChunk[]>([]);
   const [loadingChunks, setLoadingChunks] = useState(true);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     fetchPrompt();
@@ -90,6 +93,44 @@ export default function TenantChatbotSettings() {
     }
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = '';
+
+    const allowedTypes = ['.pdf', '.docx', '.xlsx', '.csv', '.txt'];
+    const ext = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
+    
+    if (!allowedTypes.includes(ext)) {
+      alert(`Định dạng ${ext} không được hỗ trợ. Vui lòng chọn PDF, DOCX, XLSX, CSV hoặc TXT.`);
+      return;
+    }
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append('file', file);
+
+    try {
+      const res = await fetch('/api/admin/knowledge/upload', {
+        method: 'POST',
+        body: formData, // Không set Content-Type, trình duyệt tự xử lý boundary
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert(`Đã phân tích file thành công! AI đã học được ${data.chunksCount} đoạn kiến thức mới.`);
+        fetchChunks();
+      } else {
+        alert(data.error || 'Có lỗi khi tải lên file.');
+      }
+    } catch (error) {
+      alert('Có lỗi mạng khi tải file.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const deleteChunk = async (id: string) => {
     if (!confirm('Bạn có chắc chắn muốn xóa đoạn dữ liệu này? AI sẽ mất đi kiến thức liên quan.')) return;
     try {
@@ -153,7 +194,7 @@ export default function TenantChatbotSettings() {
             <h2 className="text-lg font-bold text-slate-800">2. Nạp Kiến Thức (RAG / Knowledge Base)</h2>
           </div>
           <p className="text-sm text-slate-500 mb-4">
-            Dán bảng giá, chính sách bảo hành, mô tả sản phẩm vào đây. AI sẽ tự động đọc hiểu và ghi nhớ để trả lời khách.
+            Dán bảng giá, chính sách bảo hành, mô tả sản phẩm vào đây, hoặc upload file tài liệu. AI sẽ tự động học để trả lời khách.
           </p>
           <div className="flex-1 min-h-[200px] mb-4">
             <textarea
@@ -163,14 +204,34 @@ export default function TenantChatbotSettings() {
               className="w-full h-full min-h-[200px] p-4 bg-emerald-50 border border-emerald-100 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none resize-none transition"
             />
           </div>
-          <button 
-            onClick={ingestRag}
-            disabled={loadingRag}
-            className="flex items-center justify-center gap-2 bg-emerald-600 text-white w-full py-3 rounded-xl font-semibold shadow-md hover:bg-emerald-700 transition disabled:opacity-70"
-          >
-            {loadingRag ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Database className="w-5 h-5" />}
-            Nạp Kiến Thức Cho AI
-          </button>
+          
+          <div className="flex flex-col sm:flex-row gap-3 mt-4">
+            <button 
+              onClick={ingestRag}
+              disabled={loadingRag || uploading}
+              className="flex-1 flex items-center justify-center gap-2 bg-emerald-600 text-white py-3 rounded-xl font-semibold shadow-md hover:bg-emerald-700 transition disabled:opacity-70"
+            >
+              {loadingRag ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Database className="w-5 h-5" />}
+              Nạp Chữ Trực Tiếp
+            </button>
+
+            <input 
+              type="file" 
+              ref={fileInputRef} 
+              className="hidden" 
+              accept=".pdf,.docx,.xlsx,.csv,.txt"
+              onChange={handleFileUpload}
+            />
+            
+            <button 
+              onClick={() => fileInputRef.current?.click()}
+              disabled={loadingRag || uploading}
+              className="flex-1 flex items-center justify-center gap-2 bg-slate-800 text-white py-3 rounded-xl font-semibold shadow-md hover:bg-slate-900 transition disabled:opacity-70"
+            >
+              {uploading ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Upload className="w-5 h-5" />}
+              Tải Lên File (PDF, Word...)
+            </button>
+          </div>
         </div>
       </div>
 
