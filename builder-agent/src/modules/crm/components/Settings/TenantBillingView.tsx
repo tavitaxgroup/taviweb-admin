@@ -1,20 +1,67 @@
-import React, { useState } from 'react';
-import { CreditCard, Zap, Clock, AlertTriangle, CheckCircle2, ChevronRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { CreditCard, Zap, Clock, AlertTriangle, CheckCircle2, ChevronRight, RefreshCw } from 'lucide-react';
+import { useAuth } from '../../contexts/AuthContext';
 
 export default function TenantBillingView() {
-  // Fake state for demo
-  const [tokenBalance] = useState(150000);
-  const [monthlyQuota] = useState(1000000);
-  const [planName] = useState('Gói Nâng Cao (Business)');
-  const [status] = useState<'active' | 'expiring' | 'suspended'>('active');
-  const [expiryDate] = useState('2026-08-30');
+  const { user } = useAuth();
+  const [tokenBalance, setTokenBalance] = useState(0);
+  const [monthlyQuota, setMonthlyQuota] = useState(0);
+  const [planName, setPlanName] = useState('Đang tải...');
+  const [status, setStatus] = useState<'active' | 'expiring' | 'suspended'>('active');
+  const [expiryDate, setExpiryDate] = useState('Đang tải...');
+  const [isLoading, setIsLoading] = useState(true);
 
-  const usagePercent = Math.min(100, Math.max(0, ((monthlyQuota - tokenBalance) / monthlyQuota) * 100));
+  useEffect(() => {
+    async function fetchData() {
+      if (!user?.tenant_id) return;
+      try {
+        const { supabase } = await import('@/lib/supabase');
+        const { data, error } = await supabase.from('tenants').select('ai_quota, ai_used, package_name, package_expires_at').eq('id', user.tenant_id).single();
+        if (data && !error) {
+          const quota = data.ai_quota || 0;
+          const used = data.ai_used || 0;
+          setMonthlyQuota(quota);
+          setTokenBalance(Math.max(0, quota - used));
+          setPlanName(data.package_name || 'Chưa đăng ký');
+          
+          if (data.package_expires_at) {
+            setExpiryDate(new Date(data.package_expires_at).toLocaleDateString('vi-VN'));
+            const daysLeft = Math.ceil((new Date(data.package_expires_at).getTime() - Date.now()) / (1000 * 3600 * 24));
+            if (daysLeft <= 0) setStatus('suspended');
+            else if (daysLeft <= 7) setStatus('expiring');
+            else setStatus('active');
+          } else {
+             setExpiryDate('Không thời hạn');
+             setStatus('active');
+          }
+        } else {
+          setPlanName('Chưa đăng ký');
+          setExpiryDate('N/A');
+        }
+      } catch (err) {
+        console.error(err);
+        setPlanName('Lỗi tải dữ liệu');
+      }
+      setIsLoading(false);
+    }
+    fetchData();
+  }, [user?.tenant_id]);
+
+  const usagePercent = monthlyQuota > 0 ? Math.min(100, Math.max(0, ((monthlyQuota - tokenBalance) / monthlyQuota) * 100)) : 0;
   
   // Progress bar color logic
   let progressColor = 'bg-indigo-500';
   if (usagePercent > 80) progressColor = 'bg-amber-500';
   if (usagePercent > 95) progressColor = 'bg-rose-500';
+
+  if (isLoading) {
+    return (
+      <div className="flex flex-col items-center justify-center p-10 bg-white rounded-xl border border-slate-200">
+        <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin mb-4" />
+        <p className="text-slate-500">Đang tải thông tin gói...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6 animate-fade-in">

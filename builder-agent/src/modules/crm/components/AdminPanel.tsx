@@ -72,19 +72,18 @@ export default function AdminPanel() {
              expiresAt: data.package_expires_at || null
            });
          } else {
-           // Fallback Mock Data
            setQuotaInfo({
-             total: 50000,
-             used: Math.floor(Math.random() * 45000) + 1000,
-             packageName: 'Gói Tiêu Chuẩn'
+             total: 0,
+             used: 0,
+             packageName: 'Chưa đăng ký'
            });
          }
        } catch (e) {
          console.error(e);
          setQuotaInfo({
-           total: 50000,
-           used: 24500,
-           packageName: 'Gói Tiêu Chuẩn'
+           total: 0,
+           used: 0,
+           packageName: 'Lỗi tải dữ liệu'
          });
        }
   };
