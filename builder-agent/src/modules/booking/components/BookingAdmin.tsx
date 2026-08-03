@@ -2,37 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Clock, Users, User, Scissors, Utensils, ChevronLeft, ChevronRight, Plus, CheckCircle2, XCircle, Trash2, RefreshCcw } from 'lucide-react';
 import { useAuth } from '@/modules/crm/contexts/AuthContext';
 import { BookingService, BookingResource, BookingAppointment } from '../api/booking.service';
+import { getBookingConfig } from '../utils/templateConfig';
 
 const TIME_SLOTS = ['08:00', '09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00', '18:00', '19:00', '20:00', '21:00'];
 
 export default function BookingAdmin({ template }: { template: string }) {
   const { user } = useAuth();
-  
-  const getResourceLabel = (t: string) => {
-    switch(t) {
-      case 'salon_toc': case 'spa': case 'tham_my_vien': return 'thợ';
-      case 'nha_khoa': case 'phong_kham': return 'bác sĩ';
-      case 'phong_gym': return 'PT/Máy tập';
-      case 'studio_chup_anh': return 'phòng/thợ ảnh';
-      case 'dich_vu_ve_sinh': return 'nhân viên';
-      case 'nha_hang': case 'quan_cafe': return 'bàn';
-      case 'garage_oto': return 'khoang/thợ';
-      default: return 'tài nguyên';
-    }
-  };
-
-  const getResourceTitle = (t: string) => {
-    switch(t) {
-      case 'salon_toc': case 'spa': case 'tham_my_vien': return 'NHÂN SỰ (THỢ)';
-      case 'nha_khoa': case 'phong_kham': return 'NHÂN SỰ (BÁC SĨ)';
-      case 'phong_gym': return 'TÀI NGUYÊN (PT/MÁY TẬP)';
-      case 'studio_chup_anh': return 'TÀI NGUYÊN (PHÒNG/THỢ ẢNH)';
-      case 'dich_vu_ve_sinh': return 'NHÂN SỰ (NHÂN VIÊN)';
-      case 'nha_hang': case 'quan_cafe': return 'TÀI NGUYÊN (BÀN)';
-      case 'garage_oto': return 'TÀI NGUYÊN (KHOANG/THỢ)';
-      default: return 'TÀI NGUYÊN';
-    }
-  };
+  const config = getBookingConfig(template);
 
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0]);
   const [resources, setResources] = useState<BookingResource[]>([]);
@@ -153,12 +129,12 @@ export default function BookingAdmin({ template }: { template: string }) {
       {/* Header Panel */}
       <div className="bg-slate-50 border-b border-slate-200 px-6 py-5 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className={`p-3 rounded-2xl shadow-inner border flex items-center justify-center transition-colors ${template === 'salon' ? 'bg-rose-100 border-rose-200 text-rose-600' : 'bg-orange-100 border-orange-200 text-orange-600'}`}>
-            {template === 'salon' ? <Scissors className="w-6 h-6" /> : <Utensils className="w-6 h-6" />}
+          <div className={`p-3 rounded-2xl shadow-inner border flex items-center justify-center transition-colors ${config.color}`}>
+            {config.icon}
           </div>
           <div>
             <h2 className="text-xl font-extrabold text-slate-800">Điều phối Lịch hẹn</h2>
-            <p className="text-sm text-slate-500 font-medium">Quản lý {getResourceLabel(template)} theo thời gian thực</p>
+            <p className="text-sm text-slate-500 font-medium">Quản lý {config.resourceLabel} theo thời gian thực</p>
           </div>
         </div>
 
@@ -206,7 +182,7 @@ export default function BookingAdmin({ template }: { template: string }) {
             {/* Grid Header (Time) */}
             <div className="flex sticky top-0 bg-white z-20 border-b border-slate-200 shadow-sm">
               <div className="w-48 shrink-0 border-r border-slate-200 bg-slate-50/80 backdrop-blur p-4 sticky left-0 z-30 font-bold text-slate-500 text-sm flex items-center justify-center">
-                {getResourceTitle(template)}
+                {config.resourceTitle}
               </div>
               <div className="flex-1 flex">
                 {timeSlots.map(time => (
@@ -231,7 +207,7 @@ export default function BookingAdmin({ template }: { template: string }) {
                   
                   {/* Resource Card */}
                   <div className="w-48 shrink-0 border-r border-slate-200 bg-white p-4 sticky left-0 z-10 flex items-center gap-3">
-                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm ${template === 'salon' ? 'bg-gradient-to-br from-rose-400 to-pink-500' : 'bg-gradient-to-br from-orange-400 to-amber-500'}`}>
+                    <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm shadow-sm ${config.color.replace('text-', 'bg-').replace('100', '500').replace('200', '600')}`}>
                       {res.name.charAt(0)}
                     </div>
                     <div>
@@ -304,9 +280,9 @@ export default function BookingAdmin({ template }: { template: string }) {
                 <input required autoFocus type="text" value={formData.customerName} onChange={e => setFormData({...formData, customerName: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm" placeholder={`VD: Nguyễn Văn A`} />
               </div>
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">{getResourceTitle(template)} <span className="text-red-500">*</span></label>
+                <label className="block text-sm font-bold text-slate-700 mb-1">{config.resourceTitle} <span className="text-red-500">*</span></label>
                 <select required value={formData.resourceId} onChange={e => setFormData({...formData, resourceId: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm bg-white">
-                  <option value="">-- Chọn tài nguyên --</option>
+                  <option value="">-- Chọn {config.resourceLabel} --</option>
                   {resources.map(r => (
                     <option key={r.id} value={r.id}>{r.name} ({r.role_or_capacity || '-'})</option>
                   ))}
@@ -361,16 +337,16 @@ export default function BookingAdmin({ template }: { template: string }) {
                     </div>
                   </div>
                   <div>
-                    <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Tài nguyên</div>
+                    <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{config.resourceTitle}</div>
                     <div className="font-bold text-slate-800 flex items-center gap-2">
-                       {template === 'salon' ? <Scissors className="w-4 h-4 text-rose-500" /> : <Utensils className="w-4 h-4 text-orange-500" />}
+                       <div className={`${config.iconColor}`}>{config.smallIcon}</div>
                        {resources.find(r => r.id === selectedAppointment.resource_id)?.name || 'N/A'}
                     </div>
                   </div>
                </div>
 
                <div>
-                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Dịch vụ</div>
+                 <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">{config.serviceLabel}</div>
                  <div className="font-medium text-slate-700">{selectedAppointment.service_name || 'Mặc định (Chưa chọn dịch vụ cụ thể)'}</div>
                </div>
 

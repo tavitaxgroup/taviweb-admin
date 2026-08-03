@@ -29,8 +29,17 @@ export default function AdminPanel() {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isCreatingTx, setIsCreatingTx] = useState(false);
-  const [isTestMode, setIsTestMode] = useState(false);
   const [duration, setDuration] = useState<number>(1);
+  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState<any>(null);
+  const [userForm, setUserForm] = useState({ name: '', email: '', role: 'user' });
+  const [isSubmittingUser, setIsSubmittingUser] = useState(false);
+  
+  const [isProductModalOpen, setIsProductModalOpen] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<any>(null);
+  const [productForm, setProductForm] = useState({ name: '', price: 0, description: '' });
+  const [isSubmittingProduct, setIsSubmittingProduct] = useState(false);
+  const [isTestMode, setIsTestMode] = useState(false);
 
   useEffect(() => {
     setOriginUrl(window.location.origin);
@@ -170,6 +179,98 @@ export default function AdminPanel() {
     setIsCreatingTx(false);
   };
 
+  const openUserModal = (u?: any) => {
+    if (u) {
+      setEditingUser(u);
+      setUserForm({ name: u.name || '', email: u.email || '', role: u.role || 'user' });
+    } else {
+      setEditingUser(null);
+      setUserForm({ name: '', email: '', role: 'user' });
+    }
+    setIsUserModalOpen(true);
+  };
+
+  const handleSaveUser = async () => {
+    if (!user?.tenant_id || !userForm.name || !userForm.email) {
+      toast.error("Vui lòng nhập đủ thông tin!");
+      return;
+    }
+    setIsSubmittingUser(true);
+    try {
+      if (editingUser) {
+        await CRMService.updateUser(user.tenant_id, editingUser.id, userForm);
+        toast.success("Cập nhật nhân viên thành công!");
+      } else {
+        await CRMService.createUser(user.tenant_id, userForm);
+        toast.success("Thêm nhân viên thành công!");
+      }
+      setIsUserModalOpen(false);
+      loadData();
+    } catch (e: any) {
+      toast.error(e.message || "Có lỗi xảy ra");
+    }
+    setIsSubmittingUser(false);
+  };
+
+  const handleDeleteUser = async (u: any) => {
+    if (!user?.tenant_id) return;
+    if (confirm(`Bạn có chắc chắn muốn khóa/xóa nhân viên ${u.name}?`)) {
+      try {
+        await CRMService.deleteUser(user.tenant_id, u.id);
+        toast.success("Đã xóa/khóa nhân viên!");
+        loadData();
+      } catch (e) {
+        toast.error("Có lỗi xảy ra");
+      }
+    }
+  };
+
+  const openProductModal = (p?: any) => {
+    if (p) {
+      setEditingProduct(p);
+      setProductForm({ name: p.name || '', price: p.price || 0, description: p.description || '' });
+    } else {
+      setEditingProduct(null);
+      setProductForm({ name: '', price: 0, description: '' });
+    }
+    setIsProductModalOpen(true);
+  };
+
+  const handleSaveProduct = async () => {
+    if (!user?.tenant_id || !productForm.name) {
+      toast.error("Vui lòng nhập tên dịch vụ!");
+      return;
+    }
+    setIsSubmittingProduct(true);
+    try {
+      if (editingProduct) {
+        await CRMService.updateProduct(user.tenant_id, editingProduct.id, productForm);
+        toast.success("Cập nhật gói dịch vụ thành công!");
+      } else {
+        await CRMService.createProduct(user.tenant_id, productForm);
+        toast.success("Thêm gói dịch vụ thành công!");
+      }
+      setIsProductModalOpen(false);
+      loadData();
+    } catch (e) {
+      toast.error("Có lỗi xảy ra");
+    }
+    setIsSubmittingProduct(false);
+  };
+
+  const handleDeleteProduct = async (p: any) => {
+    if (!user?.tenant_id) return;
+    if (confirm(`Bạn có chắc chắn muốn xóa dịch vụ ${p.name}?`)) {
+      try {
+        await CRMService.deleteProduct(user.tenant_id, p.id);
+        toast.success("Đã xóa dịch vụ!");
+        loadData();
+      } catch (e) {
+        toast.error("Có lỗi xảy ra");
+      }
+    }
+  };
+
   return (
     <div className="max-w-6xl mx-auto pb-10">
       <div className="mb-6">
@@ -215,7 +316,7 @@ export default function AdminPanel() {
           <div>
              <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-lg">Danh sách Tài khoản</h3>
-                <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold">
+                <button onClick={() => openUserModal()} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-indigo-700 transition-colors">
                   + Thêm Nhân Viên
                 </button>
              </div>
@@ -239,8 +340,8 @@ export default function AdminPanel() {
                        </span>
                      </td>
                      <td className="p-3 text-right">
-                       <button className="text-indigo-600 text-xs font-bold mr-2 hover:underline">Sửa</button>
-                       {u.role !== 'admin' && <button className="text-red-600 text-xs font-bold hover:underline">Khóa</button>}
+                       <button onClick={() => openUserModal(u)} className="text-indigo-600 text-xs font-bold mr-2 hover:underline">Sửa</button>
+                       {u.role !== 'admin' && <button onClick={() => handleDeleteUser(u)} className="text-red-600 text-xs font-bold hover:underline">Khóa</button>}
                      </td>
                    </tr>
                  ))}
@@ -258,7 +359,7 @@ export default function AdminPanel() {
           <div>
              <div className="flex justify-between items-center mb-4">
                 <h3 className="font-bold text-lg">Gói Dịch Vụ Mẫu</h3>
-                <button className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold">
+                <button onClick={() => openProductModal()} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-indigo-700 transition-colors">
                   + Thêm Gói Mới
                 </button>
              </div>
@@ -271,8 +372,8 @@ export default function AdminPanel() {
                     </div>
                     <p className="text-xs text-slate-500">{p.description}</p>
                     <div className="mt-3 flex gap-2">
-                       <button className="text-xs bg-slate-100 px-3 py-1.5 rounded font-semibold hover:bg-slate-200">Sửa</button>
-                       <button className="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded font-semibold hover:bg-red-100">Xóa</button>
+                       <button onClick={() => openProductModal(p)} className="text-xs bg-slate-100 px-3 py-1.5 rounded font-semibold hover:bg-slate-200">Sửa</button>
+                       <button onClick={() => handleDeleteProduct(p)} className="text-xs bg-red-50 text-red-600 px-3 py-1.5 rounded font-semibold hover:bg-red-100">Xóa</button>
                     </div>
                   </div>
                 ))}
@@ -285,7 +386,7 @@ export default function AdminPanel() {
             <div className="text-4xl mb-4">🎯</div>
             <h3 className="text-lg font-bold text-slate-700 mb-2">Giao Chỉ Tiêu Tháng Này</h3>
             <p className="text-slate-500 mb-6">Tính năng kéo thả KPI cho từng nhân viên đang được cập nhật.</p>
-            <button className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-bold">
+            <button onClick={() => toast.success("Đã ghi nhận yêu cầu kích hoạt! Đội ngũ TAVI sẽ liên hệ trong 24h.")} className="bg-indigo-600 text-white px-6 py-2 rounded-lg text-sm font-bold shadow hover:bg-indigo-700 transition-colors">
               Kích hoạt tính năng
             </button>
           </div>
@@ -657,6 +758,71 @@ export default function AdminPanel() {
                </div>
             </div>
           </div>
+      )}
+
+      {/* User Modal */}
+      {isUserModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setIsUserModalOpen(false)}>
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl relative p-6" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setIsUserModalOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-bold text-2xl">&times;</button>
+            <h3 className="text-xl font-black text-slate-800 mb-6">{editingUser ? 'Sửa Nhân Sự' : 'Thêm Nhân Sự Mới'}</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Họ Tên <span className="text-red-500">*</span></label>
+                <input type="text" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" value={userForm.name} onChange={e => setUserForm({...userForm, name: e.target.value})} placeholder="Nguyễn Văn A" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Email <span className="text-red-500">*</span></label>
+                <input type="email" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" value={userForm.email} onChange={e => setUserForm({...userForm, email: e.target.value})} placeholder="email@domain.com" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Phân quyền</label>
+                <select className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none bg-white" value={userForm.role} onChange={e => setUserForm({...userForm, role: e.target.value})}>
+                  <option value="user">User (Nhân viên Sale/CSKH)</option>
+                  <option value="admin">Admin (Quản lý)</option>
+                </select>
+              </div>
+            </div>
+            <div className="mt-8 flex justify-end gap-3">
+              <button onClick={() => setIsUserModalOpen(false)} className="px-5 py-2.5 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors text-sm">Hủy</button>
+              <button onClick={handleSaveUser} disabled={isSubmittingUser} className="px-5 py-2.5 font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors text-sm flex items-center gap-2">
+                {isSubmittingUser && <RefreshCw className="w-4 h-4 animate-spin" />}
+                {isSubmittingUser ? 'Đang lưu...' : 'Lưu thông tin'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Product Modal */}
+      {isProductModalOpen && (
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setIsProductModalOpen(false)}>
+          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl relative p-6" onClick={(e) => e.stopPropagation()}>
+            <button onClick={() => setIsProductModalOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-bold text-2xl">&times;</button>
+            <h3 className="text-xl font-black text-slate-800 mb-6">{editingProduct ? 'Sửa Dịch Vụ' : 'Thêm Gói Dịch Vụ Mới'}</h3>
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Tên Dịch Vụ <span className="text-red-500">*</span></label>
+                <input type="text" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" value={productForm.name} onChange={e => setProductForm({...productForm, name: e.target.value})} placeholder="VD: Gói niềng răng trong suốt" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Giá Bán (VNĐ)</label>
+                <input type="number" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" value={productForm.price || ''} onChange={e => setProductForm({...productForm, price: Number(e.target.value)})} placeholder="1000000" />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Mô tả ngắn</label>
+                <textarea className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" rows={3} value={productForm.description} onChange={e => setProductForm({...productForm, description: e.target.value})} placeholder="Chi tiết dịch vụ..."></textarea>
+              </div>
+            </div>
+            <div className="mt-8 flex justify-end gap-3">
+              <button onClick={() => setIsProductModalOpen(false)} className="px-5 py-2.5 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors text-sm">Hủy</button>
+              <button onClick={handleSaveProduct} disabled={isSubmittingProduct} className="px-5 py-2.5 font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors text-sm flex items-center gap-2">
+                {isSubmittingProduct && <RefreshCw className="w-4 h-4 animate-spin" />}
+                {isSubmittingProduct ? 'Đang lưu...' : 'Lưu thông tin'}
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

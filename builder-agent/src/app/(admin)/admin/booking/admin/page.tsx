@@ -13,12 +13,19 @@ export default function StandaloneBookingAdminPage() {
   const { user, logout, loading } = useAuth();
   const [activeTab, setActiveTab] = useState<'calendar' | 'resources' | 'services' | 'settings'>('calendar');
   const [templateKey, setTemplateKey] = useState<string>('salon_toc');
+  const [tenantSlug, setTenantSlug] = useState<string>('');
 
   useEffect(() => {
     if (user?.tenant_id) {
       import('@/modules/booking/api/booking.service').then(({ BookingService }) => {
         BookingService.getTemplateKey(user.tenant_id as string).then(key => {
           setTemplateKey(key);
+        });
+      });
+      // Fetch tenant slug for the public link
+      import('@/lib/supabase').then(({ supabase }) => {
+        supabase.from('tenants').select('slug').eq('id', user.tenant_id).single().then(({ data }) => {
+          if (data?.slug) setTenantSlug(data.slug);
         });
       });
     }
@@ -73,6 +80,16 @@ export default function StandaloneBookingAdminPage() {
                 Cài Đặt
              </button>
           </nav>
+          
+          {tenantSlug && (
+            <Link
+              href={`/${tenantSlug}/booking`}
+              target="_blank"
+              className="flex items-center gap-2 px-4 py-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 text-indigo-700 text-sm font-bold rounded-xl shadow-sm transition-all hover:-translate-y-0.5"
+            >
+              Trang đặt lịch của Khách <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </Link>
+          )}
         </div>
       </header>
 

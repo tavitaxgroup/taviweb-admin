@@ -3,9 +3,12 @@ import { Plus, Edit2, Trash2, Search } from 'lucide-react';
 import { useAuth } from '@/modules/crm/contexts/AuthContext';
 import { BookingService, BookingServiceItem } from '../api/booking.service';
 import toast from 'react-hot-toast';
+import { getBookingConfig } from '../utils/templateConfig';
 
-export default function ServiceManagement({ template }: { template: 'salon' | 'restaurant' }) {
+export default function ServiceManagement({ template }: { template: string }) {
   const { user } = useAuth();
+  const config = getBookingConfig(template);
+
   const [services, setServices] = useState<BookingServiceItem[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -57,12 +60,17 @@ export default function ServiceManagement({ template }: { template: 'salon' | 'r
   return (
     <div className="bg-white rounded-3xl shadow-sm border border-slate-200 flex flex-col h-full animate-in fade-in duration-500 relative">
       <div className="bg-slate-50 border-b border-slate-200 px-6 py-5 flex items-center justify-between rounded-t-3xl">
-        <div>
-          <h2 className="text-xl font-extrabold text-slate-800">Quản lý Dịch vụ ({template === 'salon' ? 'Salon' : 'Nhà Hàng'})</h2>
-          <p className="text-sm text-slate-500 font-medium">Danh sách các {template === 'salon' ? 'gói làm đẹp' : 'set menu/combo'} cung cấp cho khách hàng</p>
+        <div className="flex items-center gap-3">
+          <div className={`p-2 rounded-xl shadow-inner border flex items-center justify-center ${config.color}`}>
+            {config.icon}
+          </div>
+          <div>
+            <h2 className="text-xl font-extrabold text-slate-800">Quản lý Dịch vụ</h2>
+            <p className="text-sm text-slate-500 font-medium">{config.serviceDescription}</p>
+          </div>
         </div>
         <button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md shadow-indigo-600/20 flex items-center gap-2 transition-colors">
-          <Plus className="w-4 h-4" /> Thêm dịch vụ mới
+          <Plus className="w-4 h-4" /> Thêm {config.serviceLabel} mới
         </button>
       </div>
 
@@ -111,7 +119,12 @@ export default function ServiceManagement({ template }: { template: 'salon' | 'r
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4 animate-in fade-in">
           <div className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden flex flex-col">
             <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
-              <h3 className="font-bold text-slate-800 text-lg">Thêm dịch vụ mới</h3>
+              <h3 className="font-bold text-slate-800 text-lg flex items-center gap-2">
+                 <div className={`p-1.5 rounded-lg border ${config.color}`}>
+                   {config.smallIcon}
+                 </div>
+                 Thêm {config.serviceLabel} mới
+              </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                  <Trash2 className="w-5 h-5 hidden" />
                  <span className="text-2xl leading-none">&times;</span>
@@ -119,8 +132,8 @@ export default function ServiceManagement({ template }: { template: 'salon' | 'r
             </div>
             <form onSubmit={handleAdd} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-bold text-slate-700 mb-1">Tên dịch vụ <span className="text-red-500">*</span></label>
-                <input required autoFocus type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm" placeholder={`VD: Cắt tóc nam`} />
+                <label className="block text-sm font-bold text-slate-700 mb-1">Tên {config.serviceLabel} <span className="text-red-500">*</span></label>
+                <input required autoFocus type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm" placeholder={`VD: ${config.servicePlaceholder}`} />
               </div>
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Đơn giá (VNĐ)</label>

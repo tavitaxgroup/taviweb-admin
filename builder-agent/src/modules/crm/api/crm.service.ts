@@ -23,6 +23,14 @@ export const CRMService = {
     
     return data;
   },
+  async updateUser(tenantId: string, userId: string, data: Partial<CRMUser>): Promise<void> {
+    const { error } = await supabase.from('crm_users').update(data).eq('id', userId).eq('tenant_id', tenantId);
+    if (error) throw error;
+  },
+  async deleteUser(tenantId: string, userId: string): Promise<void> {
+    const { error } = await supabase.from('crm_users').delete().eq('id', userId).eq('tenant_id', tenantId);
+    if (error) throw error;
+  },
   // Custom Fields
   async getCustomFields(tenantId: string, entityType: 'deal' | 'contact'): Promise<CRMCustomField[]> {
     const { data, error } = await supabase
@@ -260,6 +268,19 @@ export const CRMService = {
     const { data, error } = await supabase.from('crm_products').select('*').eq('tenant_id', tenantId).order('price', { ascending: true });
     if (error) throw error;
     return data || [];
+  },
+  async createProduct(tenantId: string, product: any): Promise<any> {
+    const { data, error } = await supabase.from('crm_products').insert([{...product, tenant_id: tenantId}]).select().single();
+    if (error) throw error;
+    return data;
+  },
+  async updateProduct(tenantId: string, productId: string, data: any): Promise<void> {
+    const { error } = await supabase.from('crm_products').update(data).eq('id', productId).eq('tenant_id', tenantId);
+    if (error) throw error;
+  },
+  async deleteProduct(tenantId: string, productId: string): Promise<void> {
+    const { error } = await supabase.from('crm_products').delete().eq('id', productId).eq('tenant_id', tenantId);
+    if (error) throw error;
   },
   async createQuote(tenantId: string, dealId: string, items: any[]): Promise<any> {
     const totalAmount = items.reduce((acc, item) => acc + item.total, 0);
