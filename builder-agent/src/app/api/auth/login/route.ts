@@ -39,16 +39,15 @@ export async function POST(request: Request) {
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role, name: user.name, tenant_id: user.tenant_id },
       JWT_SECRET,
-      { expiresIn: '7d' }
+      { expiresIn: '24h' }
     );
 
-    // Set HTTP-only Cookie
+    // Set HTTP-only Session Cookie (không có maxAge sẽ tự hủy khi đóng trình duyệt)
     const cookieStore = await cookies();
     cookieStore.set('crm_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'strict',
-      maxAge: 60 * 60 * 24 * 7, // 7 days
       path: '/',
     });
 
