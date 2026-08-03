@@ -76,7 +76,7 @@ export default function TenantChatbotSettings() {
       const res = await fetch('/api/admin/knowledge/ingest', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content: ragContent, source_type: 'custom' }),
+        body: JSON.stringify({ content: ragContent, source_type: \`custom:\${Date.now()}\` }),
       });
       const data = await res.json();
       if (data.success) {
@@ -131,15 +131,34 @@ export default function TenantChatbotSettings() {
     }
   };
 
-  const deleteChunk = async (id: string) => {
-    if (!confirm('Bạn có chắc chắn muốn xóa đoạn dữ liệu này? AI sẽ mất đi kiến thức liên quan.')) return;
+  const deleteDocument = async (sourceType: string) => {
+    if (!confirm('Bạn có chắc chắn muốn xóa tài liệu này? Toàn bộ kiến thức liên quan sẽ bị xóa khỏi AI.')) return;
     try {
-      await fetch(`/api/admin/knowledge?id=${id}`, { method: 'DELETE' });
+      await fetch(`/api/admin/knowledge?source_type=${encodeURIComponent(sourceType)}`, { method: 'DELETE' });
       fetchChunks();
     } catch (error) {
       console.error(error);
     }
   };
+
+  const groupedDocs = chunks.reduce((acc: any, chunk) => {
+    if (!acc[chunk.source_type]) {
+      acc[chunk.source_type] = {
+        source_type: chunk.source_type,
+        created_at: chunk.created_at,
+        count: 0
+      };
+    }
+    acc[chunk.source_type].count += 1;
+    if (new Date(chunk.created_at) > new Date(acc[chunk.source_type].created_at)) {
+      acc[chunk.source_type].created_at = chunk.created_at;
+    }
+    return acc;
+  }, {});
+
+  const documents = Object.values(groupedDocs).sort((a: any, b: any) => 
+    new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+  ) as any[];
 
   return (
     <div className="p-6 max-w-6xl mx-auto space-y-6 animate-fade-in">
@@ -235,10 +254,10 @@ export default function TenantChatbotSettings() {
         </div>
       </div>
 
-      {/* Danh sách Chunks */}
+      {/* Danh sách Documents */}
       <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-          <h2 className="text-lg font-bold text-slate-800">Dữ liệu đã học ({chunks.length} đoạn)</h2>
+          <h2 className="text-lg font-bold text-slate-800">Tài liệu đã học ({documents.length} tài liệu)</h2>
           <button onClick={fetchChunks} className="text-sm text-indigo-600 font-semibold hover:underline flex items-center gap-1">
             <RefreshCw className="w-4 h-4" /> Làm mới
           </button>
@@ -246,31 +265,38 @@ export default function TenantChatbotSettings() {
         <div className="divide-y divide-slate-100">
           {loadingChunks ? (
             <div className="p-8 text-center text-slate-400">Đang tải dữ liệu...</div>
-          ) : chunks.length === 0 ? (
-            <div className="p-8 text-center text-slate-500 text-sm">Chưa có dữ liệu kiến thức nào được nạp.</div>
+          ) : documents.length === 0 ? (
+            <div className="p-8 text-center text-slate-500 text-sm">Chưa có tài liệu kiến thức nào được nạp.</div>
           ) : (
-            chunks.map(chunk => (
-              <div key={chunk.id} className="p-6 flex items-start gap-4 hover:bg-slate-50/50 transition">
-                <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center shrink-0 mt-1">
-                  <CheckCircle className="w-4 h-4 text-emerald-500" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-wrap line-clamp-3">
-                    {chunk.content}
-                  </p>
-                  <div className="text-[11px] text-slate-400 mt-2 font-mono">
-                    ID: {chunk.id} • {new Date(chunk.created_at).toLocaleString('vi-VN')}
+            documents.map(doc => {
+              const isFile = doc.source_type.startsWith('document:');
+              const docName = isFile ? doc.source_type.replace('document:', '') : 'Dữ liệu nhập tay';
+              
+              return (
+                <div key={doc.source_type} className="p-6 flex items-center gap-4 hover:bg-slate-50/50 transition">
+                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center shrink-0">
+                    {isFile ? <File className="w-5 h-5 text-indigo-500" /> : <FileText className="w-5 h-5 text-emerald-500" />}
                   </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-semibold text-slate-700 truncate">
+                      {docName}
+                    </p>
+                    <div className="text-[12px] text-slate-500 mt-1 flex items-center gap-2">
+                      <span className="bg-slate-100 px-2 py-0.5 rounded-full text-slate-600 font-medium">{doc.count} đoạn kiến thức</span>
+                      <span>•</span>
+                      <span>{new Date(doc.created_at).toLocaleString('vi-VN')}</span>
+                    </div>
+                  </div>
+                  <button 
+                    onClick={() => deleteDocument(doc.source_type)}
+                    className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
+                    title="Xóa tài liệu"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                 </div>
-                <button 
-                  onClick={() => deleteChunk(chunk.id)}
-                  className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition"
-                  title="Xóa"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

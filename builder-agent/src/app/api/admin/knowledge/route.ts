@@ -44,14 +44,20 @@ export async function DELETE(request: Request) {
 
     const url = new URL(request.url);
     const id = url.searchParams.get('id');
+    const sourceType = url.searchParams.get('source_type');
     
-    if (!id) return NextResponse.json({ error: 'Missing chunk ID' }, { status: 400 });
+    if (!id && !sourceType) return NextResponse.json({ error: 'Missing chunk ID or source_type' }, { status: 400 });
 
-    const { error } = await adminSupabase
-      .from('knowledge_chunks')
-      .delete()
-      .eq('id', id)
-      .eq('tenant_id', tenantId);
+    let query = adminSupabase.from('knowledge_chunks').delete().eq('tenant_id', tenantId);
+    
+    if (id) {
+      query = query.eq('id', id);
+    }
+    if (sourceType) {
+      query = query.eq('source_type', sourceType);
+    }
+
+    const { error } = await query;
 
     if (error) return NextResponse.json({ error: error.message }, { status: 500 });
     return NextResponse.json({ success: true });
