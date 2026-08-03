@@ -14,14 +14,25 @@ interface AIProvider {
 
 export default function SuperadminAIHub() {
   
-  // Mock State cho Providers
-  const [providers, setProviders] = useState<AIProvider[]>([
-    { id: 'gemini', name: 'Google Gemini', key: 'AIzaSyA...', isDefault: true, status: 'active' },
-    { id: 'openai', name: 'OpenAI (ChatGPT)', key: 'sk-proj-...', isDefault: false, status: 'active' },
-    { id: 'anthropic', name: 'Anthropic (Claude)', key: '', isDefault: false, status: 'inactive' }
-  ]);
-
+  // State cho Providers
+  const [providers, setProviders] = useState<AIProvider[]>([]);
+  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin/ai-keys')
+      .then(res => res.json())
+      .then(data => {
+        if (data.providers) {
+          setProviders(data.providers);
+        }
+        setLoading(false);
+      })
+      .catch(e => {
+        console.error(e);
+        setLoading(false);
+      });
+  }, []);
 
   const handleUpdateKey = (id: string, newKey: string) => {
     setProviders(providers.map(p => p.id === id ? { ...p, key: newKey, status: newKey ? 'active' : 'inactive' } : p));
@@ -31,12 +42,23 @@ export default function SuperadminAIHub() {
     setProviders(providers.map(p => ({ ...p, isDefault: p.id === id })));
   };
 
-  const handleSaveProviders = () => {
+  const handleSaveProviders = async () => {
     setSaving(true);
-    setTimeout(() => {
-      setSaving(false);
-      // alert('Đã lưu cấu hình AI thành công!');
-    }, 1000);
+    try {
+      const res = await fetch('/api/admin/ai-keys', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ providers })
+      });
+      if (res.ok) {
+        alert('Đã lưu cấu hình AI thành công!');
+      } else {
+        alert('Lỗi lưu cấu hình');
+      }
+    } catch (e) {
+      console.error(e);
+    }
+    setSaving(false);
   };
 
   return (
@@ -74,7 +96,9 @@ export default function SuperadminAIHub() {
           </div>
 
           <div className="space-y-4">
-            {providers.map(provider => (
+            {loading ? (
+              <div className="text-center p-8 text-slate-500">Đang tải cấu hình AI...</div>
+            ) : providers.map(provider => (
               <div key={provider.id} className={`flex flex-col md:flex-row gap-4 items-center p-5 rounded-xl border ${provider.isDefault ? 'border-indigo-300 bg-indigo-50/30' : 'border-slate-200 bg-white'}`}>
                 {/* Info */}
                 <div className="w-full md:w-1/4 flex items-center gap-3">

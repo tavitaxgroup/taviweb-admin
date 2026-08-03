@@ -1,9 +1,11 @@
 import { streamText } from 'ai';
-import { google } from '@ai-sdk/google';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
+import { createAnthropic } from '@ai-sdk/anthropic';
 import { NextResponse } from 'next/server';
 import { aiRateLimiter } from '@/lib/redis/rateLimiter';
 import { searchKnowledge } from '@/lib/ai/ingestion';
-import { supabase } from '@/lib/supabase';
+import { supabase, adminSupabase } from '@/lib/supabase';
 import { waitUntil } from '@vercel/functions';
 
 // Lệnh Tối Cao (Hardcoded Security Guardrail)
@@ -100,8 +102,18 @@ export async function POST(req: Request) {
     const finalSystemPrompt = `${SYSTEM_GUARDRAIL}\n[SYSTEM PROMPT CỦA KHÁCH HÀNG]\n${tenantSystemPrompt}\n\n[KNOWLEDGE BASE]\n${context || 'Chưa có thông tin.'}`;
 
     // 4. Gọi LLM
-    if (!process.env.GEMINI_API_KEY) {
-      return NextResponse.json({ error: 'Chưa cấu hình GEMINI_API_KEY' }, { status: 500 });
+    // Fetch AI key from Database
+    const { data: activeKey } = await adminSupabase.from('ai_keys').select('*').eq('is_default', true).single();
+    let apiKey = process.env.GEMINI_API_KEY;
+    let providerId = 'gemini';
+    
+    if (activeKey && activeKey.key) {
+      apiKey = activeKey.key;
+      providerId = activeKey.id;
+    }
+
+    if (!apiKey) {
+      return NextResponse.json({ error: 'Chưa cấu hình API_KEY trong AI Hub hoặc Server' }, { status: 500 });
     }
     // Transform UIMessage from @ai-sdk/react v4 back to CoreMessage format expected by streamText
     const coreMessages = messages.map((m: any) => {
@@ -118,8 +130,21 @@ export async function POST(req: Request) {
       };
     });
 
+    let llmModel;
+    if (providerId === 'openai') {
+      const customOpenAI = createOpenAI({ apiKey });
+      llmModel = customOpenAI('gpt-4o-mini');
+    } else if (providerId === 'anthropic') {
+      const customAnthropic = createAnthropic({ apiKey });
+      llmModel = customAnthropic('claude-3-haiku-20240307');
+    } else {
+      // Fallback & Gemini
+      const customGoogle = createGoogleGenerativeAI({ apiKey });
+      llmModel = customGoogle('gemini-3.5-flash');
+    }
+
     const result = streamText({
-      model: google('gemini-3.5-flash'), // Có thể custom theo từng gói
+      model: llmModel,
       system: finalSystemPrompt,
       messages: coreMessages,
       temperature: 0.7,
