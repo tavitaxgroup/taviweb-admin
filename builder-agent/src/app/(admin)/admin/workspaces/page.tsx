@@ -211,7 +211,8 @@ export default function WorkspacesPage() {
 
   const handleCopyCredentials = () => {
     if (!newCredentials) return;
-    const text = `🎉 Hệ thống của bạn đã sẵn sàng!\n\n🌐 Website: http://localhost:3000/${newCredentials.slug}\n🔑 Đăng nhập Admin: http://localhost:3000/admin/crm/login\n\n- Email: ${newCredentials.email}\n- Mật khẩu: ${newCredentials.password}\n\nVui lòng đổi mật khẩu sau khi đăng nhập thành công.`;
+    const origin = typeof window !== 'undefined' ? window.location.origin : 'https://taviweb.vercel.app';
+    const text = `🎉 Hệ thống của bạn đã sẵn sàng!\n\n🌐 Website: ${origin}/${newCredentials.slug}\n🔑 Đăng nhập Admin: ${origin}/admin/crm/login\n\n- Email: ${newCredentials.email}\n- Mật khẩu: ${newCredentials.password}\n\nVui lòng đổi mật khẩu sau khi đăng nhập thành công.`;
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 3000);
@@ -297,7 +298,7 @@ export default function WorkspacesPage() {
                   <tr key={t.id} className="hover:bg-slate-50/80 transition-colors group">
                     <td className="p-4">
                       <div className="font-bold text-slate-800 text-base mb-1 truncate max-w-[200px]" title={t.name}>{t.name}</div>
-                      <a href={`http://localhost:3000/${t.slug}`} target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-500 hover:underline flex items-center gap-1 text-xs font-mono">
+                      <a href={`${typeof window !== 'undefined' ? window.location.origin : 'https://taviweb.vercel.app'}/${t.slug}`} target="_blank" rel="noreferrer" className="text-indigo-600 hover:text-indigo-500 hover:underline flex items-center gap-1 text-xs font-mono">
                         <Globe className="w-3 h-3" /> /{t.slug}
                       </a>
                     </td>
@@ -423,13 +424,13 @@ export default function WorkspacesPage() {
                 <div className="bg-white rounded-lg p-4 space-y-3 font-mono text-sm text-slate-700 mb-4 border border-slate-200 shadow-sm">
                   <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                     <span className="text-slate-500">Website:</span>
-                    <a href={`http://localhost:3000/${newCredentials.slug}`} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline flex items-center gap-1 font-bold">
+                    <a href={`${typeof window !== 'undefined' ? window.location.origin : 'https://taviweb.vercel.app'}/${newCredentials.slug}`} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline flex items-center gap-1 font-bold">
                       /{newCredentials.slug}
                     </a>
                   </div>
                   <div className="flex justify-between items-center border-b border-slate-100 pb-2">
                     <span className="text-slate-500">Admin:</span>
-                    <a href={`http://localhost:3000/admin/crm/login`} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline flex items-center gap-1 font-bold">
+                    <a href={`${typeof window !== 'undefined' ? window.location.origin : 'https://taviweb.vercel.app'}/admin/crm/login`} target="_blank" rel="noreferrer" className="text-indigo-600 hover:underline flex items-center gap-1 font-bold">
                       /admin/crm/login
                     </a>
                   </div>

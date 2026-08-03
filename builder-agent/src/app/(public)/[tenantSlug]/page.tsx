@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+export const dynamic = 'force-dynamic';
 import { supabase } from "@/lib/supabase";
 import { getTemplateComponent } from "@/lib/templates/templateRegistry";
 import { CompanyHome } from "@/components/company/CompanyHome";
