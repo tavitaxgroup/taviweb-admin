@@ -94,7 +94,7 @@ export async function ingestKnowledge(tenantId: string, content: string, sourceT
 /**
  * Tìm kiếm văn bản tương tự (Similarity Search)
  */
-export async function searchKnowledge(tenantId: string, query: string, limit: number = 3) {
+export async function searchKnowledge(tenantId: string, query: string, limit: number = 10) {
   try {
     const { embedding } = await embed({
       model: EMBEDDING_MODEL,
