@@ -8,64 +8,53 @@ const EMBEDDING_MODEL = google.textEmbeddingModel('gemini-embedding-2');
  * Hàm cắt văn bản thành các chunk nhỏ sử dụng Recursive Text Splitting với Overlap
  */
 export function chunkText(text: string, chunkSize: number = 1000, chunkOverlap: number = 200): string[] {
-  const separators = ['\n\n', '\n', '. ', ' ', ''];
   const chunks: string[] = [];
-
-  function splitRecursive(textToSplit: string, separatorIndex: number): string[] {
-    if (textToSplit.length <= chunkSize) return [textToSplit];
-    
-    const separator = separators[separatorIndex];
-    if (separator === undefined) {
-      // Fallback nếu không có ký tự tách nào khả thi
-      const result: string[] = [];
-      let i = 0;
-      while (i < textToSplit.length) {
-        result.push(textToSplit.slice(i, i + chunkSize));
-        i += (chunkSize - chunkOverlap > 0 ? chunkSize - chunkOverlap : chunkSize);
-      }
-      return result;
-    }
-
-    const splits = textToSplit.split(separator);
-    const goodSplits: string[] = [];
-    
-    for (const split of splits) {
-      // Đảm bảo không mất ký tự separator (trừ trường hợp rỗng)
-      const content = split + (separator === ' ' || separator === '' ? '' : separator);
-      if (content.length <= chunkSize) {
-        goodSplits.push(content);
-      } else {
-        goodSplits.push(...splitRecursive(content, separatorIndex + 1));
-      }
-    }
-    return goodSplits;
-  }
-
-  const rawSplits = splitRecursive(text, 0);
-  let currentChunk = '';
+  let i = 0;
   
-  for (let i = 0; i < rawSplits.length; i++) {
-    const split = rawSplits[i];
-    if (currentChunk.length + split.length > chunkSize && currentChunk.trim().length > 0) {
-      chunks.push(currentChunk.trim());
+  while (i < text.length) {
+    let end = Math.min(i + chunkSize, text.length);
+    
+    // Lùi lại để không cắt ngang câu hoặc từ
+    if (end < text.length) {
+      const lastNewline = text.lastIndexOf('\n', end);
+      const lastPeriod = text.lastIndexOf('. ', end);
+      const lastSpace = text.lastIndexOf(' ', end);
       
-      // Tính toán Overlap
-      let overlapText = '';
-      if (chunkOverlap > 0 && currentChunk.length > chunkOverlap) {
-        overlapText = currentChunk.slice(-chunkOverlap);
-        const lastSpace = overlapText.indexOf(' ');
-        if (lastSpace !== -1) overlapText = overlapText.slice(lastSpace + 1);
+      if (lastNewline > i + chunkSize * 0.5) {
+        end = lastNewline;
+      } else if (lastPeriod > i + chunkSize * 0.5) {
+        end = lastPeriod + 1;
+      } else if (lastSpace > i + chunkSize * 0.5) {
+        end = lastSpace;
       }
-      currentChunk = overlapText + split;
-    } else {
-      currentChunk += split;
+    }
+    
+    const chunk = text.slice(i, end).trim();
+    if (chunk) {
+      chunks.push(chunk);
+    }
+    
+    if (end >= text.length) break;
+    
+    // Tính toán vị trí bắt đầu của chunk tiếp theo (có overlap)
+    i = end - chunkOverlap;
+    
+    // Căn chỉnh vị trí bắt đầu để không bị cụt chữ
+    const nextNewline = text.indexOf('\n', i);
+    const nextSpace = text.indexOf(' ', i);
+    
+    if (nextNewline !== -1 && nextNewline < i + 50) {
+      i = nextNewline + 1;
+    } else if (nextSpace !== -1 && nextSpace < i + 20) {
+      i = nextSpace + 1;
+    }
+    
+    // Chống lặp vô hạn
+    if (i <= end - chunkSize) {
+      i = end;
     }
   }
-
-  if (currentChunk.trim()) {
-    chunks.push(currentChunk.trim());
-  }
-
+  
   return chunks;
 }
 
