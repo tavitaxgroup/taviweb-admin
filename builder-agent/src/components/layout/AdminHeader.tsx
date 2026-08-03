@@ -10,12 +10,34 @@ export function AdminHeader() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [showNotiMenu, setShowNotiMenu] = useState(false);
+  const [notifications, setNotifications] = useState<any[]>([]);
+  const [loadingNoti, setLoadingNoti] = useState(true);
   const menuRef = useRef<HTMLDivElement>(null);
+  const notiRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    fetch('/api/admin/notifications')
+      .then(res => res.json())
+      .then(data => {
+        if (data.notifications) {
+          setNotifications(data.notifications);
+        }
+        setLoadingNoti(false);
+      })
+      .catch(e => {
+        console.error('Error fetching notifications:', e);
+        setLoadingNoti(false);
+      });
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowProfileMenu(false);
+      }
+      if (notiRef.current && !notiRef.current.contains(event.target as Node)) {
+        setShowNotiMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -64,10 +86,43 @@ export function AdminHeader() {
         </div>
 
         {/* Notifications */}
-        <button className="relative p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 rounded-full transition-colors">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
-        </button>
+        <div className="relative" ref={notiRef}>
+          <button 
+            onClick={() => setShowNotiMenu(!showNotiMenu)}
+            className="relative p-2 text-slate-500 hover:bg-slate-100 hover:text-indigo-600 rounded-full transition-colors"
+          >
+            <Bell className="w-5 h-5" />
+            <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full ring-2 ring-white"></span>
+          </button>
+
+          {/* Notifications Dropdown */}
+          {showNotiMenu && (
+            <div className="absolute right-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-slate-100 py-3 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+              <div className="px-4 pb-3 border-b border-slate-100 flex justify-between items-center">
+                <h3 className="font-bold text-slate-800">Thông báo</h3>
+                <span className="text-xs font-semibold text-indigo-600 cursor-pointer hover:underline">Đánh dấu đã đọc</span>
+              </div>
+              <div className="max-h-[300px] overflow-y-auto">
+                {loadingNoti ? (
+                  <div className="p-4 text-center text-xs text-slate-500">Đang tải...</div>
+                ) : notifications.length === 0 ? (
+                  <div className="p-4 text-center text-xs text-slate-500">Chưa có thông báo nào.</div>
+                ) : (
+                  notifications.map(noti => (
+                    <div key={noti.id} className="px-4 py-3 border-b border-slate-50 hover:bg-slate-50 cursor-pointer transition-colors text-left">
+                      <p className="text-sm font-semibold text-slate-800">{noti.title}</p>
+                      <p className="text-xs text-slate-500 mt-1">{noti.message}</p>
+                      <p className="text-[10px] text-slate-400 mt-1.5">{new Date(noti.time).toLocaleString('vi-VN')}</p>
+                    </div>
+                  ))
+                )}
+              </div>
+              <div className="pt-2 border-t border-slate-100 px-4 text-center">
+                <Link href="#" className="text-xs font-bold text-indigo-600 hover:underline">Xem tất cả</Link>
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Divider */}
         <div className="w-px h-6 bg-slate-200 hidden sm:block"></div>
