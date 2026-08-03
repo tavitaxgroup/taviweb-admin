@@ -61,12 +61,12 @@ export default function ChatbotWidget({ tenantId }: { tenantId?: string }) {
   return (
     <>
       <style dangerouslySetInnerHTML={{__html: `
-        .chatbot-prose ul { list-style-type: disc; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-        .chatbot-prose ol { list-style-type: decimal; padding-left: 1.5rem; margin-top: 0.5rem; margin-bottom: 0.5rem; }
-        .chatbot-prose li { margin-bottom: 0.25rem; }
+        .chatbot-prose ul { list-style-type: disc; padding-left: 1.2rem; margin-top: 0.25rem; margin-bottom: 0.25rem; }
+        .chatbot-prose ol { list-style-type: decimal; padding-left: 1.2rem; margin-top: 0.25rem; margin-bottom: 0.25rem; }
+        .chatbot-prose li { margin-bottom: 0.1rem; }
         .chatbot-prose strong { font-weight: 600; color: #111827; }
-        .chatbot-prose h3 { font-weight: 600; font-size: 1.05rem; margin-top: 1rem; margin-bottom: 0.5rem; color: #111827; }
-        .chatbot-prose p { margin-bottom: 0.5rem; }
+        .chatbot-prose h3 { font-weight: 600; font-size: 1rem; margin-top: 0.75rem; margin-bottom: 0.25rem; color: #111827; }
+        .chatbot-prose p { margin-bottom: 0.35rem; }
         .chatbot-prose p:last-child { margin-bottom: 0; }
       `}} />
       <div className="fixed bottom-6 right-6 w-[350px] sm:w-[400px] h-[600px] max-h-[85vh] bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden z-50 border border-slate-200 animate-scale-in">
@@ -114,9 +114,9 @@ export default function ChatbotWidget({ tenantId }: { tenantId?: string }) {
               </div>
             )}
             
-            <div className={`p-3 rounded-2xl text-sm shadow-sm max-w-[85%] whitespace-pre-wrap ${
+            <div className={`p-3 rounded-2xl text-sm shadow-sm max-w-[85%] ${
               m.role === 'user' 
-                ? 'bg-indigo-600 text-white rounded-tr-none' 
+                ? 'bg-indigo-600 text-white rounded-tr-none whitespace-pre-wrap' 
                 : 'bg-white border border-slate-100 text-slate-700 rounded-tl-none chatbot-prose'
             }`}>
               {/* @ai-sdk/react v4 uses parts instead of content */}
