@@ -69,7 +69,15 @@ export async function POST(req: Request) {
     }
 
     // 3. RAG - Lấy thông tin ngữ cảnh từ câu hỏi cuối cùng
-    const lastMessage = messages[messages.length - 1]?.content;
+    const lastMsgObj = messages[messages.length - 1];
+    let lastMessage = lastMsgObj?.content || '';
+    if (!lastMessage && lastMsgObj?.parts) {
+      lastMessage = lastMsgObj.parts
+        .filter((p: any) => p.type === 'text')
+        .map((p: any) => p.text)
+        .join('\n');
+    }
+
     let context = '';
     
     if (lastMessage) {
