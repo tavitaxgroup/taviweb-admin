@@ -18,8 +18,7 @@ type Package = {
 export default function AdminPanel() {
 
   const { user } = useAuth();
-  const [activeTab, setActiveTab] = useState<'users' | 'products' | 'kpis' | 'integrations' | 'quota'>('users');
-  const [users, setUsers] = useState<any[]>([]);
+  const [activeTab, setActiveTab] = useState<'products' | 'kpis' | 'integrations' | 'quota'>('products');
   const [products, setProducts] = useState<any[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
   const [quotaInfo, setQuotaInfo] = useState<{used: number, total: number, packageName: string, expiresAt?: string | null} | null>(null);
@@ -30,10 +29,6 @@ export default function AdminPanel() {
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [isCreatingTx, setIsCreatingTx] = useState(false);
   const [duration, setDuration] = useState<number>(1);
-  const [isUserModalOpen, setIsUserModalOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<any>(null);
-  const [userForm, setUserForm] = useState({ name: '', email: '', role: 'user' });
-  const [isSubmittingUser, setIsSubmittingUser] = useState(false);
   
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
@@ -48,14 +43,7 @@ export default function AdminPanel() {
 
   const loadData = async () => {
     if (!user?.tenant_id) return;
-    if (activeTab === 'users') {
-       try {
-         const u = await CRMService.getUsers(user.tenant_id);
-         setUsers(u);
-       } catch (e) {
-         console.error(e);
-       }
-    } else if (activeTab === 'products') {
+    if (activeTab === 'products') {
        try {
          const p = await CRMService.getProducts(user.tenant_id);
          setProducts(p);
@@ -179,51 +167,7 @@ export default function AdminPanel() {
     setIsCreatingTx(false);
   };
 
-  const openUserModal = (u?: any) => {
-    if (u) {
-      setEditingUser(u);
-      setUserForm({ name: u.name || '', email: u.email || '', role: u.role || 'user' });
-    } else {
-      setEditingUser(null);
-      setUserForm({ name: '', email: '', role: 'user' });
-    }
-    setIsUserModalOpen(true);
-  };
 
-  const handleSaveUser = async () => {
-    if (!user?.tenant_id || !userForm.name || !userForm.email) {
-      toast.error("Vui lòng nhập đủ thông tin!");
-      return;
-    }
-    setIsSubmittingUser(true);
-    try {
-      if (editingUser) {
-        await CRMService.updateUser(user.tenant_id, editingUser.id, userForm);
-        toast.success("Cập nhật nhân viên thành công!");
-      } else {
-        await CRMService.createUser(user.tenant_id, userForm);
-        toast.success("Thêm nhân viên thành công!");
-      }
-      setIsUserModalOpen(false);
-      loadData();
-    } catch (e: any) {
-      toast.error(e.message || "Có lỗi xảy ra");
-    }
-    setIsSubmittingUser(false);
-  };
-
-  const handleDeleteUser = async (u: any) => {
-    if (!user?.tenant_id) return;
-    if (confirm(`Bạn có chắc chắn muốn khóa/xóa nhân viên ${u.name}?`)) {
-      try {
-        await CRMService.deleteUser(user.tenant_id, u.id);
-        toast.success("Đã xóa/khóa nhân viên!");
-        loadData();
-      } catch (e) {
-        toast.error("Có lỗi xảy ra");
-      }
-    }
-  };
 
   const openProductModal = (p?: any) => {
     if (p) {
@@ -279,12 +223,7 @@ export default function AdminPanel() {
       </div>
 
       <div className="flex gap-4 border-b border-slate-200 mb-6 overflow-x-auto">
-        <button 
-          onClick={() => setActiveTab('users')} 
-          className={`pb-3 px-2 font-bold text-sm border-b-2 transition-all whitespace-nowrap ${activeTab === 'users' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
-        >
-          👤 Quản lý Nhân sự
-        </button>
+
         <button 
           onClick={() => setActiveTab('products')} 
           className={`pb-3 px-2 font-bold text-sm border-b-2 transition-all whitespace-nowrap ${activeTab === 'products' ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
@@ -312,48 +251,6 @@ export default function AdminPanel() {
       </div>
 
       <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-200">
-        {activeTab === 'users' && (
-          <div>
-             <div className="flex justify-between items-center mb-4">
-                <h3 className="font-bold text-lg">Danh sách Tài khoản</h3>
-                <button onClick={() => openUserModal()} className="bg-indigo-600 text-white px-4 py-2 rounded-lg text-sm font-bold shadow hover:bg-indigo-700 transition-colors">
-                  + Thêm Nhân Viên
-                </button>
-             </div>
-             <table className="w-full text-left border-collapse">
-               <thead>
-                 <tr className="bg-slate-50 text-slate-500 text-xs uppercase tracking-wider">
-                   <th className="p-3 border-b border-slate-200">Tên</th>
-                   <th className="p-3 border-b border-slate-200">Email</th>
-                   <th className="p-3 border-b border-slate-200">Phân quyền</th>
-                   <th className="p-3 border-b border-slate-200 text-right">Thao tác</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 {users.map(u => (
-                   <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50">
-                     <td className="p-3 font-semibold text-slate-800">{u.name}</td>
-                     <td className="p-3 text-slate-600">{u.email}</td>
-                     <td className="p-3">
-                       <span className={`px-2 py-1 rounded text-xs font-bold ${u.role === 'admin' ? 'bg-red-100 text-red-700' : 'bg-emerald-100 text-emerald-700'}`}>
-                         {u.role.toUpperCase()}
-                       </span>
-                     </td>
-                     <td className="p-3 text-right">
-                       <button onClick={() => openUserModal(u)} className="text-indigo-600 text-xs font-bold mr-2 hover:underline">Sửa</button>
-                       {u.role !== 'admin' && <button onClick={() => handleDeleteUser(u)} className="text-red-600 text-xs font-bold hover:underline">Khóa</button>}
-                     </td>
-                   </tr>
-                 ))}
-                 {users.length === 0 && (
-                   <tr>
-                     <td colSpan={4} className="p-6 text-center text-slate-500">Đang tải danh sách nhân sự...</td>
-                   </tr>
-                 )}
-               </tbody>
-             </table>
-          </div>
-        )}
 
         {activeTab === 'products' && (
           <div>
@@ -760,39 +657,6 @@ export default function AdminPanel() {
           </div>
       )}
 
-      {/* User Modal */}
-      {isUserModalOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm" onClick={() => setIsUserModalOpen(false)}>
-          <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl relative p-6" onClick={(e) => e.stopPropagation()}>
-            <button onClick={() => setIsUserModalOpen(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-700 font-bold text-2xl">&times;</button>
-            <h3 className="text-xl font-black text-slate-800 mb-6">{editingUser ? 'Sửa Nhân Sự' : 'Thêm Nhân Sự Mới'}</h3>
-            <div className="space-y-4">
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Họ Tên <span className="text-red-500">*</span></label>
-                <input type="text" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" value={userForm.name} onChange={e => setUserForm({...userForm, name: e.target.value})} placeholder="Nguyễn Văn A" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Email <span className="text-red-500">*</span></label>
-                <input type="email" className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none" value={userForm.email} onChange={e => setUserForm({...userForm, email: e.target.value})} placeholder="email@domain.com" />
-              </div>
-              <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Phân quyền</label>
-                <select className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none bg-white" value={userForm.role} onChange={e => setUserForm({...userForm, role: e.target.value})}>
-                  <option value="user">User (Nhân viên Sale/CSKH)</option>
-                  <option value="admin">Admin (Quản lý)</option>
-                </select>
-              </div>
-            </div>
-            <div className="mt-8 flex justify-end gap-3">
-              <button onClick={() => setIsUserModalOpen(false)} className="px-5 py-2.5 font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors text-sm">Hủy</button>
-              <button onClick={handleSaveUser} disabled={isSubmittingUser} className="px-5 py-2.5 font-bold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg transition-colors text-sm flex items-center gap-2">
-                {isSubmittingUser && <RefreshCw className="w-4 h-4 animate-spin" />}
-                {isSubmittingUser ? 'Đang lưu...' : 'Lưu thông tin'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
 
       {/* Product Modal */}
       {isProductModalOpen && (
