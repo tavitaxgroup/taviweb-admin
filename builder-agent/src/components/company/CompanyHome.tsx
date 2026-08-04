@@ -156,8 +156,8 @@ export function CompanyHome() {
   return (
     <div id="tw" style={{ background: "#09090F", color: "#E0E0EE", fontFamily: "'Inter','Segoe UI',sans-serif", minHeight: "100vh" }}>
       <style dangerouslySetInnerHTML={{ __html: `
-        #tw *, #tw *::before, #tw *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        #tw a { text-decoration: none; }
+        :where(#tw *), :where(#tw *::before), :where(#tw *::after) { box-sizing: border-box; margin: 0; padding: 0; }
+        :where(#tw a) { text-decoration: none; }
 
 
         /* --- NAV --- */
