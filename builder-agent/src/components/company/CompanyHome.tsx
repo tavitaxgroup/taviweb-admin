@@ -155,9 +155,10 @@ export function CompanyHome() {
 
   return (
     <div id="tw" style={{ background: "#09090F", color: "#E0E0EE", fontFamily: "'Inter','Segoe UI',sans-serif", minHeight: "100vh" }}>
-      <style>{`
+      <style dangerouslySetInnerHTML={{ __html: `
         #tw *, #tw *::before, #tw *::after { box-sizing: border-box; margin: 0; padding: 0; }
         #tw a { text-decoration: none; }
+
 
         /* --- NAV --- */
         .tn { position: fixed; top: 0; left: 0; right: 0; z-index: 100; height: 66px;
@@ -327,7 +328,7 @@ export function CompanyHome() {
           .th-btns { flex-direction: column; align-items: center; }
           .ts { grid-template-columns: repeat(2, 1fr); }
         }
-      `}</style>
+      `}} />
 
       {/* ── NAVBAR ── */}
       <nav className={`tn${scrolled ? " scrolled" : ""}`}>
