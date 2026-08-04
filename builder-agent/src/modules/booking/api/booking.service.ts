@@ -72,6 +72,26 @@ export const BookingService = {
     return data;
   },
 
+  async updateResource(tenantId: string, id: string, resource: Partial<BookingResource>): Promise<void> {
+    const { error } = await supabase.from('booking_resources').update(resource).eq('id', id).eq('tenant_id', tenantId);
+    if (error) throw error;
+  },
+
+  async deleteResource(tenantId: string, id: string): Promise<void> {
+    const { error } = await supabase.from('booking_resources').delete().eq('id', id).eq('tenant_id', tenantId);
+    if (error) throw error;
+  },
+
+  async updateService(tenantId: string, id: string, service: Partial<BookingServiceItem>): Promise<void> {
+    const { error } = await supabase.from('booking_services').update(service).eq('id', id).eq('tenant_id', tenantId);
+    if (error) throw error;
+  },
+
+  async deleteService(tenantId: string, id: string): Promise<void> {
+    const { error } = await supabase.from('booking_services').delete().eq('id', id).eq('tenant_id', tenantId);
+    if (error) throw error;
+  },
+
   async createAppointment(tenantId: string, appointment: Partial<BookingAppointment>): Promise<BookingAppointment> {
     const { data, error } = await supabase.from('booking_appointments').insert([{ ...appointment, tenant_id: tenantId }]).select().single();
     if (error) throw error;

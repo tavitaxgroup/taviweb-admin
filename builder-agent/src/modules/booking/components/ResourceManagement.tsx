@@ -31,28 +31,57 @@ export default function ResourceManagement({ template }: { template: string }) {
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', role: '' });
   const [submitting, setSubmitting] = useState(false);
 
-  const handleAdd = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !user?.tenant_id) return;
     
     setSubmitting(true);
     try {
-      await BookingService.createResource(user.tenant_id, {
-        name: formData.name,
-        type: 'resource',
-        role_or_capacity: formData.role,
-        status: 'active'
-      });
+      if (editingId) {
+        await BookingService.updateResource(user.tenant_id, editingId, {
+          name: formData.name,
+          role_or_capacity: formData.role
+        });
+        toast.success('Cập nhật thành công');
+      } else {
+        await BookingService.createResource(user.tenant_id, {
+          name: formData.name,
+          type: 'resource',
+          role_or_capacity: formData.role,
+          status: 'active'
+        });
+        toast.success('Thêm tài nguyên thành công');
+      }
       setIsModalOpen(false);
       setFormData({ name: '', role: '' });
+      setEditingId(null);
       loadData();
     } catch (err) {
-      toast.error('Có lỗi xảy ra khi thêm tài nguyên');
+      toast.error('Có lỗi xảy ra khi lưu tài nguyên');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (res: BookingResource) => {
+    setEditingId(res.id);
+    setFormData({ name: res.name, role: res.role_or_capacity || '' });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!user?.tenant_id) return;
+    if (!window.confirm('Bạn có chắc muốn xóa tài nguyên này?')) return;
+    try {
+      await BookingService.deleteResource(user.tenant_id, id);
+      toast.success('Xóa tài nguyên thành công');
+      loadData();
+    } catch (err) {
+      toast.error('Lỗi khi xóa tài nguyên');
     }
   };
 
@@ -68,7 +97,7 @@ export default function ResourceManagement({ template }: { template: string }) {
             <p className="text-sm text-slate-500 font-medium">{config.resourceDescription}</p>
           </div>
         </div>
-        <button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md shadow-indigo-600/20 flex items-center gap-2 transition-colors">
+        <button onClick={() => { setEditingId(null); setFormData({name: '', role: ''}); setIsModalOpen(true); }} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md shadow-indigo-600/20 flex items-center gap-2 transition-colors">
           <Plus className="w-4 h-4" /> Thêm {config.resourceLabel} mới
         </button>
       </div>
@@ -110,8 +139,8 @@ export default function ResourceManagement({ template }: { template: string }) {
                     </span>
                   </td>
                   <td className="px-6 py-4 text-right space-x-2">
-                    <button className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
-                    <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => handleEdit(res)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(res.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                   </td>
                 </tr>
               ))}
@@ -128,14 +157,14 @@ export default function ResourceManagement({ template }: { template: string }) {
                  <div className={`p-1.5 rounded-lg border ${config.color}`}>
                    {config.smallIcon}
                  </div>
-                 Thêm {config.resourceLabel} mới
+                 {editingId ? `Cập nhật ${config.resourceLabel}` : `Thêm ${config.resourceLabel} mới`}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                  <Trash2 className="w-5 h-5 hidden" />
                  <span className="text-2xl leading-none">&times;</span>
               </button>
             </div>
-            <form onSubmit={handleAdd} className="p-6 space-y-4">
+            <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Tên {config.resourceLabel} <span className="text-red-500">*</span></label>
                 <input required autoFocus type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm" placeholder={`VD: ${config.resourcePlaceholder}`} />

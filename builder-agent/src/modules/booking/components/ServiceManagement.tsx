@@ -30,10 +30,11 @@ export default function ServiceManagement({ template }: { template: string }) {
   };
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
   const [formData, setFormData] = useState({ name: '', price: '', duration: '' });
   const [submitting, setSubmitting] = useState(false);
 
-  const handleAdd = async (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name || !user?.tenant_id) return;
     
@@ -42,18 +43,47 @@ export default function ServiceManagement({ template }: { template: string }) {
     const duration = parseInt(formData.duration || '60', 10);
     
     try {
-      await BookingService.createService(user.tenant_id, {
-        name: formData.name,
-        price: isNaN(price) ? 0 : price,
-        duration_minutes: isNaN(duration) ? 60 : duration,
-      });
+      if (editingId) {
+        await BookingService.updateService(user.tenant_id, editingId, {
+          name: formData.name,
+          price: isNaN(price) ? 0 : price,
+          duration_minutes: isNaN(duration) ? 60 : duration,
+        });
+        toast.success('Cập nhật thành công');
+      } else {
+        await BookingService.createService(user.tenant_id, {
+          name: formData.name,
+          price: isNaN(price) ? 0 : price,
+          duration_minutes: isNaN(duration) ? 60 : duration,
+        });
+        toast.success('Thêm dịch vụ thành công');
+      }
       setIsModalOpen(false);
       setFormData({ name: '', price: '', duration: '' });
+      setEditingId(null);
       loadData();
     } catch (err) {
-      toast.error('Có lỗi xảy ra khi thêm dịch vụ');
+      toast.error('Có lỗi xảy ra khi lưu dịch vụ');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleEdit = (svc: BookingServiceItem) => {
+    setEditingId(svc.id);
+    setFormData({ name: svc.name, price: String(svc.price), duration: String(svc.duration_minutes) });
+    setIsModalOpen(true);
+  };
+
+  const handleDelete = async (id: string) => {
+    if (!user?.tenant_id) return;
+    if (!window.confirm('Bạn có chắc muốn xóa dịch vụ này?')) return;
+    try {
+      await BookingService.deleteService(user.tenant_id, id);
+      toast.success('Xóa dịch vụ thành công');
+      loadData();
+    } catch (err) {
+      toast.error('Lỗi khi xóa dịch vụ');
     }
   };
 
@@ -69,7 +99,7 @@ export default function ServiceManagement({ template }: { template: string }) {
             <p className="text-sm text-slate-500 font-medium">{config.serviceDescription}</p>
           </div>
         </div>
-        <button onClick={() => setIsModalOpen(true)} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md shadow-indigo-600/20 flex items-center gap-2 transition-colors">
+        <button onClick={() => { setEditingId(null); setFormData({name: '', price: '', duration: ''}); setIsModalOpen(true); }} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-bold text-sm shadow-md shadow-indigo-600/20 flex items-center gap-2 transition-colors">
           <Plus className="w-4 h-4" /> Thêm {config.serviceLabel} mới
         </button>
       </div>
@@ -105,8 +135,8 @@ export default function ServiceManagement({ template }: { template: string }) {
                     {new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' }).format(svc.price)}
                   </td>
                   <td className="px-6 py-4 text-right space-x-2">
-                    <button className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
-                    <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
+                    <button onClick={() => handleEdit(svc)} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                    <button onClick={() => handleDelete(svc.id)} className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                   </td>
                 </tr>
               ))}
@@ -123,14 +153,14 @@ export default function ServiceManagement({ template }: { template: string }) {
                  <div className={`p-1.5 rounded-lg border ${config.color}`}>
                    {config.smallIcon}
                  </div>
-                 Thêm {config.serviceLabel} mới
+                 {editingId ? `Cập nhật ${config.serviceLabel}` : `Thêm ${config.serviceLabel} mới`}
               </h3>
               <button onClick={() => setIsModalOpen(false)} className="text-slate-400 hover:text-slate-600 transition-colors">
                  <Trash2 className="w-5 h-5 hidden" />
                  <span className="text-2xl leading-none">&times;</span>
               </button>
             </div>
-            <form onSubmit={handleAdd} className="p-6 space-y-4">
+            <form onSubmit={handleSave} className="p-6 space-y-4">
               <div>
                 <label className="block text-sm font-bold text-slate-700 mb-1">Tên {config.serviceLabel} <span className="text-red-500">*</span></label>
                 <input required autoFocus type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-4 py-2 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition-all text-sm" placeholder={`VD: ${config.servicePlaceholder}`} />
