@@ -22,8 +22,12 @@ export default function AdminPanel() {
   const [products, setProducts] = useState<any[]>([]);
   const [packages, setPackages] = useState<Package[]>([]);
   const [quotaInfo, setQuotaInfo] = useState<{used: number, total: number, packageName: string, expiresAt?: string | null} | null>(null);
+  const [apiKey, setApiKey] = useState<string | null>(null);
+  const [isRegeneratingKey, setIsRegeneratingKey] = useState(false);
   const [originUrl, setOriginUrl] = useState('');
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+
+  // ... skip unneeded code for brevity (just replace from quotaInfo to useEffect)
   const [checkoutPackage, setCheckoutPackage] = useState<{name: string, price: string, amount: number, transactionId?: string, transactionCode?: string} | null>(null);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
@@ -45,13 +49,38 @@ export default function AdminPanel() {
     if (!user?.tenant_id) return;
     if (activeTab === 'products') {
        try {
-         const p = await CRMService.getProducts(user.tenant_id);
+         const { getProductsAction } = await import('../api/admin.actions');
+         const p = await getProductsAction(user.tenant_id);
          setProducts(p);
        } catch (e) {
          console.error(e);
        }
+    } else if (activeTab === 'integrations') {
+       try {
+         const { getDeveloperKeyAction } = await import('../api/admin.actions');
+         const key = await getDeveloperKeyAction(user.tenant_id);
+         setApiKey(key || null);
+       } catch(e) {
+         console.error(e);
+       }
     } else if (activeTab === 'quota') {
        fetchQuotaInfo();
+    }
+  };
+
+  const handleRegenerateApiKey = async () => {
+    if (!user?.tenant_id) return;
+    if (confirm("Cảnh báo: Việc tạo mã mới sẽ làm hỏng các kết nối API hiện tại của bạn. Bạn có chắc chắn muốn tiếp tục?")) {
+      setIsRegeneratingKey(true);
+      try {
+        const { regenerateDeveloperKeyAction } = await import('../api/admin.actions');
+        const newKey = await regenerateDeveloperKeyAction(user.tenant_id);
+        setApiKey(newKey);
+        toast.success("Đã tạo Developer API Key mới!");
+      } catch (e) {
+        toast.error("Có lỗi xảy ra khi tạo Key mới.");
+      }
+      setIsRegeneratingKey(false);
     }
   };
 
@@ -187,11 +216,12 @@ export default function AdminPanel() {
     }
     setIsSubmittingProduct(true);
     try {
+      const { createProductAction, updateProductAction } = await import('../api/admin.actions');
       if (editingProduct) {
-        await CRMService.updateProduct(user.tenant_id, editingProduct.id, productForm);
+        await updateProductAction(user.tenant_id, editingProduct.id, productForm);
         toast.success("Cập nhật gói dịch vụ thành công!");
       } else {
-        await CRMService.createProduct(user.tenant_id, productForm);
+        await createProductAction(user.tenant_id, productForm);
         toast.success("Thêm gói dịch vụ thành công!");
       }
       setIsProductModalOpen(false);
@@ -206,7 +236,8 @@ export default function AdminPanel() {
     if (!user?.tenant_id) return;
     if (confirm(`Bạn có chắc chắn muốn xóa dịch vụ ${p.name}?`)) {
       try {
-        await CRMService.deleteProduct(user.tenant_id, p.id);
+        const { deleteProductAction } = await import('../api/admin.actions');
+        await deleteProductAction(user.tenant_id, p.id);
         toast.success("Đã xóa dịch vụ!");
         loadData();
       } catch (e) {
@@ -292,12 +323,58 @@ export default function AdminPanel() {
         {activeTab === 'integrations' && (
           <div>
              <div className="mb-6">
-                <h3 className="font-bold text-lg mb-1">Kết nối Inbound Leads (Webhook)</h3>
+                <h3 className="font-bold text-lg mb-1">Developer API & Webhooks</h3>
+                <p className="text-sm text-slate-500">Quản lý mã kết nối để tích hợp TaviWeb với hệ thống riêng hoặc các nền tảng khác.</p>
+             </div>
+
+             {/* API KEY SECTION */}
+             <div className="bg-white border border-indigo-200 p-5 rounded-xl mb-6 shadow-sm">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <h4 className="font-bold text-indigo-900 mb-1">Developer API Key (Bearer Token)</h4>
+                    <p className="text-xs text-slate-500">Mã này được sử dụng để xác thực các API Requests (Leads, Deals, Booking, Knowledge Base...).</p>
+                  </div>
+                  <button 
+                    onClick={handleRegenerateApiKey}
+                    disabled={isRegeneratingKey}
+                    className="flex items-center gap-1 text-xs font-bold text-rose-600 bg-rose-50 hover:bg-rose-100 px-3 py-1.5 rounded-lg transition-colors"
+                  >
+                    <RefreshCw className={`w-3 h-3 ${isRegeneratingKey ? 'animate-spin' : ''}`} />
+                    Tạo mã mới
+                  </button>
+                </div>
+                
+                <div className="flex gap-2">
+                   <input 
+                     type="text" 
+                     readOnly
+                     value={apiKey || 'Đang tải...'}
+                     className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-sm font-mono text-slate-700 outline-none"
+                   />
+                   <button 
+                     onClick={() => {
+                        if(apiKey) {
+                          navigator.clipboard.writeText(apiKey);
+                          toast.success('Đã copy API Key!');
+                        }
+                     }}
+                     className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                   >
+                     Copy
+                   </button>
+                </div>
+                <p className="text-xs text-amber-600 mt-3 font-medium flex items-center gap-1 bg-amber-50 p-2 rounded">
+                   ⚠️ Cảnh báo: Ai có mã này sẽ có quyền đọc/ghi toàn bộ dữ liệu CRM của bạn. Hãy bảo mật tuyệt đối!
+                </p>
+             </div>
+             
+             <div className="mb-4 mt-8 border-t border-slate-100 pt-6">
+                <h3 className="font-bold text-md mb-1">Kết nối Inbound Leads (Webhook URL)</h3>
                 <p className="text-sm text-slate-500">Sử dụng đường dẫn Webhook này để tự động nhận Khách hàng (Leads) từ Facebook Ads, LadiPage, Zalo, hoặc Zapier.</p>
              </div>
              
              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl mb-6">
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">URL Webhook của bạn (Bảo mật)</label>
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">URL Webhook của bạn</label>
                 <div className="flex gap-2">
                    <input 
                      type="text" 
@@ -308,16 +385,13 @@ export default function AdminPanel() {
                    <button 
                      onClick={() => {
                         navigator.clipboard.writeText(`${originUrl}/api/webhook/leads?tenant=${user?.tenant_id || ''}`);
-                        alert('Đã copy!');
+                        toast.success('Đã copy Webhook URL!');
                      }}
-                     className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"
+                     className="bg-slate-800 hover:bg-slate-900 text-white px-4 py-2 rounded-lg text-sm font-bold transition-colors"
                    >
                      Copy
                    </button>
                 </div>
-                <p className="text-xs text-amber-600 mt-2 font-medium flex items-center gap-1">
-                   ⚠️ Không chia sẻ đường dẫn này công khai vì nó cấp quyền tạo Deal trực tiếp vào hệ thống của bạn.
-                </p>
              </div>
 
              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl">
