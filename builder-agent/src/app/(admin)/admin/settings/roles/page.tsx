@@ -24,7 +24,8 @@ const PERMISSION_GROUPS = [
     key: 'settings',
     items: [
       { id: 'manage_pipelines', label: 'Quản lý Quy trình (Pipelines)' },
-      { id: 'manage_users', label: 'Quản lý Nhân viên' },
+      { id: 'manage_users', label: 'Thêm/Xóa Nhân viên' },
+      { id: 'edit_users', label: 'Chỉnh sửa thông tin & quyền Nhân viên' },
       { id: 'manage_roles', label: 'Quản lý Phân quyền (Roles)' },
       { id: 'manage_settings', label: 'Thiết lập Chung' },
     ]
