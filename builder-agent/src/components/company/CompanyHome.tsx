@@ -14,20 +14,26 @@ const stats = [
 ];
 
 const industries = [
-  { icon: "🦷", name: "Nha khoa" },
-  { icon: "🌿", name: "Spa" },
-  { icon: "✨", name: "Thẩm mỹ viện" },
-  { icon: "🏥", name: "Phòng khám" },
-  { icon: "💇", name: "Hair salon" },
-  { icon: "⚖️", name: "Luật sư" },
-  { icon: "📚", name: "Trung tâm tiếng Anh" },
-  { icon: "🛋️", name: "Nội thất" },
-  { icon: "🏗️", name: "Xây dựng" },
-  { icon: "🍽️", name: "Nhà hàng" },
-  { icon: "☕", name: "Quán cafe" },
-  { icon: "💪", name: "Gym & Fitness" },
-  { icon: "📸", name: "Studio ảnh cưới" },
-  { icon: "🔧", name: "Garage ô tô" },
+  {
+    name: "Nội thất & Kiến trúc",
+    icon: "🛋️",
+    desc: "Hiển thị portfolio đẳng cấp, thu thập form báo giá chi tiết theo diện tích nhà.",
+  },
+  {
+    name: "Trung tâm Ngoại ngữ",
+    icon: "🇬🇧",
+    desc: "Quản lý tuyển sinh, phân loại trình độ học viên và tự động hẹn lịch test đầu vào.",
+  },
+  {
+    name: "Thẩm mỹ viện & Nha khoa",
+    icon: "✨",
+    desc: "Trực Chatbot 24/7 xin số điện thoại, quản lý lịch hẹn liệu trình không lo trùng lấp.",
+  },
+  {
+    name: "Văn phòng Luật sư",
+    icon: "⚖️",
+    desc: "Xây dựng hồ sơ uy tín tuyệt đối, đặt lịch tư vấn pháp lý bảo mật trực tuyến.",
+  },
 ];
 
 const features = [
@@ -234,13 +240,14 @@ export function CompanyHome() {
         .sec-sub { color: #A1A1AA; max-width: 580px; margin: 0 auto; line-height: 1.8; font-size: 1rem; }
 
         /* --- INDUSTRIES GRID --- */
-        .ind-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 14px; }
+        .ind-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; }
         .ind-card { background: rgba(255,255,255,.02); border: 1px solid rgba(255,255,255,.06);
-          border-radius: 16px; padding: 22px 12px; text-align: center; transition: all .25s;
-          display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .ind-card:hover { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.15); transform: translateY(-4px); }
-        .ind-icon { font-size: 1.8rem; }
-        .ind-nm { color: #D4D4D8; font-size: .8rem; font-weight: 500; }
+          border-radius: 20px; padding: 36px 32px; text-align: left; transition: all .25s;
+          display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+        .ind-card:hover { background: rgba(255,255,255,.04); border-color: rgba(255,255,255,.15); transform: translateY(-4px); }
+        .ind-icon { font-size: 2.8rem; background: rgba(255,255,255,0.05); width: 64px; height: 64px; display: flex; align-items: center; justify-content: center; border-radius: 16px; }
+        .ind-nm { color: #fff; font-size: 1.25rem; font-weight: 700; }
+        .ind-desc { color: #A1A1AA; font-size: .95rem; line-height: 1.6; }
 
         /* --- FEATURES GRID --- */
         .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
@@ -399,8 +406,9 @@ export function CompanyHome() {
           <div className="ind-grid">
             {industries.map(ind => (
               <div className="ind-card" key={ind.name}>
-                <span className="ind-icon">{ind.icon}</span>
-                <span className="ind-nm">{ind.name}</span>
+                <div className="ind-icon">{ind.icon}</div>
+                <h3 className="ind-nm">{ind.name}</h3>
+                <p className="ind-desc">{ind.desc}</p>
               </div>
             ))}
           </div>
