@@ -10,7 +10,8 @@ export const CRMService = {
     return data || [];
   },
   async createUser(tenantId: string, user: Partial<CRMUser>): Promise<CRMUser> {
-    const { data, error } = await supabase.from('crm_users').insert([{...user, tenant_id: tenantId}]).select().single();
+    const defaultPasswordHash = user.password_hash || '$2a$10$defaultMockPasswordHash';
+    const { data, error } = await supabase.from('crm_users').insert([{...user, password_hash: defaultPasswordHash, tenant_id: tenantId}]).select().single();
     if (error) throw error;
     
     await AuditService.logActivity({
