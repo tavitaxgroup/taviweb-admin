@@ -375,8 +375,8 @@ export default function PublicBookingForm({ tenantId, tenantName, templateKey }:
                      <input required type="text" value={formData.customerName} onChange={e => setFormData({...formData, customerName: e.target.value})} className="w-full px-6 py-4 rounded-2xl border-2 border-white focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all bg-white/80 text-slate-900 font-bold placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:bg-white" placeholder="Nguyễn Văn A" />
                    </div>
                    <div>
-                     <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Số điện thoại</label>
-                     <input type="tel" value={formData.customerPhone} onChange={e => setFormData({...formData, customerPhone: e.target.value})} className="w-full px-6 py-4 rounded-2xl border-2 border-white focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all bg-white/80 text-slate-900 font-bold placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:bg-white" placeholder="0901234567" />
+                     <label className="block text-sm font-bold text-slate-700 mb-2 ml-1">Số điện thoại <span className="text-rose-500">*</span></label>
+                     <input required type="tel" value={formData.customerPhone} onChange={e => setFormData({...formData, customerPhone: e.target.value})} className="w-full px-6 py-4 rounded-2xl border-2 border-white focus:outline-none focus:ring-4 focus:ring-emerald-500/20 focus:border-emerald-500 transition-all bg-white/80 text-slate-900 font-bold placeholder:text-slate-400 placeholder:font-medium shadow-sm hover:bg-white" placeholder="0901234567" />
                    </div>
                 </div>
              </div>
