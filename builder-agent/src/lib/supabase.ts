@@ -13,9 +13,11 @@ if (supabaseKey.includes('your-anon-key-here')) {
 }
 
 const isServer = typeof window === 'undefined';
-const effectiveKey = isServer 
-  ? (process.env.SUPABASE_SERVICE_ROLE_KEY || supabaseKey || fallbackKey) 
-  : (supabaseKey || fallbackKey);
+// CẢNH BÁO: Vì CRM này dùng custom Auth (JWT riêng) chứ không dùng Supabase Auth,
+// nên Supabase client trên trình duyệt không có session và bị RLS chặn.
+// Do đó, ta TẠM THỜI phải dùng Service Role Key (fallbackKey) trên client để bypass RLS.
+// (Vercel tự động inject NEXT_PUBLIC_SUPABASE_ANON_KEY làm hỏng app vì RLS).
+const effectiveKey = fallbackKey;
 
 export const supabase = createClient(supabaseUrl, effectiveKey);
 
