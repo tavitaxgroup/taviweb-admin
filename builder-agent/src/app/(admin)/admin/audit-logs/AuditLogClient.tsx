@@ -11,6 +11,17 @@ interface AuditLogClientProps {
 export default function AuditLogClient({ initialLogs }: AuditLogClientProps) {
   const [logs, setLogs] = useState(initialLogs);
   const [filterModule, setFilterModule] = useState<string>('ALL');
+  const [searchTerm, setSearchTerm] = useState<string>('');
+
+  const filteredLogs = logs.filter(log => {
+    if (!searchTerm) return true;
+    const term = searchTerm.toLowerCase();
+    return (
+      (log.description || '').toLowerCase().includes(term) ||
+      (log.user?.name || '').toLowerCase().includes(term) ||
+      (log.action || '').toLowerCase().includes(term)
+    );
+  });
 
   const handleFilterChange = async (module: string) => {
     setFilterModule(module);
@@ -86,6 +97,8 @@ export default function AuditLogClient({ initialLogs }: AuditLogClientProps) {
              <input 
                type="text"
                placeholder="Tìm kiếm log..."
+               value={searchTerm}
+               onChange={(e) => setSearchTerm(e.target.value)}
                className="pl-10 pr-4 py-2 border border-slate-200 rounded-xl text-sm w-64 bg-white shadow-sm focus:border-indigo-500 outline-none"
              />
           </div>
@@ -105,7 +118,7 @@ export default function AuditLogClient({ initialLogs }: AuditLogClientProps) {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
-              {logs.length > 0 ? logs.map((log) => (
+              {filteredLogs.length > 0 ? filteredLogs.map((log) => (
                 <tr key={log.id} className="hover:bg-slate-50/50 transition-colors">
                   <td className="p-4 text-sm font-medium text-slate-500">
                     {formatDate(log.created_at)}
@@ -156,7 +169,7 @@ export default function AuditLogClient({ initialLogs }: AuditLogClientProps) {
         {/* Pagination placeholder */}
         <div className="p-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
           <span className="text-sm text-slate-500 font-medium">
-            Hiển thị {logs.length} bản ghi mới nhất.
+            Hiển thị {filteredLogs.length} bản ghi mới nhất.
           </span>
           <div className="flex gap-2">
             <button className="px-3 py-1.5 border border-slate-200 rounded-lg text-sm font-semibold bg-white text-slate-400 cursor-not-allowed">

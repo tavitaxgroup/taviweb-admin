@@ -98,6 +98,11 @@ export const BookingService = {
     return data;
   },
 
+  async updateAppointmentStatus(tenantId: string, id: string, status: string): Promise<void> {
+    const { error } = await supabase.from('booking_appointments').update({ status }).eq('id', id).eq('tenant_id', tenantId);
+    if (error) throw error;
+  },
+
   async getSettings(tenantId: string): Promise<{ opening_time: string, closing_time: string }> {
     const { data, error } = await supabase.from('tenants').select('theme_config').eq('id', tenantId).single();
     if (error) throw error;

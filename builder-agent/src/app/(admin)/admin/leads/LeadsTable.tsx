@@ -14,6 +14,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
   const [industryFilter, setIndustryFilter] = useState('all');
   const [cityFilter, setCityFilter] = useState('all');
   const [districtFilter, setDistrictFilter] = useState('all');
+  const [searchTerm, setSearchTerm] = useState('');
   
   // Sorting state
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' } | null>({ key: 'created_at', direction: 'desc' });
@@ -77,7 +78,13 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
         if (districtFilter !== 'all') matchDistrict = district === districtFilter;
       }
 
-      return matchDataSource && matchData && matchSales && matchIndustry && matchCity && matchDistrict;
+      let matchSearch = true;
+      if (searchTerm) {
+        const term = searchTerm.toLowerCase();
+        matchSearch = (lead.name || '').toLowerCase().includes(term) || (lead.formatted_phone_number || '').toLowerCase().includes(term);
+      }
+
+      return matchDataSource && matchData && matchSales && matchIndustry && matchCity && matchDistrict && matchSearch;
     });
 
     if (sortConfig !== null) {
@@ -144,21 +151,34 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
 
   return (
     <div className="bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden">
-      <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50">
-        <div className="flex items-center gap-4">
+      <div className="p-4 border-b border-slate-100 flex justify-between items-center bg-slate-50 flex-wrap gap-4">
+        <div className="flex items-center gap-4 flex-1">
           {selectedLeadIds.size > 0 && (
             <button
               onClick={() => {
                 const selectedLeads = filteredLeads.filter(l => selectedLeadIds.has(l.id));
                 setLeadsToPush(selectedLeads);
               }}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all flex items-center gap-2"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg text-sm font-bold shadow-sm transition-all flex items-center gap-2 shrink-0"
             >
               🚀 Đẩy {selectedLeadIds.size} Leads vào CRM
             </button>
           )}
+          
+          <div className="relative max-w-sm w-full ml-auto">
+            <input 
+              type="text"
+              placeholder="Tìm kiếm Tên hoặc SĐT..."
+              value={searchTerm}
+              onChange={(e) => { setSearchTerm(e.target.value); setCurrentPage(1); }}
+              className="w-full pl-10 pr-4 py-2 border border-slate-300 rounded-lg text-sm bg-white shadow-sm focus:border-indigo-500 outline-none"
+            />
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+               <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+            </div>
+          </div>
         </div>
-        <div className="text-sm text-slate-500 font-semibold">
+        <div className="text-sm text-slate-500 font-semibold shrink-0">
           Hiển thị: {filteredLeads.length} / {initialLeads.length}
         </div>
       </div>

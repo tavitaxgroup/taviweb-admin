@@ -111,7 +111,7 @@ export default function BookingAdmin({ template }: { template: string }) {
         customer_name: formData.customerName,
         start_time: start.toISOString(),
         end_time: end.toISOString(),
-        status: 'confirmed'
+        status: 'pending' // Default new booking via Admin might be pending or confirmed
       });
       setIsModalOpen(false);
       setFormData({ customerName: '', resourceId: '', time: '09:00' });
@@ -120,6 +120,19 @@ export default function BookingAdmin({ template }: { template: string }) {
       alert('Lỗi tạo lịch hẹn');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleStatusChange = async (appointmentId: string, newStatus: string) => {
+    if (!user?.tenant_id) return;
+    try {
+      await BookingService.updateAppointmentStatus(user.tenant_id, appointmentId, newStatus);
+      // Reload and close modal
+      loadData(false);
+      setSelectedAppointment(null);
+    } catch (error) {
+      console.error(error);
+      alert('Không thể cập nhật trạng thái');
     }
   };
 
@@ -358,8 +371,20 @@ export default function BookingAdmin({ template }: { template: string }) {
                )}
             </div>
 
-            <div className="p-6 pt-2 flex gap-3 bg-slate-50 border-t border-slate-100">
-              <button onClick={() => setSelectedAppointment(null)} className="flex-1 px-4 py-2 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors">Đóng</button>
+            <div className="p-6 pt-2 flex gap-3 bg-slate-50 border-t border-slate-100 flex-wrap">
+              {selectedAppointment.status === 'pending' && (
+                <>
+                  <button onClick={() => handleStatusChange(selectedAppointment.id, 'confirmed')} className="flex-1 px-4 py-2 rounded-xl font-bold text-white bg-blue-500 hover:bg-blue-600 shadow-sm shadow-blue-500/30 transition-colors">Xác nhận</button>
+                  <button onClick={() => handleStatusChange(selectedAppointment.id, 'cancelled')} className="flex-1 px-4 py-2 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-600 shadow-sm shadow-rose-500/30 transition-colors">Hủy lịch</button>
+                </>
+              )}
+              {selectedAppointment.status === 'confirmed' && (
+                <>
+                  <button onClick={() => handleStatusChange(selectedAppointment.id, 'completed')} className="flex-1 px-4 py-2 rounded-xl font-bold text-white bg-emerald-500 hover:bg-emerald-600 shadow-sm shadow-emerald-500/30 transition-colors">Đã phục vụ</button>
+                  <button onClick={() => handleStatusChange(selectedAppointment.id, 'cancelled')} className="flex-1 px-4 py-2 rounded-xl font-bold text-white bg-rose-500 hover:bg-rose-600 shadow-sm shadow-rose-500/30 transition-colors">Hủy lịch</button>
+                </>
+              )}
+              <button onClick={() => setSelectedAppointment(null)} className="flex-1 px-4 py-2 rounded-xl font-bold text-slate-600 bg-white border border-slate-200 hover:bg-slate-50 transition-colors min-w-[100px]">Đóng</button>
             </div>
           </div>
         </div>
