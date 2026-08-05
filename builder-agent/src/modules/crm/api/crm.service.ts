@@ -125,7 +125,7 @@ export const CRMService = {
         tenant_id: tenantId,
         pipeline_id: pipelineId,
         name: s.name,
-        color: s.color, // NOTE: Needs crm_dynamic_setup.sql run first!
+        // color: s.color, // TEMP DISABLED: Needs crm_dynamic_setup.sql run first on production!
         order: s.order
       };
       if (s.id && !s.id.startsWith('s_new_')) {
