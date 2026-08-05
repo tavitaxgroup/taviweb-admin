@@ -34,6 +34,7 @@ export async function GET(request: Request) {
     // Gắn permissions vào object user trả về cho client
     const userData = {
        ...user,
+       tenant_id: user.tenant_id || '6064025b-7fe4-4840-a27f-2d5da65e15fa',
        permissions: roleData?.permissions || [],
        role_data: roleData
     };

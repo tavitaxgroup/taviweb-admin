@@ -66,7 +66,10 @@ export default function CRMView() {
   }, [activePipeline, user]);
 
   const loadPipelines = async () => {
-    if (!user?.tenant_id) return;
+    if (!user?.tenant_id) {
+      setLoading(false);
+      return;
+    }
     try {
       let p = await CRMService.getPipelines(user.tenant_id);
       
