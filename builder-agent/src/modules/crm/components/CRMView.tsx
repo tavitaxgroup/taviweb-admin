@@ -104,7 +104,18 @@ export default function CRMView() {
     if (!user?.tenant_id) return;
     setLoading(true);
     try {
-      const s = await CRMService.getStages(user.tenant_id, pipelineId);
+      let s = await CRMService.getStages(user.tenant_id, pipelineId);
+      
+      // Auto-recover stages if the pipeline somehow has no stages (e.g. from previous DB crash)
+      if (s.length === 0) {
+         await CRMService.upsertStages(user.tenant_id, pipelineId, [
+            { name: 'Mới (Leads)', order: 0 },
+            { name: 'Đang xử lý', order: 1 },
+            { name: 'Hoàn thành', order: 2 }
+         ]);
+         s = await CRMService.getStages(user.tenant_id, pipelineId);
+      }
+      
       setStages(s);
       
       const stageIds = s.map(stage => stage.id);
