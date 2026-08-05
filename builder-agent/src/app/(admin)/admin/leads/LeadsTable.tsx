@@ -81,7 +81,7 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
       let matchSearch = true;
       if (searchTerm) {
         const term = searchTerm.toLowerCase();
-        matchSearch = (lead.name || '').toLowerCase().includes(term) || (lead.formatted_phone_number || '').toLowerCase().includes(term);
+        matchSearch = String(lead.name || '').toLowerCase().includes(term) || String(lead.formatted_phone_number || '').toLowerCase().includes(term);
       }
 
       return matchDataSource && matchData && matchSales && matchIndustry && matchCity && matchDistrict && matchSearch;

@@ -304,9 +304,9 @@ export default function CRMView() {
               if (searchQuery) {
                 const q = searchQuery.toLowerCase();
                 filteredDeals = filteredDeals.filter(d => 
-                  d.title?.toLowerCase().includes(q) || 
-                  d.contact?.name?.toLowerCase().includes(q) ||
-                  d.contact?.phone?.includes(q)
+                  String(d.title || '').toLowerCase().includes(q) || 
+                  String(d.contact?.name || '').toLowerCase().includes(q) ||
+                  String(d.contact?.phone || '').includes(q)
                 );
               }
               if (activeView === 'vip') {

@@ -99,7 +99,7 @@ export default function KanbanBoard({ stages, deals, onDealMove, onDealClick }: 
                     {deal.assignee && (
                       <div className="flex items-center gap-1.5" title={`Phụ trách: ${deal.assignee.name}`}>
                         <div className="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-600">
-                          {deal.assignee.name.charAt(0).toUpperCase()}
+                          {(deal.assignee?.name || 'U').charAt(0).toUpperCase()}
                         </div>
                       </div>
                     )}

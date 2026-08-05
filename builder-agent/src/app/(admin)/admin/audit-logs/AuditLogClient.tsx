@@ -17,9 +17,9 @@ export default function AuditLogClient({ initialLogs }: AuditLogClientProps) {
     if (!searchTerm) return true;
     const term = searchTerm.toLowerCase();
     return (
-      (log.description || '').toLowerCase().includes(term) ||
-      (log.user?.name || '').toLowerCase().includes(term) ||
-      (log.action || '').toLowerCase().includes(term)
+      String(log.description || '').toLowerCase().includes(term) ||
+      String(log.user?.name || '').toLowerCase().includes(term) ||
+      String(log.action || '').toLowerCase().includes(term)
     );
   });
 
