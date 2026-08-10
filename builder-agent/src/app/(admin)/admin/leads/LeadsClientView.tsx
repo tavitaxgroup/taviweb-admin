@@ -5,7 +5,7 @@ import LeadsTable from './LeadsTable';
 import DashboardStats from './DashboardStats';
 import { BarChart3, Users } from 'lucide-react';
 
-export default function LeadsClientView({ leads }: { leads: any[] }) {
+export default function LeadsClientView({ leads, isSuperAdmin, salesUsers }: { leads: any[], isSuperAdmin?: boolean, salesUsers?: any[] }) {
   const [activeTab, setActiveTab] = useState<'stats' | 'list'>('stats');
 
   return (
@@ -35,7 +35,7 @@ export default function LeadsClientView({ leads }: { leads: any[] }) {
 
       <div>
         {activeTab === 'stats' && <DashboardStats leads={leads} />}
-        {activeTab === 'list' && <LeadsTable initialLeads={leads} />}
+        {activeTab === 'list' && <LeadsTable initialLeads={leads} isSuperAdmin={isSuperAdmin} salesUsers={salesUsers} />}
       </div>
     </div>
   );

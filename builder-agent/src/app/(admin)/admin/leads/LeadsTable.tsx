@@ -5,8 +5,9 @@ import SalesStatusSelect from './SalesStatusSelect';
 import { extractCityDistrict } from '@/lib/utils';
 import PushToCrmModal from './PushToCrmModal';
 import { useAuth } from '@/modules/crm/contexts/AuthContext';
+import SalesAssignSelect from './SalesAssignSelect';
 
-export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
+export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: { initialLeads: any[], isSuperAdmin?: boolean, salesUsers?: any[] }) {
   const { user } = useAuth();
   const [dataSourceFilter, setDataSourceFilter] = useState('all');
   const [dataStatusFilter, setDataStatusFilter] = useState('all');
@@ -375,7 +376,12 @@ export default function LeadsTable({ initialLeads }: { initialLeads: any[] }) {
                     </span>
                   )}
                 </td>
-                <td className="p-4 text-center flex items-center justify-center gap-2 sticky right-0 bg-white group-hover:bg-slate-50 transition-colors z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.05)] border-l border-slate-100 flex-wrap min-h-[64px]">
+                <td className="p-4 text-center flex items-center justify-center gap-2 sticky right-0 bg-white group-hover:bg-slate-50 transition-colors z-10 shadow-[-4px_0_15px_rgba(0,0,0,0.05)] border-l border-slate-100 flex-wrap min-h-[64px] min-w-[150px]">
+                  {isSuperAdmin && salesUsers && salesUsers.length > 0 && (
+                    <div className="w-full mb-1">
+                      <SalesAssignSelect leadId={lead.id} initialAssignee={lead.assigned_to} salesUsers={salesUsers} />
+                    </div>
+                  )}
                   <SalesStatusSelect leadId={lead.id} initialStatus={lead.sales_status} />
                   
                   <a 
