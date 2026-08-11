@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Anton&family=Archivo+Narrow:ital,wght@0,400..700;1,400..700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-anton: "Anton", sans-serif;
+  --font-archivo: "Archivo Narrow", sans-serif;
+}
+
+/* Custom visual accents from the Stitch specifications */
+.text-shadow-hard {
+  text-shadow: 4px 4px 0px rgba(0,0,0,1);
+}
+
+.clip-slant {
+  clip-path: polygon(0 0, 100% 0, 100% 90%, 0 100%);
+}
+
+/* Base style resets */
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-archivo);
+}
