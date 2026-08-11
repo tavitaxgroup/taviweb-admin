@@ -31,6 +31,7 @@ export interface HeroInfo {
   title: string;
   subtitle: string;
   image: ImageObject;
+  images?: ImageObject[];
   primaryAction: ActionButton;
   secondaryAction?: ActionButton;
 }

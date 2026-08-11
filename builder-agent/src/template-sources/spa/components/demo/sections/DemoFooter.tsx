@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { BusinessInfo, ContactData } from "../../../types/demo";
 import { MapPin, Phone, Mail, MessageCircle, Camera } from "lucide-react";

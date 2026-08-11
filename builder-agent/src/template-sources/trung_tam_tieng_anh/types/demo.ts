@@ -30,6 +30,7 @@ export interface HeroData {
   title: string;
   subtitle: string;
   image: ImageAsset;
+  images?: ImageAsset[];
   primaryAction: ActionButton;
   secondaryAction: ActionButton;
 }

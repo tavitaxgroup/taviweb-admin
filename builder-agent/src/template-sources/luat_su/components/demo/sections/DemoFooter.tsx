@@ -1,4 +1,5 @@
 "use client";
+
 import { Scale, Share2 } from "lucide-react";
 import { DemoPageData } from "../../../types/demo";
 
@@ -64,4 +65,3 @@ export default function DemoFooter({ data }: SectionProps) {
     </footer>
   );
 }
-

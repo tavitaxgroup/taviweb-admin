@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { Star, Utensils, Calendar, Award, Leaf } from "lucide-react";
 import { TrustData } from "../../../types/demo";

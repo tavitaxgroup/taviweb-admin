@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { MessageCircle, Mail, Globe, Send } from 'lucide-react';
 import { BusinessInfo } from '../../../types/demo';

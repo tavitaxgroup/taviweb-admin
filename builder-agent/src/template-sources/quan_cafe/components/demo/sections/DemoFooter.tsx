@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { Coffee, MessageCircle, Camera } from 'lucide-react';
 import { DemoPageData } from '../../../types/demo';

@@ -1,4 +1,3 @@
-"use client";
 import { Phone, CheckCircle, Share2 } from "lucide-react";
 import { ContactData } from "../../../types/demo";
 

@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { MapPin, Phone, Mail, MessageCircle, Share2 } from "lucide-react";
 import { BusinessInfo } from "../../../types/demo";
@@ -155,4 +156,3 @@ export function DemoFooter({ business }: DemoFooterProps) {
     </footer>
   );
 }
-

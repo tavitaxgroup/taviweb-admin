@@ -1,4 +1,5 @@
 "use client";
+
 import { AboutInfo } from '../../../types/demo';
 import { motion } from 'motion/react';
 import { Check } from 'lucide-react';

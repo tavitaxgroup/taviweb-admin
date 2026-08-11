@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { Clock } from "lucide-react";
 import { DemoPageData } from "../../../types/demo";
@@ -48,12 +47,12 @@ export default function DemoHero({ data }: DemoHeroProps) {
 
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6">
             <a
-              href={data.hero.primaryAction?.href}
+              href={data.hero.primaryAction.href}
               className="inline-flex items-center justify-center bg-[#A3E635] !text-black font-archivo font-bold text-lg uppercase px-8 py-4 text-center hover:bg-[#8fd128] transition-all transform hover:scale-[1.02] active:scale-95 duration-100 border-b-4 border-r-4 border-[#334f00]"
               style={{ borderRadius: "0px" }}
               id="hero-primary-cta"
             >
-              {data.hero.primaryAction?.label}
+              {data.hero.primaryAction.label}
             </a>
 
             {data.hero.secondaryAction && (
@@ -71,7 +70,7 @@ export default function DemoHero({ data }: DemoHeroProps) {
       </div>
 
       {/* Floating 24/7 Hours Card (Bottom-Right) */}
-      {(data.business as any).workingHours && (
+      {data.business.workingHours && (
         <div className="absolute bottom-10 right-10 hidden lg:block z-20" id="hero-hours-badge">
           <div className="bg-[#A3E635] p-5 flex items-center gap-4 border-2 border-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
             <div className="bg-black/10 p-2 rounded-full">
@@ -79,7 +78,7 @@ export default function DemoHero({ data }: DemoHeroProps) {
             </div>
             <div>
               <p className="font-archivo font-bold !text-black uppercase leading-none mb-1 text-sm tracking-wide">
-                {(data.business as any).workingHours}
+                {data.business.workingHours}
               </p>
               <p className="font-archivo text-xs text-black/80">Tập luyện bất kể thời gian</p>
             </div>

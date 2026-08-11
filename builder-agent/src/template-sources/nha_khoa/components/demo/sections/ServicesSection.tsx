@@ -1,4 +1,5 @@
 "use client";
+
 import { ServiceInfo } from '../../../types/demo';
 import { motion } from 'motion/react';
 import * as Icons from 'lucide-react';

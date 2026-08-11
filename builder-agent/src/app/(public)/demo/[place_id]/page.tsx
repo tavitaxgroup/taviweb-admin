@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { DemoTemplateRenderer } from "@/components/demo/DemoTemplateRenderer";
-import { buildDemoPageData } from "@/lib/demo/buildDemoPageData";
+import { getTemplateComponent } from "@/lib/templates/templateRegistry";
 import { getMockLeadByPlaceId } from "@/lib/demo/mockDemoData";
 import { routeTemplateByIndustry } from "@/lib/demo/templateRouter";
 
@@ -31,7 +30,28 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   }
 
   const templateKey = routeTemplateByIndustry(lead.industry);
-  const data = buildDemoPageData(lead, templateKey);
+  const { getTemplateDataBuilder } = await import("@/lib/templates/templateDataRegistry");
+  const buildData = getTemplateDataBuilder(templateKey);
+  
+  if (!buildData) {
+    return { title: "Template đang cập nhật" };
+  }
+
+  const partialData: any = {
+    business: {
+      name: lead.name,
+      address: lead.formatted_address,
+      phone: lead.formatted_phone_number,
+      facebookUrl: lead.facebook_url || undefined,
+    },
+    trust: {
+      rating: lead.rating,
+      reviewCount: lead.user_ratings_total,
+      followers: lead.facebook_followers || undefined
+    }
+  };
+
+  const data = buildData(lead.place_id, partialData);
 
   return {
     title: data.seo.title,
@@ -51,7 +71,29 @@ export default async function DemoPage({ params }: PageProps) {
   if (!lead) notFound();
 
   const templateKey = routeTemplateByIndustry(lead.industry);
-  const data = buildDemoPageData(lead, templateKey);
+  const TemplateComponent = getTemplateComponent(templateKey);
+  const { getTemplateDataBuilder } = await import("@/lib/templates/templateDataRegistry");
+  const buildData = getTemplateDataBuilder(templateKey);
 
-  return <DemoTemplateRenderer data={data} />;
+  if (!TemplateComponent || !buildData) {
+    return <div className="p-8 text-center">Template {templateKey} đang được cập nhật.</div>;
+  }
+
+  const partialData: any = {
+    business: {
+      name: lead.name,
+      address: lead.formatted_address,
+      phone: lead.formatted_phone_number,
+      facebookUrl: lead.facebook_url || undefined,
+    },
+    trust: {
+      rating: lead.rating,
+      reviewCount: lead.user_ratings_total,
+      followers: lead.facebook_followers || undefined
+    }
+  };
+
+  const data = buildData(lead.place_id, partialData);
+
+  return <TemplateComponent data={data} />;
 }

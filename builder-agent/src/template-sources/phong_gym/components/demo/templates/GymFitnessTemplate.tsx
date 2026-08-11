@@ -60,4 +60,3 @@ export default function GymFitnessTemplate({ data }: GymFitnessTemplateProps) {
     </div>
   );
 }
-

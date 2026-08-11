@@ -163,4 +163,3 @@ export function DemoNavbar({ business }: DemoNavbarProps) {
     </nav>
   );
 }
-

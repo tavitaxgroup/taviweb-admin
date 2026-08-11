@@ -1,4 +1,3 @@
-"use client";
 import { Shield, Sparkles, Users } from "lucide-react";
 import { DEFAULT_CLEANING_IMAGES } from "../../../lib/demo/templateDefaults";
 

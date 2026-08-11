@@ -86,4 +86,3 @@ export default function DemoNavbar({ data }: DemoNavbarProps) {
     </header>
   );
 }
-

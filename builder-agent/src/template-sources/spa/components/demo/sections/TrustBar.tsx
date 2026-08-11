@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { TrustData } from "../../../types/demo";
 import { Star, Heart } from "lucide-react";

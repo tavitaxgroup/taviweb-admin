@@ -1,20 +1,18 @@
-"use client";
-
+import { DemoPageData } from '../../types/demo';
 import InteriorDesignTemplate from './templates/InteriorDesignTemplate';
-import { buildDemoPageData } from '../../lib/demo/buildDemoPageData';
 
 interface DemoTemplateRendererProps {
-  data: any; // Receives the generic global DemoPageData
+  data: DemoPageData;
 }
 
 export default function DemoTemplateRenderer({ data }: DemoTemplateRendererProps) {
-  // Extract placeId for mock lookup (or fallback to atelier-ethos)
-  const placeId = data?.business?.placeId || 'atelier-ethos';
-  
-  // Merge the global generic DemoPageData over the template-specific mock data structure.
-  // This ensures all template-specific nested properties (e.g. trust.items, about.stats) are present
-  // while overriding business name, phone, etc., with the real tenant data.
-  const specificData = buildDemoPageData(placeId, data);
+  const key = data?.template?.key || 'interior-design';
 
-  return <InteriorDesignTemplate data={specificData as any} />;
+  switch (key) {
+    case 'interior-design':
+      return <InteriorDesignTemplate data={data} />;
+    default:
+      console.warn(`Unknown template key: "${key}". Falling back to "interior-design".`);
+      return <InteriorDesignTemplate data={data} />;
+  }
 }

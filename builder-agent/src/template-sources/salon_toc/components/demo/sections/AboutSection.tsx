@@ -1,4 +1,5 @@
 "use client";
+
 import React, { MouseEvent } from 'react';
 import { motion } from 'motion/react';
 import { AboutData } from '../../../types/demo';
@@ -79,4 +80,3 @@ export default function AboutSection({ about }: AboutSectionProps) {
     </section>
   );
 }
-

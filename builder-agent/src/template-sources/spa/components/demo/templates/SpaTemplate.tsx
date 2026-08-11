@@ -47,7 +47,7 @@ export function SpaTemplate({ data }: SpaTemplateProps) {
         <ServicesSection services={finalizedData.services} />
 
         {/* 6. Symmetrical benefits */}
-        <WhyChooseUsSection />
+        <WhyChooseUsSection features={finalizedData.about?.features} />
 
         {/* 7. Asymmetrical Gallery layout */}
         <GallerySection gallery={finalizedData.gallery} />
@@ -65,4 +65,3 @@ export function SpaTemplate({ data }: SpaTemplateProps) {
   );
 }
 export default SpaTemplate;
-

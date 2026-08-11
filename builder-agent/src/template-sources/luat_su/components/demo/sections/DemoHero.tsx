@@ -1,4 +1,5 @@
 "use client";
+import React from "react";
 import { ArrowRight } from "lucide-react";
 import { DemoPageData } from "../../../types/demo";
 
@@ -8,19 +9,36 @@ interface SectionProps {
 
 export default function DemoHero({ data }: SectionProps) {
   const { hero } = data;
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const slides = hero.images || (hero.image ? [hero.image] : []);
+
+  React.useEffect(() => {
+    if (slides.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [slides.length]);
 
   return (
-    <section className="relative h-[800px] flex items-center overflow-hidden bg-slate-950">
+    <section className="relative h-[600px] md:h-[650px] flex items-center overflow-hidden bg-slate-950">
       {/* Background Image with Rich Dark Overlay */}
       <div className="absolute inset-0 z-0">
-        <img
-          src={hero.image.src}
-          alt={hero.image.alt}
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-cover object-center scale-105 filter brightness-[0.55]"
-        />
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-950/80 via-blue-900/45 to-transparent"></div>
-        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-900 to-transparent"></div>
+        {slides.map((slide, idx) => (
+          <img
+            key={idx}
+            src={slide.src}
+            alt={slide.alt || `Lawyer Slide ${idx + 1}`}
+            referrerPolicy="no-referrer"
+            className={`absolute inset-0 w-full h-full object-cover object-center scale-105 filter brightness-[0.75] transition-opacity duration-1000 ${
+              idx === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+            loading={idx === 0 ? "eager" : "lazy"}
+            style={{ zIndex: idx === currentSlide ? 1 : 0 }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-950/45 via-blue-900/20 to-transparent" style={{ zIndex: 2 }}></div>
+        <div className="absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-slate-900/40 to-transparent" style={{ zIndex: 2 }}></div>
       </div>
 
       {/* Hero Content container */}
@@ -30,12 +48,18 @@ export default function DemoHero({ data }: SectionProps) {
           <div className="h-[2px] w-12 bg-amber-600 mb-6 rounded"></div>
 
           {/* Title */}
-          <h1 className="font-headline-md font-extrabold text-white text-4xl sm:text-5xl md:text-6xl mb-6 leading-tight tracking-tight text-shadow-sm">
+          <h1 
+            className="font-headline-md font-extrabold text-white text-4xl sm:text-5xl md:text-6xl mb-6 leading-tight tracking-tight"
+            style={{ textShadow: '0 4px 24px rgba(0,0,0,0.7)' }}
+          >
             {hero.title}
           </h1>
 
           {/* Subtitle */}
-          <p className="font-sans font-normal text-gray-200 text-base sm:text-lg md:text-xl mb-10 leading-relaxed max-w-2xl opacity-95">
+          <p 
+            className="font-sans font-normal text-gray-200 text-base sm:text-lg md:text-xl mb-10 leading-relaxed max-w-2xl opacity-95"
+            style={{ textShadow: '0 2px 10px rgba(0,0,0,0.6)' }}
+          >
             {hero.subtitle}
           </p>
 

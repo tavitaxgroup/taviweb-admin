@@ -27,6 +27,7 @@ export interface HeroData {
   title: string;
   subtitle: string;
   bgImage: ImageAsset;
+  images?: ImageAsset[];
   primaryAction: ActionButton;
   secondaryAction?: ActionButton;
 }
@@ -46,6 +47,7 @@ export interface AboutData {
   title: string;
   description: string;
   image?: ImageAsset;
+  features?: string[];
 }
 
 export interface ServiceItem {

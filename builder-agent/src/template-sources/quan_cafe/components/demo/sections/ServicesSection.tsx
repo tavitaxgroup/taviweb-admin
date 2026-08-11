@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { Coffee, Users, ShoppingBag, Camera, Sparkles, ArrowLeft, ArrowRight } from 'lucide-react';
 import { DemoPageData } from '../../../types/demo';

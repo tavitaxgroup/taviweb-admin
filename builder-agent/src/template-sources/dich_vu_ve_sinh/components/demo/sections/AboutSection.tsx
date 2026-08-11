@@ -1,4 +1,3 @@
-"use client";
 import { ShieldCheck } from "lucide-react";
 import { AboutData } from "../../../types/demo";
 

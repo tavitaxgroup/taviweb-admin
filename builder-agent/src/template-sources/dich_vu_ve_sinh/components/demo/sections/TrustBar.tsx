@@ -1,4 +1,3 @@
-"use client";
 import { Clock, Receipt, ShieldCheck, LucideIcon } from "lucide-react";
 import { TrustData } from "../../../types/demo";
 

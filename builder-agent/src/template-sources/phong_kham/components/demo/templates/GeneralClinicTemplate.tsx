@@ -23,7 +23,7 @@ export default function GeneralClinicTemplate({ data }: GeneralClinicTemplatePro
       <AboutSection about={data.about} />
       <ServicesSection services={data.services} />
       <GallerySection gallery={data.gallery} />
-      <WhyChooseUsSection />
+      <WhyChooseUsSection features={data.about.features} />
       <ReviewsSection reviews={data.reviews} />
       <ContactCTASection contact={data.contact} business={data.business} />
       <DemoFooter business={data.business} />

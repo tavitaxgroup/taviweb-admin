@@ -1,4 +1,3 @@
-"use client";
 import { Star, Quote } from "lucide-react";
 import { DemoPageData } from "../../../types/demo";
 

@@ -153,4 +153,3 @@ export default function ContactCTASection({ data, business }: ContactCTASectionP
     </section>
   );
 }
-

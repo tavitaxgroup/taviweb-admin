@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { MessageSquare, PhoneCall } from "lucide-react";
 import { DemoPageData } from "../../../types/demo";

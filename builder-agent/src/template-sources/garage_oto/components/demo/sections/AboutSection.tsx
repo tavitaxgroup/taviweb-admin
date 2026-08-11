@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { CheckCircle } from 'lucide-react';
 import { AboutData } from '../../../types/demo';

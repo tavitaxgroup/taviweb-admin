@@ -1,4 +1,5 @@
 "use client";
+
 import { MessageSquare, Phone, Mail, MapPin } from 'lucide-react';
 import { ContactData, BusinessData } from '../../../types/demo';
 
@@ -109,4 +110,3 @@ export default function ContactCTASection({ contact, business, onBookClick }: Co
     </section>
   );
 }
-

@@ -130,4 +130,3 @@ export function DemoNavbar({ business, contact }: DemoNavbarProps) {
     </nav>
   );
 }
-

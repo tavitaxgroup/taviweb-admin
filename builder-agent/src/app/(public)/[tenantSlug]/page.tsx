@@ -4,7 +4,6 @@ export const dynamic = 'force-dynamic';
 import { supabase } from "@/lib/supabase";
 import { getTemplateComponent } from "@/lib/templates/templateRegistry";
 import { CompanyHome } from "@/components/company/CompanyHome";
-import { buildDemoPageData } from "@/lib/demo/buildDemoPageData";
 import ChatbotWidget from "@/components/ChatbotWidget";
 
 type Props = {
@@ -26,6 +25,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   };
 }
 
+import { LivePreviewWrapper } from "@/components/LivePreviewWrapper";
+
 export default async function TenantHomePage({ params }: Props) {
   const resolvedParams = await params;
   const { data: tenant } = await supabase
@@ -43,36 +44,35 @@ export default async function TenantHomePage({ params }: Props) {
     const TemplateComponent = getTemplateComponent(tenant.template_key);
     
     if (TemplateComponent) {
-      // Build proper DemoPageData expected by the templates
-      const mockLead = {
-        id: tenant.id,
-        place_id: tenant.id,
-        industry: tenant.template_key,
-        status: "mock",
-        name: tenant.name,
-        formatted_address: tenant.contact_info?.address || "Việt Nam",
-        formatted_phone_number: tenant.contact_info?.phone || "0901234567",
-        website: null,
-        image_url: null,
-        rating: 5,
-        user_ratings_total: 100,
-        facebook_url: null,
-        facebook_followers: 1000,
-        facebook_email: tenant.contact_info?.email || null,
-        demo_status: "ready",
-        outreach_status: "not_sent",
-        demo_url: `/${tenant.slug}`,
-        notes: "Generated from tenant"
-      } as any;
+      // Lazy load the data builder to avoid circular dependencies if any
+      const { getTemplateDataBuilder } = await import("@/lib/templates/templateDataRegistry");
+      const buildData = getTemplateDataBuilder(tenant.template_key);
 
-      const data = buildDemoPageData(mockLead, tenant.template_key);
-      
-      return (
-        <>
-          <TemplateComponent data={data} />
-          <ChatbotWidget tenantId={tenant.id} />
-        </>
-      );
+      if (buildData) {
+        // Build proper DemoPageData expected by the templates
+        // We pass the tenant details as `partialData` so it overrides the mock data
+        const overrides = tenant.theme_config?.website_overrides || {};
+        const partialData: any = {
+          business: {
+            id: tenant.id,
+            placeId: tenant.id,
+            name: tenant.name,
+            address: tenant.contact_info?.address || "Việt Nam",
+            phone: tenant.contact_info?.phone || "0901234567",
+            email: tenant.contact_info?.email || undefined,
+          },
+          ...overrides
+        };
+
+        const data = buildData(tenant.id, partialData);
+        
+        return (
+          <>
+            <LivePreviewWrapper initialData={data} templateKey={tenant.template_key} />
+            <ChatbotWidget tenantId={tenant.id} />
+          </>
+        );
+      }
     }
   }
 

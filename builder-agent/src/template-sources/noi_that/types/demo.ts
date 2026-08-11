@@ -22,6 +22,7 @@ export interface HeroData {
   title: string;
   subtitle: string;
   image: ImageAsset;
+  images?: ImageAsset[];
   primaryActionLabel?: string;
 }
 

@@ -1,4 +1,3 @@
-"use client";
 import { Scissors, Sparkles, Heart } from 'lucide-react';
 
 export default function WhyChooseUsSection() {

@@ -1,4 +1,3 @@
-"use client";
 import { Brain, Users, Award, Scale } from "lucide-react";
 import { DemoPageData } from "../../../types/demo";
 

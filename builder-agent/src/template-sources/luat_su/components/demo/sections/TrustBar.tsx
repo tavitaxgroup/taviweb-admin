@@ -1,4 +1,3 @@
-"use client";
 import { Lock, ShieldCheck, CalendarRange } from "lucide-react";
 import { DemoPageData } from "../../../types/demo";
 

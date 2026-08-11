@@ -95,4 +95,3 @@ export function GallerySection({ gallery }: GallerySectionProps) {
     </section>
   );
 }
-

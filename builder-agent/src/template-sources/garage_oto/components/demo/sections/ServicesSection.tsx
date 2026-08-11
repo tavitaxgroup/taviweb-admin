@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { Calendar, Wrench, Zap, Disc, ClipboardCheck, ArrowRight, Shield } from 'lucide-react';
 import { ServiceItem } from '../../../types/demo';

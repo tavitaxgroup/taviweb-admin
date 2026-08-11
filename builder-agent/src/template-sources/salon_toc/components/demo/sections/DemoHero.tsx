@@ -1,4 +1,5 @@
 "use client";
+
 import { motion } from 'motion/react';
 import { HeroData } from '../../../types/demo';
 
@@ -87,4 +88,3 @@ export default function DemoHero({ hero }: DemoHeroProps) {
     </section>
   );
 }
-

@@ -93,4 +93,3 @@ export default function DemoNavbar({ business, ctaLabel = 'Gọi kiểm tra xe' 
     </nav>
   );
 }
-

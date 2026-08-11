@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { UserCheck, Cpu, ShieldCheck, Coins, Hammer } from 'lucide-react';
 

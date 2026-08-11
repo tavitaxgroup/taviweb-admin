@@ -167,4 +167,3 @@ export default function GallerySection({ data }: SectionProps) {
     </section>
   );
 }
-

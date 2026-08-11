@@ -1,4 +1,5 @@
 "use client";
+
 import { MessageCircle, Camera, Play } from 'lucide-react';
 import { BusinessData } from '../../../types/demo';
 
@@ -172,4 +173,3 @@ export default function DemoFooter({ business }: DemoFooterProps) {
     </footer>
   );
 }
-

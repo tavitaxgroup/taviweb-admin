@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { Star, Quote } from "lucide-react";
 import { ReviewItem } from "../../../types/demo";

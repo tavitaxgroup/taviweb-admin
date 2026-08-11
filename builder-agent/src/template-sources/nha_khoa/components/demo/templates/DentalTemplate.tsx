@@ -1,4 +1,3 @@
-"use client";
 import { DemoPageData } from '../../../types/demo';
 import DemoNavbar from '../sections/DemoNavbar';
 import DemoHero from '../sections/DemoHero';
@@ -41,7 +40,7 @@ export default function DentalTemplate({ data }: DentalTemplateProps) {
       <GallerySection gallery={data.gallery} />
 
       {/* 7. Why Choose Us (Value propositions) */}
-      <WhyChooseUsSection />
+      <WhyChooseUsSection features={data.about.features} />
 
       {/* 8. Positive Testimonials Grid */}
       <ReviewsSection reviews={data.reviews} />

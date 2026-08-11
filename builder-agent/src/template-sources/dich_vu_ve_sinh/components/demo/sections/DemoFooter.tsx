@@ -1,4 +1,3 @@
-"use client";
 import { MessageCircle, Mail, MapPin } from "lucide-react";
 import { BusinessInfo, ServiceItem } from "../../../types/demo";
 

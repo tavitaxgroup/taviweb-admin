@@ -82,7 +82,7 @@ export const mockBusinesses: Record<string, RawBusinessData> = {
       }
     ],
     customGallery: [
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAk-iOjX7hK4plffHZzj8ASaQFzhddPr_aaWt7i03ssue5hYt1QpvinyqEhkKUFogh42t2d0DiFzslD71PHLjVLpEohBPjKb9SJlJk5tfLYOdnGeoM87NvPgR6TndGKWqqaEfx0xq9YkTWjoiWAh69X715ok1u4uTib2Dh0CILWq61Bf-gLwxKy9H4PaBH8QqBvV7kce---3fLXHI0sd0ljvOQsW6h80WxtmnXwa-VndeK2koskDB3bAA",
+      "/assets/nha_khoa_hero.png",
       "https://lh3.googleusercontent.com/aida-public/AB6AXuAhbTGTxgPMvMAUo1yntDWBCnY9Bfjp8fTLYyjuXOCjuugwIqpRdPxGuqw1Cdo0eHHRLS8PxX38ztHke2VjNUZ6Iw7G4GWf_3i17cCkejZagqW--GClqasSaTPndNxtHQxx2bYOTSnVFtAUzUK6EF2wgfqPzw4mQ41FmdOm8WYafUTIoVHxVjufRllagKHpCxCcU97BA5WU9rKxWYH9L2w-iRUHtCLYuSsFWgI5foUxn8lxkEeq0Q8H7A",
       "https://lh3.googleusercontent.com/aida-public/AB6AXuDIEib7qRdSdZyWkPCESdCYAFzCgcHcI1ziuXF5y3BgGrelBLNJCN72yxzKlXt71vtVnioNUEl1rKR93VV7eUEbqT30zFEJDFpM8V76k4qi38DqY50ebaI6ar66gR2WMo18RkgrAgMS6p9P19relJu3aSdFAkZ6r75VdMhaPTf1fQOE60eHvvOBxWX1u988Il-M7FGtLLbQMJLowNq-i15LKMGZBvhALaK92m-WBipBNB8xZRJT2o45oQ"
     ]
@@ -138,7 +138,7 @@ export const mockBusinesses: Record<string, RawBusinessData> = {
     ],
     customGallery: [
       "https://lh3.googleusercontent.com/aida-public/AB6AXuDfWJkL6rVYad9tEUo_4Le-XmUfapqISLZSY5K506V-qWsZAk1f-QnKPy6ql4cqVWVdccLS9At7OytCxDv8EhdPl0rPKOmx9KI1wR1dfvNN-ltpvGp484dcic4JIdY9tyCoyWOE3jtkTAIr6zU2--oQ84aXX5Yi0NsoZNG3U5UzTv8MGmX29N6CYobA8EipXfO5V038agCgMoUa8_Lv4FvG5-htyTWbOgDFDNWmVHy7ckAjN-MwXcAgaQ",
-      "https://lh3.googleusercontent.com/aida-public/AB6AXuAk-iOjX7hK4plffHZzj8ASaQFzhddPr_aaWt7i03ssue5hYt1QpvinyqEhkKUFogh42t2d0DiFzslD71PHLjVLpEohBPjKb9SJlJk5tfLYOdnGeoM87NvPgR6TndGKWqqaEfx0xq9YkTWjoiWAh69X715ok1u4uTib2Dh0CILWq61Bf-gLwxKy9H4PaBH8QqBvV7kce---3fLXHI0sd0ljvOQsW6h80WxtmnXwa-VndeK2koskDB3bAA",
+      "/assets/nha_khoa_hero.png",
       "https://lh3.googleusercontent.com/aida-public/AB6AXuDIEib7qRdSdZyWkPCESdCYAFzCgcHcI1ziuXF5y3BgGrelBLNJCN72yxzKlXt71vtVnioNUEl1rKR93VV7eUEbqT30zFEJDFpM8V76k4qi38DqY50ebaI6ar66gR2WMo18RkgrAgMS6p9P19relJu3aSdFAkZ6r75VdMhaPTf1fQOE60eHvvOBxWX1u988Il-M7FGtLLbQMJLowNq-i15LKMGZBvhALaK92m-WBipBNB8xZRJT2o45oQ"
     ]
   }

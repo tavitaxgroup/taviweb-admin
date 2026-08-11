@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { GalleryItem } from "../../../types/demo";
 import { ArrowRight } from "lucide-react";

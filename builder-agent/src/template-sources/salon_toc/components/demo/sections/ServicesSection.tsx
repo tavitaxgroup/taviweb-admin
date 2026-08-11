@@ -1,4 +1,5 @@
 "use client";
+
 import { motion } from 'motion/react';
 import { Scissors } from 'lucide-react';
 import { ServiceItem } from '../../../types/demo';
@@ -108,4 +109,3 @@ export default function ServicesSection({ services, onBookClick }: ServicesSecti
     </section>
   );
 }
-

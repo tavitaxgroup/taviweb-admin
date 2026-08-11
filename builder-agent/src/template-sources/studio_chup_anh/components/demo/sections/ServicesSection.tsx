@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { Camera, Shirt, Sparkles, BookOpen, Palette, CheckCircle, Heart, PenTool, HelpCircle } from 'lucide-react';
 import { DemoPageData } from '../../../types/demo';

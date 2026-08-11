@@ -1,4 +1,5 @@
 "use client";
+
 import { ContactInfo } from '../../../types/demo';
 import { motion } from 'motion/react';
 import { Phone, MapPin, Globe, ArrowRight } from 'lucide-react';

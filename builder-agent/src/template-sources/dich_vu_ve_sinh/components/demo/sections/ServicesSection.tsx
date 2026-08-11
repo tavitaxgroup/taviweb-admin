@@ -1,4 +1,3 @@
-"use client";
 import { Building2, Home, Building, Hammer, Armchair, HelpCircle, ChevronRight, LucideIcon } from "lucide-react";
 import { ServiceItem } from "../../../types/demo";
 

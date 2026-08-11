@@ -60,4 +60,3 @@ export default function LawFirmTemplate({ data }: TemplateProps) {
     </div>
   );
 }
-

@@ -1,4 +1,3 @@
-"use client";
 import { Check, ShieldCheck, Award, Zap, Compass } from 'lucide-react';
 
 export default function WhyChooseUsSection() {

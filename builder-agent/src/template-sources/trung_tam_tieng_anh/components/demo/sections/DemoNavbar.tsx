@@ -113,4 +113,3 @@ export const DemoNavbar: React.FC<DemoNavbarProps> = ({ business }) => {
     </nav>
   );
 };
-

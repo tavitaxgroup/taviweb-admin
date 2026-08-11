@@ -26,6 +26,10 @@ export interface HeroData {
     src: string;
     alt: string;
   };
+  images?: {
+    src: string;
+    alt: string;
+  }[];
 }
 
 export interface TrustData {
@@ -46,6 +50,7 @@ export interface AboutData {
     src: string;
     alt: string;
   };
+  features?: string[];
   ctaLabel?: string;
 }
 

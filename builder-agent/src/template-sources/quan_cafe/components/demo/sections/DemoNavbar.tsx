@@ -191,4 +191,3 @@ export default function DemoNavbar({ data }: SectionProps) {
     </nav>
   );
 }
-

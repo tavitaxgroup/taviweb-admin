@@ -1,4 +1,5 @@
 "use client";
+
 import { motion } from 'motion/react';
 import { 
   FileText, 
@@ -111,4 +112,3 @@ export default function ServicesSection({ services }: ServicesSectionProps) {
     </section>
   );
 }
-

@@ -117,4 +117,3 @@ export function DemoNavbar({ business, primaryActionLabel, primaryActionHref }: 
     </nav>
   );
 }
-

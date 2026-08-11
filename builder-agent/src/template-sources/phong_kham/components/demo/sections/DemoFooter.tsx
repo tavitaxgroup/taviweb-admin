@@ -1,4 +1,3 @@
-"use client";
 import { MessageCircle, Mail, ShieldCheck } from 'lucide-react';
 import { BusinessData } from '../../../types/demo';
 

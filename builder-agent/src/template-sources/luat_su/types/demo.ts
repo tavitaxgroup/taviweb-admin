@@ -20,6 +20,10 @@ export interface HeroInfo {
     src: string;
     alt: string;
   };
+  images?: {
+    src: string;
+    alt: string;
+  }[];
   primaryAction: {
     label: string;
     href: string;

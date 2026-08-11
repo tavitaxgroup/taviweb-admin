@@ -72,4 +72,3 @@ export default function DemoNavbar({ business }: NavbarProps) {
     </nav>
   );
 }
-

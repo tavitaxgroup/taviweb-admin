@@ -1,4 +1,3 @@
-"use client";
 import { Star, Heart, Award } from 'lucide-react';
 import { TrustData } from '../../../types/demo';
 

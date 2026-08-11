@@ -1,4 +1,3 @@
-"use client";
 import React from "react";
 import { Users, ShieldCheck, Calendar, LucideIcon } from "lucide-react";
 import { DemoPageData } from "../../../types/demo";

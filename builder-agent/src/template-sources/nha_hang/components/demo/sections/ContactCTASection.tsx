@@ -292,4 +292,3 @@ export default function ContactCTASection({ contact }: ContactProps) {
     </section>
   );
 }
-

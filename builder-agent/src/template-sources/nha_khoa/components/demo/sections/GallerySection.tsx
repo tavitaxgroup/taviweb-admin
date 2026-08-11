@@ -1,4 +1,5 @@
 "use client";
+
 import { GalleryItem } from '../../../types/demo';
 import { motion } from 'motion/react';
 

@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { MapPin, Phone, Clock, Navigation } from 'lucide-react';
 import { ContactData } from '../../../types/demo';

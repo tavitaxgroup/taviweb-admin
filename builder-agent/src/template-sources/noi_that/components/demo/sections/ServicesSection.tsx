@@ -1,4 +1,3 @@
-"use client";
 import * as Icons from 'lucide-react';
 import { ServiceItem } from '../../../types/demo';
 

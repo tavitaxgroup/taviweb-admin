@@ -1,4 +1,5 @@
 "use client";
+
 import { TrustInfo } from '../../../types/demo';
 import { motion } from 'motion/react';
 

@@ -1,18 +1,11 @@
 "use client";
+
 import React from "react";
 import { motion } from "motion/react";
-import { DemoPageData } from "../../../types/demo";
-
-interface ExtendedAboutData extends Omit<DemoPageData['about'], 'image'> {
-  experienceYears?: number;
-  image?: any;
-  badge?: string;
-  body?: string;
-  stats?: { value: string; label: string }[];
-}
+import { AboutData } from "../../../types/demo";
 
 interface AboutProps {
-  about: ExtendedAboutData;
+  about: AboutData;
 }
 
 export default function AboutSection({ about }: AboutProps) {
@@ -41,7 +34,7 @@ export default function AboutSection({ about }: AboutProps) {
                 <img
                   className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-1000"
                   alt="Portrait of master chef plating meticulously"
-                  src={about.image?.src || (typeof about.image === 'string' ? about.image : "https://images.unsplash.com/photo-1583394838336-acd977736f90?auto=format&fit=crop&q=80")}
+                  src={about.image}
                 />
               </motion.div>
               
@@ -78,7 +71,7 @@ export default function AboutSection({ about }: AboutProps) {
             </h2>
 
             <div className="space-y-6 font-sans text-sm md:text-base text-[#574240] leading-relaxed">
-              {(about.body || "").split("\n\n").map((para: string, idx: number) => (
+              {about.content.split("\n\n").map((para, idx) => (
                 <p key={idx} className="whitespace-pre-line">
                   {para}
                 </p>

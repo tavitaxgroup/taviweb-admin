@@ -1,4 +1,3 @@
-"use client";
 import { Phone, ArrowRight, Star } from "lucide-react";
 import { HeroData } from "../../../types/demo";
 

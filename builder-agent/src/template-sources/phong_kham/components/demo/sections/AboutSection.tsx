@@ -1,4 +1,5 @@
 "use client";
+
 import { motion } from 'motion/react';
 import { ArrowRight, Sparkles } from 'lucide-react';
 import { AboutData } from '../../../types/demo';
@@ -105,4 +106,3 @@ export default function AboutSection({ about }: AboutSectionProps) {
     </section>
   );
 }
-

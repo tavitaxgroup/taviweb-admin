@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/modules/crm/contexts/AuthContext';
-import { LayoutDashboard, Users, CalendarDays, Target, Settings, Building2, ChevronRight, Shield, History, Bot } from 'lucide-react';
+import { LayoutDashboard, Users, CalendarDays, Target, Settings, Building2, ChevronRight, Shield, History, Bot, Globe } from 'lucide-react';
 
 const MENU_ITEMS = [
   { name: 'Tổng quan', path: '/admin', icon: LayoutDashboard },
@@ -21,25 +21,29 @@ const BOTTOM_MENU = [
   { name: 'Trợ lý AI (Chatbot)', path: '/admin/settings/chatbot', icon: Bot },
   { name: 'Cài đặt hệ thống', path: '/admin/settings', icon: Settings },
   { name: 'Trung tâm AI', path: '/admin/ai-hub', icon: Bot },
+  { name: 'Cài đặt Website', path: '/admin/settings/website', icon: Globe },
 ];
+
+import { useSidebar } from './ClientLayout';
 
 export function AdminSidebar() {
   const pathname = usePathname();
   const { user, hasPermission } = useAuth();
+  const { isSidebarOpen } = useSidebar();
 
   return (
-    <aside className="w-64 bg-slate-900 h-full flex flex-col text-slate-300 transition-all border-r border-slate-800 shadow-xl shrink-0">
+    <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-slate-900 h-full flex flex-col text-slate-300 transition-all duration-300 border-r border-slate-800 shadow-xl shrink-0 overflow-hidden`}>
       
       {/* Logo Area */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-800/60 bg-slate-950/30">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md mr-3">
+      <div className="h-16 flex items-center px-6 border-b border-slate-800/60 bg-slate-950/30 whitespace-nowrap">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md mr-3 shrink-0">
           <Building2 className="w-4 h-4 text-white" />
         </div>
         <span className="text-white font-extrabold text-lg tracking-wide">TAVI SaaS</span>
       </div>
 
       {/* Main Nav */}
-      <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto custom-scrollbar">
+      <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto custom-scrollbar whitespace-nowrap">
         <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-3 mb-4">Workspace</div>
         
         {MENU_ITEMS.map((item) => {
@@ -60,17 +64,17 @@ export function AdminSidebar() {
               }`}
             >
               <div className="flex items-center gap-3">
-                <item.icon className={`w-5 h-5 ${isActive ? 'text-indigo-200' : 'text-slate-400 group-hover:text-indigo-400'}`} />
+                <item.icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-indigo-200' : 'text-slate-400 group-hover:text-indigo-400'}`} />
                 <span>{item.name}</span>
               </div>
-              {isActive && <ChevronRight className="w-4 h-4 opacity-70" />}
+              {isActive && <ChevronRight className="w-4 h-4 opacity-70 shrink-0" />}
             </Link>
           );
         })}
       </nav>
 
       {/* Bottom Nav */}
-      <div className="p-4 border-t border-slate-800/60 bg-slate-950/20">
+      <div className="p-4 border-t border-slate-800/60 bg-slate-950/20 whitespace-nowrap">
         {BOTTOM_MENU.map((item) => {
           if (item.path === '/admin/audit-logs' && !hasPermission('manage_settings')) return null;
           if (item.path === '/admin/settings/pipelines' && !hasPermission('manage_pipelines')) return null;
@@ -78,6 +82,7 @@ export function AdminSidebar() {
           if (item.path === '/admin/settings/roles' && !hasPermission('manage_roles')) return null;
           if (item.path === '/admin/settings/chatbot' && !hasPermission('manage_settings')) return null;
           if (item.path === '/admin/settings' && !hasPermission('manage_settings')) return null;
+          if (item.path === '/admin/settings/website' && !hasPermission('manage_settings')) return null;
           if (item.path === '/admin/ai-hub' && user?.tenant_id !== '6064025b-7fe4-4840-a27f-2d5da65e15fa') return null;
           
           const isActive = pathname === item.path || pathname.startsWith(item.path);
@@ -91,7 +96,7 @@ export function AdminSidebar() {
                   : 'hover:bg-slate-800/50 hover:text-white'
               }`}
             >
-              <item.icon className={`w-5 h-5 ${isActive ? 'text-slate-300' : 'text-slate-500 group-hover:text-slate-300'}`} />
+              <item.icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-slate-300' : 'text-slate-500 group-hover:text-slate-300'}`} />
               <span>{item.name}</span>
             </Link>
           );

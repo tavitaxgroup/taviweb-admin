@@ -1,25 +1,43 @@
-"use client";
 import React from "react";
-import { Leaf, Sparkles, Award } from "lucide-react";
+import * as Lucide from "lucide-react";
 
-export function WhyChooseUsSection() {
-  const values = [
-    {
-      icon: <Leaf className="text-primary" size={28} />,
-      title: "Không gian yên tĩnh",
-      description: "Tách biệt hoàn toàn với tiếng ồn đô thị, mang lại sự bình yên tuyệt đối."
-    },
-    {
-      icon: <Sparkles className="text-primary" size={28} />,
-      title: "Kỹ thuật viên tận tâm",
-      description: "Đội ngũ được đào tạo bài bản, thấu hiểu từng nhu cầu của khách hàng."
-    },
-    {
-      icon: <Award className="text-primary" size={28} />,
-      title: "Sản phẩm cao cấp",
-      description: "Cam kết sử dụng các dòng mỹ phẩm hữu cơ và công nghệ hàng đầu thế giới."
-    }
-  ];
+interface WhyChooseUsSectionProps {
+  features?: string[];
+}
+
+export function WhyChooseUsSection({ features }: WhyChooseUsSectionProps) {
+  const values = features && features.length > 0
+    ? features.map((feat, idx) => {
+        const parts = feat.split(/[:\-]/);
+        const title = parts[0]?.trim() || "Ưu điểm";
+        const description = parts.slice(1).join("-")?.trim() || "Liệu trình chăm sóc và trị liệu chuẩn spa chuyên nghiệp.";
+        const iconNames = ["Leaf", "Sparkles", "Award"];
+        const iconName = iconNames[idx % iconNames.length];
+        const IconComponent = (Lucide as any)[iconName] || Lucide.Leaf;
+        
+        return {
+          icon: <IconComponent className="text-primary" size={28} />,
+          title,
+          description
+        };
+      })
+    : [
+        {
+          icon: <Lucide.Leaf className="text-primary" size={28} />,
+          title: "Không gian yên tĩnh",
+          description: "Tách biệt hoàn toàn với tiếng ồn đô thị, mang lại sự bình yên tuyệt đối."
+        },
+        {
+          icon: <Lucide.Sparkles className="text-primary" size={28} />,
+          title: "Kỹ thuật viên tận tâm",
+          description: "Đội ngũ được đào tạo bài bản, thấu hiểu từng nhu cầu của khách hàng."
+        },
+        {
+          icon: <Lucide.Award className="text-primary" size={28} />,
+          title: "Sản phẩm cao cấp",
+          description: "Cam kết sử dụng các dòng mỹ phẩm hữu cơ và công nghệ hàng đầu thế giới."
+        }
+      ];
 
   return (
     <section id="why-choose-us" className="py-20 px-5 md:px-16 bg-surface-container-low border-y border-outline-variant/10">

@@ -1,4 +1,5 @@
 "use client";
+
 import React from 'react';
 import { BusinessInfo } from '../../../types/demo';
 import { Phone, Calendar } from 'lucide-react';
@@ -86,4 +87,3 @@ export default function DemoNavbar({ business }: DemoNavbarProps) {
     </nav>
   );
 }
-

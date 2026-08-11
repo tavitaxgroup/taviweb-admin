@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 import { HeroData } from "../../../types/demo";
 
@@ -6,26 +7,49 @@ interface DemoHeroProps {
 }
 
 export function DemoHero({ hero }: DemoHeroProps) {
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const slides = hero.images || (hero.bgImage ? [hero.bgImage] : []);
+
+  React.useEffect(() => {
+    if (slides.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
   return (
-    <section className="relative min-h-[85vh] flex items-center justify-center overflow-hidden px-5 md:px-16 py-20">
+    <section className="relative min-h-[600px] md:min-h-[650px] flex items-center justify-center overflow-hidden px-5 md:px-16 py-14">
       {/* Background Image with Ambient Overlay */}
       <div className="absolute inset-0 z-0">
-        <img
-          alt={hero.bgImage.alt}
-          className="w-full h-full object-cover select-none object-center"
-          src={hero.bgImage.src}
-          loading="eager"
-        />
-        <div className="absolute inset-0 bg-black/55 backdrop-blur-[1px]"></div>
+        {slides.map((slide, idx) => (
+          <img
+            key={idx}
+            alt={slide.alt || `Spa Slide ${idx + 1}`}
+            className={`absolute inset-0 w-full h-full object-cover select-none object-center transition-opacity duration-1000 ${
+              idx === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+            src={slide.src}
+            loading={idx === 0 ? "eager" : "lazy"}
+            style={{ zIndex: idx === currentSlide ? 1 : 0 }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-black/25 backdrop-blur-[0.5px]" style={{ zIndex: 2 }}></div>
       </div>
 
       {/* Hero Content */}
       <div className="relative z-10 max-w-4xl mx-auto text-center text-white px-2 animate-fade-in">
-        <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-medium mb-6 leading-tight md:leading-[1.1] tracking-tight text-white drop-shadow-sm">
+        <h1 
+          className="font-display text-4xl sm:text-5xl md:text-6xl font-medium mb-6 leading-tight md:leading-[1.1] tracking-tight text-white"
+          style={{ textShadow: '0 4px 20px rgba(0,0,0,0.7)' }}
+        >
           {hero.title}
         </h1>
         
-        <p className="font-sans text-base sm:text-lg md:text-xl text-white/90 mb-10 max-w-2xl mx-auto leading-relaxed drop-shadow-sm">
+        <p 
+          className="font-sans text-base sm:text-lg md:text-xl text-white/95 mb-10 max-w-2xl mx-auto leading-relaxed"
+          style={{ textShadow: '0 2px 10px rgba(0,0,0,0.6)' }}
+        >
           {hero.subtitle}
         </p>
 

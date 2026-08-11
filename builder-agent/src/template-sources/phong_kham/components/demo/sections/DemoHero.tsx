@@ -1,4 +1,5 @@
 "use client";
+import React from 'react';
 import { motion } from 'motion/react';
 import { Calendar, Info, ShieldCheck, Award } from 'lucide-react';
 import { HeroData } from '../../../types/demo';
@@ -8,6 +9,17 @@ interface DemoHeroProps {
 }
 
 export default function DemoHero({ hero }: DemoHeroProps) {
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const slides = hero.images || (hero.image ? [hero.image] : []);
+
+  React.useEffect(() => {
+    if (slides.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
   const handleScroll = (id: string) => {
     const target = document.querySelector(id);
     if (target) {
@@ -16,16 +28,23 @@ export default function DemoHero({ hero }: DemoHeroProps) {
   };
 
   return (
-    <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+    <section className="relative min-h-[600px] md:min-h-[650px] flex items-center justify-center overflow-hidden">
       {/* Background Layer */}
       <div className="absolute inset-0 z-0">
-        <img
-          alt={hero.image.alt}
-          className="w-full h-full object-cover"
-          src={hero.image.src}
-          referrerPolicy="no-referrer"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/70 via-slate-900/50 to-[#f8f9ff]"></div>
+        {slides.map((slide, idx) => (
+          <img
+            key={idx}
+            alt={slide.alt || `Clinic Slide ${idx + 1}`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+              idx === currentSlide ? "opacity-100" : "opacity-0"
+            }`}
+            src={slide.src}
+            referrerPolicy="no-referrer"
+            loading={idx === 0 ? "eager" : "lazy"}
+            style={{ zIndex: idx === currentSlide ? 1 : 0 }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-b from-slate-900/35 via-slate-900/20 to-[#f8f9ff]" style={{ zIndex: 2 }}></div>
       </div>
 
       {/* Floating UI Elements (Desktop Only) */}
@@ -80,16 +99,18 @@ export default function DemoHero({ hero }: DemoHeroProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.1 }}
           className="font-display text-[38px] md:text-[62px] lg:text-[70px] text-white leading-[1.1] font-extrabold mb-6 tracking-tight"
+          style={{ textShadow: '0 4px 20px rgba(0,0,0,0.65)' }}
         >
           {hero.title.split(' ').slice(0, -3).join(' ')} <br />
-          <span className="text-[#dbe1ff]">{hero.title.split(' ').slice(-3).join(' ')}</span>
+          <span className="text-[#dbe1ff]" style={{ textShadow: '0 4px 15px rgba(0,0,0,0.5)' }}>{hero.title.split(' ').slice(-3).join(' ')}</span>
         </motion.h1>
 
         <motion.p
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="font-sans text-base md:text-lg text-white/90 max-w-2xl mx-auto mb-10 leading-relaxed"
+          className="font-sans text-base md:text-lg text-white/95 max-w-2xl mx-auto mb-10 leading-relaxed"
+          style={{ textShadow: '0 2px 10px rgba(0,0,0,0.6)' }}
         >
           {hero.subtitle}
         </motion.p>
@@ -119,4 +140,3 @@ export default function DemoHero({ hero }: DemoHeroProps) {
     </section>
   );
 }
-

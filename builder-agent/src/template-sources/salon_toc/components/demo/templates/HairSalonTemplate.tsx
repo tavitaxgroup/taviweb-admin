@@ -66,4 +66,3 @@ export default function HairSalonTemplate({ data }: HairSalonTemplateProps) {
     </div>
   );
 }
-

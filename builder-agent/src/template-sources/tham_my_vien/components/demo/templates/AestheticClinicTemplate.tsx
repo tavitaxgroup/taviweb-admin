@@ -59,4 +59,3 @@ export default function AestheticClinicTemplate({ data }: AestheticClinicTemplat
     </div>
   );
 }
-

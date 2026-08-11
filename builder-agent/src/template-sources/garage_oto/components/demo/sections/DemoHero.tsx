@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { Phone, Award, ShieldCheck } from 'lucide-react';
 import { HeroData } from '../../../types/demo';

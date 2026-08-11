@@ -1,4 +1,3 @@
-"use client";
 import React from 'react';
 import { AlertTriangle, Gauge, HelpCircle, PhoneCall, ShieldCheck, HelpCircle as HelpIcon } from 'lucide-react';
 import { TrustData } from '../../../types/demo';

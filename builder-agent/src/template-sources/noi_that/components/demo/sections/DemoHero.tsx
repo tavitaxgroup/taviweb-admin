@@ -1,3 +1,5 @@
+"use client";
+import React from 'react';
 import { HeroData } from '../../../types/demo';
 
 interface DemoHeroProps {
@@ -25,21 +27,39 @@ function getTitleLines(title: string) {
 }
 
 export default function DemoHero({ data }: DemoHeroProps) {
+  const [currentSlide, setCurrentSlide] = React.useState(0);
+  const slides = data.images || (data.image ? [data.image] : []);
+
+  React.useEffect(() => {
+    if (slides.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [slides.length]);
+
   const title = normalizeHeroTitle(data.title);
   const titleLines = getTitleLines(title);
   const primaryLabel = data.primaryActionLabel?.trim() || 'Nhận tư vấn thiết kế';
 
   return (
-    <section className="relative h-screen min-h-[700px] flex items-center overflow-hidden bg-brand-primary">
+    <section className="relative h-[600px] md:h-[650px] flex items-center overflow-hidden bg-brand-primary">
       <div className="absolute inset-0 z-0">
-        <img
-          src={data.image.src}
-          alt={data.image.alt}
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-cover scale-105 animate-[pulse_10s_infinite_alternate]"
-        />
-        <div className="absolute inset-0 bg-black/52" />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/48 via-black/20 to-transparent" />
+        {slides.map((slide, idx) => (
+          <img
+            key={idx}
+            src={slide.src}
+            alt={slide.alt || `Interior Slide ${idx + 1}`}
+            referrerPolicy="no-referrer"
+            className={`absolute inset-0 w-full h-full object-cover scale-105 transition-opacity duration-1000 ${
+              idx === currentSlide ? "opacity-100 animate-[pulse_10s_infinite_alternate]" : "opacity-0"
+            }`}
+            loading={idx === 0 ? "eager" : "lazy"}
+            style={{ zIndex: idx === currentSlide ? 1 : 0 }}
+          />
+        ))}
+        <div className="absolute inset-0 bg-black/25" style={{ zIndex: 2 }} />
+        <div className="absolute inset-0 bg-gradient-to-r from-black/25 via-black/10 to-transparent" style={{ zIndex: 2 }} />
       </div>
 
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-12">
@@ -57,7 +77,10 @@ export default function DemoHero({ data }: DemoHeroProps) {
               </span>
             ))}
           </h1>
-          <p className="font-sans text-base sm:text-lg text-white leading-relaxed mb-10 max-w-2xl drop-shadow-sm">
+          <p 
+            className="font-sans text-base sm:text-lg text-white leading-relaxed mb-10 max-w-2xl"
+            style={{ textShadow: '0 2px 10px rgba(0,0,0,0.6)' }}
+          >
             {data.subtitle}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">

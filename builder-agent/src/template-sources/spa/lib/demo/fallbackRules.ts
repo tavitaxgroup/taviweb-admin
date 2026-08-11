@@ -9,6 +9,15 @@ export function applyFallbackRules(data: DemoPageData): DemoPageData {
     result.services = FALLBACK_SPA_SERVICES;
   }
 
+  // 1.5 Check about features
+  if (!result.about.features || result.about.features.length === 0) {
+    result.about.features = [
+      "Không gian yên tĩnh: Tách biệt hoàn toàn với tiếng ồn đô thị, mang lại sự bình yên tuyệt đối.",
+      "Kỹ thuật viên tận tâm: Đội ngũ được đào tạo bài bản, thấu hiểu từng nhu cầu của khách hàng.",
+      "Sản phẩm cao cấp: Cam kết sử dụng các dòng mỹ phẩm hữu cơ và công nghệ hàng đầu thế giới."
+    ];
+  }
+
   // 2. Check gallery
   if (!result.gallery || result.gallery.length === 0) {
     result.gallery = FALLBACK_SPA_GALLERY;

@@ -6,9 +6,12 @@ import { usePathname } from 'next/navigation';
 import { useAuth } from '@/modules/crm/contexts/AuthContext';
 import Link from 'next/link';
 
+import { useSidebar } from './ClientLayout';
+
 export function AdminHeader() {
   const pathname = usePathname();
   const { user, logout } = useAuth();
+  const { toggleSidebar } = useSidebar();
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [showNotiMenu, setShowNotiMenu] = useState(false);
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -50,8 +53,8 @@ export function AdminHeader() {
     if (pathname.startsWith('/admin/crm')) return 'CRM & Pipeline';
     if (pathname.startsWith('/admin/leads')) return 'Leads Data';
     if (pathname.startsWith('/admin/booking/admin')) return 'Lịch hẹn (Booking)';
-    if (pathname.startsWith('/admin/settings/account')) return 'Thông tin cá nhân';
-    if (pathname.startsWith('/settings')) return 'Cài đặt hệ thống';
+    if (pathname.startsWith('/admin/settings/account')) return 'Thông báo cá nhân';
+    if (pathname.startsWith('/admin/settings')) return 'Cài đặt hệ thống';
     return 'Bảng điều khiển';
   };
 
@@ -60,7 +63,10 @@ export function AdminHeader() {
       
       {/* Left Section - Breadcrumb / Mobile Menu */}
       <div className="flex items-center gap-4">
-        <button className="lg:hidden p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors">
+        <button 
+          onClick={toggleSidebar}
+          className="p-2 text-slate-500 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer"
+        >
           <Menu className="w-5 h-5" />
         </button>
         <h2 className="text-lg font-bold text-slate-800 hidden sm:block">

@@ -1,4 +1,3 @@
-"use client";
 import { Briefcase, FileText, Gavel, Users, User, ArrowRight } from "lucide-react";
 import { DemoPageData } from "../../../types/demo";
 
