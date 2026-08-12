@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
+import toast from 'react-hot-toast';
 import SalesStatusSelect from './SalesStatusSelect';
 import { extractCityDistrict } from '@/lib/utils';
 import PushToCrmModal from './PushToCrmModal';
@@ -498,12 +499,12 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                 description: `Đã đẩy ${leadsToPush.length} Leads sang CRM (Pipeline ID: ${pipelineId}, Stage ID: ${stageId})`
               });
 
-              alert(`Đã đẩy thành công ${leadsToPush.length} Leads sang CRM!`);
+              toast.success(`Đã đẩy thành công ${leadsToPush.length} Leads sang CRM!`);
               setSelectedLeadIds(new Set()); // clear selection after push
               setLeadsToPush([]);
             } catch (error) {
               console.error(error);
-              alert('Có lỗi xảy ra khi đẩy sang CRM');
+              toast.error('Có lỗi xảy ra khi đẩy sang CRM');
             }
           }}
         />
@@ -525,20 +526,21 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                   <input 
                     type="text" 
                     readOnly 
-                    value={demoLeadInfo.demo_url} 
+                    value={demoLeadInfo.demo_url ? `${typeof window !== 'undefined' ? window.location.origin : ''}/${demoLeadInfo.demo_url.split('/').pop()}` : ''} 
                     className="flex-1 border border-slate-200 rounded p-2 text-sm bg-slate-50 text-slate-700"
                   />
                   <button 
                     onClick={() => {
-                      navigator.clipboard.writeText(demoLeadInfo.demo_url);
-                      alert('Đã copy đường dẫn Demo!');
+                      const url = demoLeadInfo.demo_url ? `${window.location.origin}/${demoLeadInfo.demo_url.split('/').pop()}` : '';
+                      navigator.clipboard.writeText(url);
+                      toast.success('Đã copy đường dẫn Demo!');
                     }}
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
                   >
                     Copy
                   </button>
                   <a 
-                    href={demoLeadInfo.demo_url} 
+                    href={demoLeadInfo.demo_url ? `${typeof window !== 'undefined' ? window.location.origin : ''}/${demoLeadInfo.demo_url.split('/').pop()}` : '#'} 
                     target="_blank" 
                     className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
                   >
@@ -567,7 +569,19 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                   </div>
                   <div className="flex justify-between items-center">
                     <span className="text-slate-500">Trang quản trị:</span>
-                    <a href={`http://localhost:3000/admin/crm/login`} target="_blank" className="text-blue-600 hover:underline">/admin/crm/login</a>
+                    <div className="flex items-center gap-2">
+                      <a href={`${typeof window !== 'undefined' ? window.location.origin : ''}/admin/crm/login`} target="_blank" className="text-blue-600 hover:underline">/admin/crm/login</a>
+                      <button 
+                        onClick={() => {
+                          const adminUrl = `${window.location.origin}/admin/crm/login`;
+                          navigator.clipboard.writeText(adminUrl);
+                          toast.success('Đã copy link trang quản trị!');
+                        }}
+                        className="text-xs bg-slate-200 hover:bg-slate-300 text-slate-700 px-2 py-1 rounded transition-colors"
+                      >
+                        Copy
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
