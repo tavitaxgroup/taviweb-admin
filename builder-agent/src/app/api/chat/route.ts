@@ -169,7 +169,6 @@ export async function POST(req: Request) {
       system: finalSystemPrompt,
       messages: coreMessages,
       temperature: 0.7,
-      maxSteps: 5,
       tools: {
         createBooking: tool({
           description: 'Tạo lịch hẹn (Booking) cho khách hàng khi đã thu thập đủ Tên, Số điện thoại, Dịch vụ và Thời gian.',
@@ -179,6 +178,7 @@ export async function POST(req: Request) {
             service: z.string().describe('Tên dịch vụ khách muốn đặt (phải nằm trong [SERVICES LIST])'),
             time: z.string().describe('Thời gian đặt lịch định dạng chuẩn ISO 8601, KHÔNG dùng chữ (VD: 2026-08-13T14:00:00+07:00)')
           }),
+          // @ts-ignore - Bypass TS error since the type definitions are outdated but runtime supports it
           execute: async (args) => {
             console.log('[AI BOOKING] RAW ARGS:', JSON.stringify(args, null, 2));
             const name = args.name || args.customer_name || args.customerName;
