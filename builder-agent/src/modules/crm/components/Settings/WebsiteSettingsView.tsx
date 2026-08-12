@@ -2,15 +2,17 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { WebsiteOverrides } from '@/types/demo';
-import { Save, Image as ImageIcon, Loader2, Upload, MessageCircle, Phone, Mail, MapPin, Grid, Star, LayoutTemplate, PanelLeftClose, PanelLeftOpen } from 'lucide-react';
+import { Save, Image as ImageIcon, Loader2, Upload, MessageCircle, Phone, Mail, MapPin, Grid, Star, LayoutTemplate, PanelLeftClose, PanelLeftOpen, ExternalLink, Globe } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { ServicesEditor, ReviewsEditor, GalleryEditor, HighlightsEditor } from './WebsiteArrayEditors';
 
 export function WebsiteSettingsView() {
   const [overrides, setOverrides] = useState<WebsiteOverrides>({});
   const [slug, setSlug] = useState<string>('');
+  const [customDomain, setCustomDomain] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [savingDomain, setSavingDomain] = useState(false);
   const [uploading, setUploading] = useState<string | null>(null);
   const [showSidebar, setShowSidebar] = useState(true);
   const iframeRef = useRef<HTMLIFrameElement>(null);
@@ -31,8 +33,9 @@ export function WebsiteSettingsView() {
       const res = await fetch('/api/admin/settings/website');
       if (res.ok) {
         const data = await res.json();
-        const { _slug, ...restOverrides } = data;
+        const { _slug, _custom_domain, ...restOverrides } = data;
         setSlug(_slug);
+        setCustomDomain(_custom_domain || '');
         setOverrides(restOverrides);
       }
     } catch (error) {
@@ -40,6 +43,30 @@ export function WebsiteSettingsView() {
       toast.error('Không thể tải dữ liệu website');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveDomain = async () => {
+    setSavingDomain(true);
+    try {
+      const res = await fetch('/api/admin/settings/domain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ custom_domain: customDomain }),
+      });
+
+      const result = await res.json();
+      if (res.ok) {
+        toast.success('Đã cấu hình tên miền thành công!');
+        if (result.domain) setCustomDomain(result.domain);
+      } else {
+        toast.error(result.error || 'Lỗi lưu tên miền');
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error('Đã xảy ra lỗi khi lưu tên miền');
+    } finally {
+      setSavingDomain(false);
     }
   };
 
@@ -132,6 +159,17 @@ export function WebsiteSettingsView() {
         <div className="p-4 border-b border-slate-200 flex items-center justify-between bg-white shrink-0">
           <h2 className="text-lg font-bold text-slate-800">Tùy Chỉnh Giao Diện</h2>
           <div className="flex items-center gap-2">
+            {slug && (
+              <a
+                href={`/${slug}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg font-medium transition-colors text-sm border border-slate-300"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Xem Website</span>
+              </a>
+            )}
             <button
               onClick={handleSave}
               disabled={saving}
@@ -145,6 +183,40 @@ export function WebsiteSettingsView() {
 
         <div className="flex-1 overflow-y-auto p-6 space-y-10 custom-scrollbar pb-24">
           
+          {/* Domain Section */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <Globe className="w-5 h-5 text-teal-500" />
+              <h3 className="text-base font-semibold text-slate-800">Tên miền riêng (Custom Domain)</h3>
+            </div>
+            <div className="p-4 bg-teal-50 border border-teal-100 rounded-lg text-sm text-teal-800">
+              <p className="font-semibold mb-1">Hướng dẫn kết nối tên miền:</p>
+              <ul className="list-disc ml-5 space-y-1">
+                <li>Nhập tên miền của bạn (VD: <code className="bg-teal-100 px-1 rounded">spa-cua-toi.com</code>) và bấm Lưu.</li>
+                <li>Vào trang quản lý tên miền (TenTen, MatBao, GoDaddy, v.v.) trỏ bản ghi <b>A</b> về IP: <code className="font-mono bg-teal-100 px-1 rounded font-bold">76.76.21.21</code></li>
+              </ul>
+            </div>
+            <div className="flex gap-2 items-end">
+              <div className="flex-1">
+                <label className="block text-xs font-medium text-slate-600 mb-1">Tên miền của bạn</label>
+                <input
+                  type="text"
+                  value={customDomain}
+                  onChange={(e) => setCustomDomain(e.target.value)}
+                  placeholder="VD: beauty-spa.com"
+                  className="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:ring-2 focus:ring-indigo-500 outline-none"
+                />
+              </div>
+              <button
+                onClick={handleSaveDomain}
+                disabled={savingDomain}
+                className="bg-teal-600 hover:bg-teal-700 text-white px-4 py-2 rounded-lg font-medium transition-colors disabled:opacity-70 text-sm h-[38px] flex items-center justify-center min-w-[100px]"
+              >
+                {savingDomain ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Lưu Tên Miền'}
+              </button>
+            </div>
+          </section>
+
           {/* Hero Section */}
           <section className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-slate-100">

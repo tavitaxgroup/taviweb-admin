@@ -18,7 +18,12 @@ export async function POST(request: Request, { params }: { params: Promise<{ ten
       .select()
       .single();
 
-    if (appointmentError) throw appointmentError;
+    if (appointmentError) {
+      if (appointmentError.message && appointmentError.message.includes('double_booking_error')) {
+        return NextResponse.json({ error: 'double_booking', message: 'Rất tiếc, khung giờ này vừa có người đặt trước. Vui lòng chọn khung giờ khác.' }, { status: 409 });
+      }
+      throw appointmentError;
+    }
 
     // 2. Automations: CRM Integration
     // Check if CRM module is active for this tenant (we can assume yes for demo, or check config)
@@ -96,8 +101,41 @@ Ghi chú: ${body.notes || 'Không có'}`
 
     return NextResponse.json({ success: true, appointment });
 
+    return NextResponse.json({ success: true, appointment });
+
   } catch (error: any) {
     console.error('Booking Error:', error);
     return NextResponse.json({ error: error.message || 'Internal error' }, { status: 500 });
+  }
+}
+
+export async function GET(request: Request, { params }: { params: Promise<{ tenantSlug: string }> }) {
+  try {
+    const { tenantSlug: tenantId } = await params;
+    const url = new URL(request.url);
+    const date = url.searchParams.get('date') || new Date().toISOString().split('T')[0];
+    const resourceId = url.searchParams.get('resourceId');
+    
+    // Fetch all appointments for the date
+    let query = supabase
+      .from('booking_appointments')
+      .select('*')
+      .eq('tenant_id', tenantId)
+      .gte('start_time', `${date}T00:00:00.000Z`)
+      .lt('start_time', `${date}T23:59:59.999Z`)
+      .neq('status', 'cancelled');
+      
+    if (resourceId) {
+       query = query.eq('resource_id', resourceId);
+    }
+    
+    const { data: appointments, error } = await query.order('start_time');
+    if (error) throw error;
+    
+    const booked_slots = (appointments || []).map(a => ({ start: a.start_time, end: a.end_time }));
+    
+    return NextResponse.json({ booked_slots }, { status: 200 });
+  } catch (error: any) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
   }
 }

@@ -125,9 +125,47 @@ export default function ChatbotWidget({ tenantId }: { tenantId?: string }) {
                   part.type === 'text' ? <span key={i}>{part.text}</span> : null
                 )) : (m.content || '')
               ) : (
-                <ReactMarkdown>
-                  {m.parts ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') : (m.content || '')}
-                </ReactMarkdown>
+                <div className="flex flex-col gap-2">
+                  <ReactMarkdown>
+                    {m.parts ? m.parts.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('') : (m.content || '')}
+                  </ReactMarkdown>
+                  {m.parts && m.parts.map((part: any, i: number) => {
+                    if (part.type === 'tool-invocation') {
+                      const invocation = part.toolInvocation || part;
+                      if (invocation.state === 'result' && invocation.result) {
+                        const res = invocation.result;
+                        return (
+                          <div key={i} className={`mt-1 p-3 text-sm rounded-lg border ${res.success ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
+                            <strong>{res.success ? '✅ Đặt lịch thành công' : '❌ Đặt lịch thất bại'}</strong>
+                            <p className="mt-1 text-xs">{res.message}</p>
+                          </div>
+                        );
+                      } else if (invocation.state === 'call' || invocation.state === 'partial-call') {
+                        return (
+                          <div key={i} className="mt-1 p-2 bg-slate-50 text-slate-500 rounded border border-slate-200 text-xs flex items-center gap-2">
+                            <span className="w-2 h-2 bg-indigo-400 rounded-full animate-pulse"></span>
+                            Đang xử lý đặt lịch...
+                          </div>
+                        );
+                      }
+                    }
+                    // Handle older @ai-sdk versions where toolInvocations might be directly on the message
+                    return null;
+                  })}
+                  {/* Fallback for older ai-sdk versions */}
+                  {m.toolInvocations && m.toolInvocations.map((invocation: any, i: number) => {
+                     if (invocation.state === 'result' && invocation.result) {
+                        const res = invocation.result;
+                        return (
+                          <div key={'tool'+i} className={`mt-1 p-3 text-sm rounded-lg border ${res.success ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-rose-50 text-rose-700 border-rose-200'}`}>
+                            <strong>{res.success ? '✅ Hệ thống phản hồi' : '❌ Lỗi hệ thống'}</strong>
+                            <p className="mt-1 text-xs">{res.message}</p>
+                          </div>
+                        );
+                      }
+                      return null;
+                  })}
+                </div>
               )}
             </div>
 

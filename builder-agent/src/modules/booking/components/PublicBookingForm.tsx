@@ -16,7 +16,9 @@ export default function PublicBookingForm({ tenantId, tenantName, templateKey }:
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState(false);
+  const [bookingError, setBookingError] = useState<string | null>(null);
   const [timeSlots, setTimeSlots] = useState<string[]>([]);
+  const [bookedSlots, setBookedSlots] = useState<{start: string, end: string}[]>([]);
   const [dates, setDates] = useState<{date: Date, label: string, dayName: string, fullDate: string}[]>([]);
 
   const [formData, setFormData] = useState({
@@ -81,6 +83,27 @@ export default function PublicBookingForm({ tenantId, tenantName, templateKey }:
     fetchData();
   }, [tenantId]);
 
+  // Fetch availability when date or resource changes
+  useEffect(() => {
+    const fetchAvailability = async () => {
+      if (!formData.date) return;
+      try {
+        let url = `/api/public/${tenantId}/booking?date=${formData.date}`;
+        if (formData.resourceId) {
+          url += `&resourceId=${formData.resourceId}`;
+        }
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          setBookedSlots(data.booked_slots || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch availability', err);
+      }
+    };
+    fetchAvailability();
+  }, [formData.date, formData.resourceId, tenantId]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.customerName || !formData.time) return;
@@ -102,7 +125,7 @@ export default function PublicBookingForm({ tenantId, tenantName, templateKey }:
       const end = new Date(start);
       end.setMinutes(start.getMinutes() + duration);
 
-      const res = await fetch(`/api/public/${tenantId}/booking`, { // Note: tenantId here in the frontend might be the slug if it's passed from page, or we need to pass tenantSlug to PublicBookingForm. Wait, the page passes `tenantId` which is often a UUID. But the API route expects `tenantSlug`. Let's check what `tenantId` actually is in `PublicBookingForm`... wait, let's just use `fetch('/api/public/' + tenantId + '/booking')` because we can use tenantId in place of tenantSlug in the API if we change the API logic, or we can just send it as a POST body.
+      const res = await fetch(`/api/public/${tenantId}/booking`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -119,9 +142,21 @@ export default function PublicBookingForm({ tenantId, tenantName, templateKey }:
       });
 
       if (!res.ok) {
+        const errData = await res.json();
+        if (res.status === 409 || errData.error === 'double_booking') {
+          setBookingError(errData.message || 'Rất tiếc, khung giờ này vừa có người nhanh tay đặt trước. Vui lòng chọn khung giờ khác.');
+          // Tự động trigger refresh lại bookedSlots bằng cách gán lại state date để chạy lại useEffect
+          setFormData(prev => ({ ...prev, time: '' }));
+          const tempDate = formData.date;
+          setFormData(prev => ({ ...prev, date: '' }));
+          setTimeout(() => setFormData(prev => ({ ...prev, date: tempDate })), 50);
+          return;
+        }
         throw new Error('Booking failed');
       }
+      
       setSuccess(true);
+      setBookingError(null);
     } catch (err) {
       alert('Có lỗi xảy ra, vui lòng thử lại sau.');
     } finally {
@@ -340,18 +375,41 @@ export default function PublicBookingForm({ tenantId, tenantName, templateKey }:
 
                 <div className="w-full h-px bg-slate-200/50 my-6"></div>
 
+                {bookingError && (
+                   <div className="mb-6 p-4 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                     <Sparkles className="w-5 h-5 shrink-0 mt-0.5" />
+                     <p className="text-sm font-bold leading-relaxed">{bookingError}</p>
+                   </div>
+                )}
+
                 {/* Time Grid */}
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                    {timeSlots.map(t => {
                      const isSelected = formData.time === t;
+                     const [h, m] = t.split(':');
+                     const slotStart = new Date(formData.date);
+                     slotStart.setHours(parseInt(h, 10), parseInt(m, 10), 0, 0);
+                     
+                     // Kiểm tra nếu slotStart nằm trong khoảng thời gian đã được đặt
+                     const isBooked = bookedSlots.some(slot => {
+                        const bStart = new Date(slot.start);
+                        const bEnd = new Date(slot.end);
+                        return slotStart >= bStart && slotStart < bEnd;
+                     });
+
                      return (
                        <button
                          key={t}
                          type="button"
-                         onClick={() => setFormData({...formData, time: t})}
-                         className={`py-4 px-2 rounded-2xl text-base font-extrabold transition-all duration-300 border-2 ${isSelected ? 'bg-amber-500 text-white border-amber-500 shadow-lg shadow-amber-500/30 scale-105' : 'bg-white/80 text-slate-700 border-transparent hover:border-amber-300 hover:text-amber-600 hover:bg-white shadow-sm'}`}
+                         disabled={isBooked}
+                         onClick={() => { setFormData({...formData, time: t}); setBookingError(null); }}
+                         className={`py-4 px-2 rounded-2xl text-base font-extrabold transition-all duration-300 border-2 ${
+                           isBooked ? 'bg-slate-100 text-slate-400 border-transparent cursor-not-allowed opacity-60' :
+                           isSelected ? 'bg-amber-500 text-white border-amber-500 shadow-lg shadow-amber-500/30 scale-105' : 
+                           'bg-white/80 text-slate-700 border-transparent hover:border-amber-300 hover:text-amber-600 hover:bg-white shadow-sm'
+                         }`}
                        >
-                         {t}
+                         {isBooked ? <span className="text-sm line-through decoration-slate-400">{t}</span> : t}
                        </button>
                      );
                    })}

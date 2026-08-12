@@ -25,6 +25,7 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
 
   const [leadsToPush, setLeadsToPush] = useState<any[]>([]);
   const [selectedLeadIds, setSelectedLeadIds] = useState<Set<string>>(new Set());
+  const [demoLeadInfo, setDemoLeadInfo] = useState<any | null>(null);
 
   // Compute addresses for all leads
   const addressData = initialLeads.map(lead => {
@@ -223,6 +224,9 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
               <th className="p-4 font-bold uppercase text-xs tracking-wider w-[8%] text-left align-top">
                 <div className="mb-2">Website</div>
               </th>
+              <th className="p-4 font-bold uppercase text-xs tracking-wider w-[10%] text-left align-top">
+                <div className="mb-2">Demo Link</div>
+              </th>
               <th className="p-4 font-bold uppercase text-xs tracking-wider w-[15%] text-left align-top">
                 <div className="mb-2">Số nhà / Đường</div>
               </th>
@@ -335,6 +339,18 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                       <a href={lead.website.startsWith('http') ? lead.website : `https://${lead.website}`} target="_blank" className="text-blue-600 hover:underline max-w-[120px] inline-block truncate" title={lead.website}>Link</a>
                    ) : (
                       <span className="text-slate-300 italic">Trống</span>
+                   )}
+                </td>
+                <td className="p-4 text-sm font-medium">
+                   {lead.demo_url ? (
+                      <button 
+                        onClick={() => setDemoLeadInfo(lead)}
+                        className="bg-emerald-100 text-emerald-700 hover:bg-emerald-200 px-3 py-1 rounded font-bold whitespace-nowrap shadow-sm text-xs" 
+                        title="Xem chi tiết Demo">
+                        ✨ Xem Demo
+                      </button>
+                   ) : (
+                      <span className="text-slate-300 italic text-xs">Chưa tạo</span>
                    )}
                 </td>
                 <td className="p-4 text-sm text-slate-600 truncate" title={lead.formatted_address}>
@@ -491,6 +507,82 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
             }
           }}
         />
+      )}
+      {demoLeadInfo && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white rounded-xl shadow-xl p-6 w-[500px] max-w-full m-4">
+            <h3 className="text-xl font-bold text-slate-800 mb-4 border-b pb-2">Thông Tin Demo</h3>
+            
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Tên Doanh Nghiệp</label>
+                <div className="text-slate-900 font-medium">{demoLeadInfo.name}</div>
+              </div>
+              
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Đường Dẫn Truy Cập (Demo URL)</label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="text" 
+                    readOnly 
+                    value={demoLeadInfo.demo_url} 
+                    className="flex-1 border border-slate-200 rounded p-2 text-sm bg-slate-50 text-slate-700"
+                  />
+                  <button 
+                    onClick={() => {
+                      navigator.clipboard.writeText(demoLeadInfo.demo_url);
+                      alert('Đã copy đường dẫn Demo!');
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                  >
+                    Copy
+                  </button>
+                  <a 
+                    href={demoLeadInfo.demo_url} 
+                    target="_blank" 
+                    className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors"
+                  >
+                    Mở Web
+                  </a>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-1">Tenant Slug</label>
+                <div className="text-slate-900 font-medium">
+                  {demoLeadInfo.demo_url?.split('/').pop()}
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-slate-100">
+                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Tài khoản Quản trị Demo</label>
+                <div className="bg-slate-50 rounded p-3 text-sm space-y-2 border border-slate-200">
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Tài khoản:</span>
+                    <strong className="text-slate-800">admin@{demoLeadInfo.demo_url?.split('/').pop()}.com</strong>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Mật khẩu:</span>
+                    <strong className="text-slate-800">123456</strong>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-slate-500">Trang quản trị:</span>
+                    <a href={`http://localhost:3000/admin/crm/login`} target="_blank" className="text-blue-600 hover:underline">/admin/crm/login</a>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-end">
+              <button 
+                onClick={() => setDemoLeadInfo(null)}
+                className="bg-slate-200 hover:bg-slate-300 text-slate-800 px-6 py-2 rounded font-medium transition-colors"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

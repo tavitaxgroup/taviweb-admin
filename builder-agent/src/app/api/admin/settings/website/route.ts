@@ -81,7 +81,7 @@ export async function GET(request: Request) {
 
     const { data: tenant, error: fetchError } = await adminSupabase
       .from('tenants')
-      .select('theme_config, slug')
+      .select('theme_config, slug, custom_domain')
       .eq('id', tenantId)
       .single();
 
@@ -93,7 +93,8 @@ export async function GET(request: Request) {
     const websiteOverrides = tenant?.theme_config?.website_overrides || {};
     return NextResponse.json({
       ...websiteOverrides,
-      _slug: tenant.slug
+      _slug: tenant.slug,
+      _custom_domain: tenant.custom_domain
     });
   } catch (error) {
     console.error('Error in GET /api/admin/settings/website:', error);

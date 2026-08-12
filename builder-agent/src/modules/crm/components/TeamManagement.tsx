@@ -59,9 +59,15 @@ export default function TeamManagement() {
       setEditingUser(null);
       setFormData({ name: '', email: '', role_id: roles[0]?.id || '' });
       loadData();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to save user', error);
-      alert('Có lỗi xảy ra khi lưu nhân viên');
+      if (error.message && error.message.includes('limit_exceeded')) {
+        const match = error.message.match(/limit_exceeded:(\d+)/);
+        const limit = match ? match[1] : '10';
+        alert(`Gói cước hiện tại của bạn chỉ cho phép tối đa ${limit} nhân viên. Vui lòng nâng cấp gói để thêm mới!`);
+      } else {
+        alert('Có lỗi xảy ra khi lưu nhân viên');
+      }
     }
   };
 

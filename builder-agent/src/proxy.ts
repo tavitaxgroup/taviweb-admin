@@ -3,11 +3,23 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 import { getTenantStatus } from './lib/redis/tenantCache';
 import { globalRateLimiter } from './lib/redis/rateLimiter';
+import { createClient } from '@supabase/supabase-js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tavi-super-secret-key-for-jwt-123';
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+const supabase = createClient(supabaseUrl!, supabaseKey!, {
+  auth: { persistSession: false },
+});
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  
+  const hostname = request.headers
+    .get('host')!
+    .replace('.localhost:3000', `.${process.env.NEXT_PUBLIC_ROOT_DOMAIN}`)
+    .replace('localhost:3000', process.env.NEXT_PUBLIC_ROOT_DOMAIN || '');
 
   // 1. Bypass public static assets and auth routes
   if (
@@ -19,6 +31,30 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith('/api/cron')
   ) {
     return NextResponse.next();
+  }
+
+  // Handle Custom Domains FIRST (before Auth Guard, because public sites use custom domains)
+  const isSystemDomain = 
+    hostname === process.env.NEXT_PUBLIC_ROOT_DOMAIN || 
+    hostname === 'localhost' || 
+    hostname.includes('vercel.app');
+
+  if (!isSystemDomain && !pathname.startsWith('/api/') && !pathname.startsWith('/admin')) {
+    try {
+      const { data: tenant } = await supabase
+        .from('tenants')
+        .select('slug')
+        .eq('custom_domain', hostname)
+        .single();
+
+      if (tenant && tenant.slug) {
+        const searchParams = request.nextUrl.searchParams.toString();
+        const path = `${pathname}${searchParams.length > 0 ? `?${searchParams}` : ''}`;
+        return NextResponse.rewrite(new URL(`/${tenant.slug}${path}`, request.url));
+      }
+    } catch (error) {
+      console.error('Middleware Custom Domain Error:', error);
+    }
   }
 
   // 2. Global Rate Limiting for public API endpoints
@@ -68,11 +104,6 @@ export async function proxy(request: NextRequest) {
         return res;
       }
 
-      // 5. Bỏ qua kiểm tra thời hạn gói ở middleware, để UI tự xử lý Upgrade Modal
-      // if (tenant.isExpired && !pathname.startsWith('/admin/billing')) {
-      //   return NextResponse.redirect(new URL('/admin/billing', request.url));
-      // }
-
       // Clone request headers và set X-Tenant-ID
       const requestHeaders = new Headers(request.headers);
       requestHeaders.set('x-tenant-id', tenantId);
@@ -97,12 +128,6 @@ export async function proxy(request: NextRequest) {
 
 export const config = {
   matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     */
     '/((?!_next/static|_next/image|favicon.ico).*)',
   ],
 };

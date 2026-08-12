@@ -11,20 +11,30 @@ export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
     const date = searchParams.get('date') || new Date().toISOString().split('T')[0];
+    const resourceId = searchParams.get('resourceId');
 
     // Lấy cài đặt giờ mở/đóng cửa
     const settings = await BookingService.getSettings(auth.tenantId!);
     
     // Lấy các lịch đã đặt trong ngày
-    const appointments = await BookingService.getAppointments(auth.tenantId!, `${date}T00:00:00.000Z`, `${date}T23:59:59.999Z`);
-
-    // Logic giả lập: Trả về danh sách giờ trống dựa trên opening_time và closing_time
-    // (Trong thực tế cần trừ đi các khoảng thời gian đã bị đặt trong appointments)
+    let query = supabase
+      .from('booking_appointments')
+      .select('*')
+      .eq('tenant_id', auth.tenantId!)
+      .gte('start_time', `${date}T00:00:00.000Z`)
+      .lt('start_time', `${date}T23:59:59.999Z`)
+      .neq('status', 'cancelled');
+      
+    if (resourceId) {
+      query = query.eq('resource_id', resourceId);
+    }
     
+    const { data: appointments } = await query;
+
     return NextResponse.json({ 
       date, 
       business_hours: settings,
-      booked_slots: appointments.map(a => ({ start: a.start_time, end: a.end_time })),
+      booked_slots: (appointments || []).map(a => ({ start: a.start_time, end: a.end_time })),
       message: 'Client tự tính toán giờ trống dựa trên booked_slots và business_hours'
     }, { status: 200 });
   } catch (error: any) {
