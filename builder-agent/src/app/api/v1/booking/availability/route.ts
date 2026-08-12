@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { verifyApiKey } from '@/lib/apiAuth';
 import { BookingService } from '@/modules/booking/api/booking.service';
+import { adminSupabase } from '@/lib/supabase';
 
 export async function GET(req: NextRequest) {
   const auth = await verifyApiKey(req);
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest) {
     const settings = await BookingService.getSettings(auth.tenantId!);
     
     // Lấy các lịch đã đặt trong ngày
-    let query = supabase
+    let query = adminSupabase
       .from('booking_appointments')
       .select('*')
       .eq('tenant_id', auth.tenantId!)
