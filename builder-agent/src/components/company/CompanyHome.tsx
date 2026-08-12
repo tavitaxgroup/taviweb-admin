@@ -354,7 +354,7 @@ const pricing = [
       "Hệ quản trị khách hàng CRM (10 tài khoản)",
       "Hệ thống đặt lịch hẹn trực tuyến (Booking)",
       "Bảng điều khiển báo cáo (Dashboard) cơ bản",
-      "Chatbot AI trả lời tự động (500 hội thoại/tháng)"
+      "Chatbot AI trả lời tự động (250 hội thoại/tháng)"
     ],
     popular: false
   },
@@ -369,7 +369,7 @@ const pricing = [
       "CMS quản lý bài viết doanh nghiệp",
       "AI đặt lịch hẹn thông minh (AI Booking)",
       "Bảng điều khiển báo cáo (Dashboard) nâng cao",
-      "Chatbot AI trả lời tự động (2.000 hội thoại/tháng)",
+      "Chatbot AI trả lời tự động (500 hội thoại/tháng)",
       "Huấn luyện AI chuyên sâu theo tài liệu DN"
     ],
     popular: true
@@ -385,7 +385,7 @@ const pricing = [
       "AI tự động biên soạn nội dung & đăng bài (CMS AI)",
       "AI Booking & Nhắc lịch hẹn tin nhắn tự động",
       "Dashboard tùy biến linh hoạt theo yêu cầu",
-      "Chatbot AI trả lời tự động (5.000 hội thoại/tháng)",
+      "Chatbot AI trả lời tự động (1.000 hội thoại/tháng)",
       "Huấn luyện AI chuyên sâu theo tài liệu DN"
     ],
     popular: false
@@ -955,9 +955,9 @@ export function CompanyHome() {
                   <tr>
                     <td>Chatbot AI (Số hội thoại)</td>
                     <td>—</td>
-                    <td>500 hội thoại / tháng</td>
-                    <td className="highlight-col">2000 hội thoại / tháng</td>
-                    <td>5000 hội thoại / tháng</td>
+                    <td>250 hội thoại / tháng</td>
+                    <td className="highlight-col">500 hội thoại / tháng</td>
+                    <td>1.000 hội thoại / tháng</td>
                   </tr>
                   <tr>
                     <td>Huấn luyện kịch bản Chatbot</td>
