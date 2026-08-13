@@ -857,7 +857,7 @@ export function CompanyHome() {
 
           <div className="pricing-grid">
             {pricing.map((plan) => (
-              <div className={`price-card-outer price-card-${plan.title.toLowerCase()}`} key={plan.title}>
+              <div className={`price-card-outer hover-lift price-card-${plan.title.toLowerCase()}`} key={plan.title}>
                 <article className="price-card-inner">
                   <div className="price-card-header">
                     <span className="price-card-title">{plan.title}</span>

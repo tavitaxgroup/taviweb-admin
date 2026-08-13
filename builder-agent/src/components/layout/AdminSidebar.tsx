@@ -32,19 +32,22 @@ export function AdminSidebar() {
   const { isSidebarOpen } = useSidebar();
 
   return (
-    <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-slate-900 h-full flex flex-col text-slate-300 transition-all duration-300 border-r border-slate-800 shadow-xl shrink-0 overflow-hidden`}>
+    <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} bg-gradient-to-b from-slate-950 to-slate-900 h-full flex flex-col text-slate-300 transition-all duration-300 border-r border-slate-800 shadow-2xl shrink-0 overflow-hidden relative`}>
       
+      {/* Decorative Glow */}
+      <div className="absolute top-0 left-0 right-0 h-32 bg-indigo-500/10 blur-[50px] pointer-events-none" />
+
       {/* Logo Area */}
-      <div className="h-16 flex items-center px-6 border-b border-slate-800/60 bg-slate-950/30 whitespace-nowrap">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-md mr-3 shrink-0">
+      <div className="h-16 flex items-center px-6 border-b border-slate-800/40 bg-transparent whitespace-nowrap relative z-10">
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_15px_rgba(99,102,241,0.4)] mr-3 shrink-0">
           <Building2 className="w-4 h-4 text-white" />
         </div>
-        <span className="text-white font-extrabold text-lg tracking-wide">TAVI SaaS</span>
+        <span className="text-white font-extrabold text-lg tracking-wide bg-clip-text text-transparent bg-gradient-to-r from-white to-slate-300">TAVI SaaS</span>
       </div>
 
       {/* Main Nav */}
-      <nav className="flex-1 py-6 px-3 space-y-1 overflow-y-auto custom-scrollbar whitespace-nowrap">
-        <div className="text-xs font-bold text-slate-500 uppercase tracking-widest px-3 mb-4">Workspace</div>
+      <nav className="flex-1 py-6 px-3 space-y-1.5 overflow-y-auto custom-scrollbar whitespace-nowrap relative z-10">
+        <div className="text-[10px] font-bold text-slate-500 uppercase tracking-widest px-3 mb-4">Workspace</div>
         
         {MENU_ITEMS.map((item) => {
           if (item.path === '/admin/leads' && user?.tenant_id !== '6064025b-7fe4-4840-a27f-2d5da65e15fa') return null;
@@ -57,24 +60,27 @@ export function AdminSidebar() {
             <Link 
               key={item.path} 
               href={item.path}
-              className={`flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all group ${
+              className={`flex items-center justify-between px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group relative ${
                 isActive 
-                  ? 'bg-indigo-600 text-white shadow-md shadow-indigo-900/20' 
-                  : 'hover:bg-slate-800/50 hover:text-white'
+                  ? 'bg-indigo-500/15 text-indigo-100 shadow-[inset_0_1px_1px_rgba(255,255,255,0.05)] border border-indigo-500/20' 
+                  : 'hover:bg-slate-800/60 hover:text-white border border-transparent'
               }`}
             >
+              {isActive && (
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-6 bg-indigo-500 rounded-r-full shadow-[0_0_10px_rgba(99,102,241,0.6)]" />
+              )}
               <div className="flex items-center gap-3">
-                <item.icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-indigo-200' : 'text-slate-400 group-hover:text-indigo-400'}`} />
+                <item.icon className={`w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-indigo-400 drop-shadow-[0_0_8px_rgba(99,102,241,0.5)]' : 'text-slate-400 group-hover:text-indigo-300'}`} />
                 <span>{item.name}</span>
               </div>
-              {isActive && <ChevronRight className="w-4 h-4 opacity-70 shrink-0" />}
+              {isActive && <ChevronRight className="w-4 h-4 opacity-70 shrink-0 text-indigo-300" />}
             </Link>
           );
         })}
       </nav>
 
       {/* Bottom Nav */}
-      <div className="p-4 border-t border-slate-800/60 bg-slate-950/20 whitespace-nowrap">
+      <div className="p-4 border-t border-slate-800/40 bg-transparent whitespace-nowrap relative z-10">
         {BOTTOM_MENU.map((item) => {
           if (item.path === '/admin/audit-logs' && !hasPermission('manage_settings')) return null;
           if (item.path === '/admin/settings/pipelines' && !hasPermission('manage_pipelines')) return null;
@@ -90,13 +96,13 @@ export function AdminSidebar() {
             <Link 
               key={item.path} 
               href={item.path}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all group ${
+              className={`flex items-center gap-3 px-3 py-2.5 rounded-xl font-medium transition-all duration-200 group ${
                 isActive 
-                  ? 'bg-slate-800 text-white' 
-                  : 'hover:bg-slate-800/50 hover:text-white'
+                  ? 'bg-slate-800/80 text-white border border-slate-700/50' 
+                  : 'hover:bg-slate-800/40 hover:text-white border border-transparent'
               }`}
             >
-              <item.icon className={`w-5 h-5 shrink-0 ${isActive ? 'text-slate-300' : 'text-slate-500 group-hover:text-slate-300'}`} />
+              <item.icon className={`w-5 h-5 shrink-0 transition-transform duration-300 group-hover:scale-110 ${isActive ? 'text-slate-200 drop-shadow-sm' : 'text-slate-500 group-hover:text-slate-300'}`} />
               <span>{item.name}</span>
             </Link>
           );

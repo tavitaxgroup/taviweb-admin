@@ -59,7 +59,7 @@ export function AdminHeader() {
   };
 
   return (
-    <header className="h-16 bg-white/70 backdrop-blur-xl border-b border-slate-200/60 px-6 flex items-center justify-between shadow-[0_4px_30px_rgba(0,0,0,0.02)] shrink-0 z-40 sticky top-0">
+    <header className="h-16 glass-panel px-6 flex items-center justify-between shrink-0 z-40 sticky top-0 soft-shadow">
       
       {/* Left Section - Breadcrumb / Mobile Menu */}
       <div className="flex items-center gap-4">
@@ -139,7 +139,7 @@ export function AdminHeader() {
             onClick={() => setShowProfileMenu(!showProfileMenu)}
             className="flex items-center gap-2 p-1 hover:bg-slate-50 rounded-full transition-colors group"
           >
-            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center border border-indigo-200 font-bold">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-100 to-purple-50 text-indigo-600 flex items-center justify-center border-2 border-white shadow-sm font-bold shadow-[0_0_10px_rgba(99,102,241,0.2)]">
               {user ? user.name.charAt(0) : <UserCircle className="w-6 h-6" />}
             </div>
             <div className="hidden sm:flex flex-col items-start mr-1">

@@ -208,7 +208,7 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                 <div className="flex flex-col gap-2">
                   <span>Ngành nghề</span>
                   <select 
-                    className="text-xs text-slate-900 bg-white border border-slate-300 rounded py-1 px-1 outline-none w-full font-normal"
+                    className="text-xs text-slate-900 bg-slate-50 focus:bg-white hover:bg-slate-100 border border-slate-300 rounded-lg py-1.5 px-2 outline-none w-full font-normal transition-colors focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
                     value={industryFilter}
                     onChange={(e) => { setIndustryFilter(e.target.value); setCurrentPage(1); }}
                   >
@@ -235,7 +235,7 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                 <div className="flex flex-col gap-2">
                   <span>Quận/Huyện</span>
                   <select 
-                    className="text-xs text-slate-900 bg-white border border-slate-300 rounded py-1 px-1 outline-none w-full font-normal"
+                    className="text-xs text-slate-900 bg-slate-50 focus:bg-white hover:bg-slate-100 border border-slate-300 rounded-lg py-1.5 px-2 outline-none w-full font-normal transition-colors focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
                     value={districtFilter}
                     onChange={(e) => { setDistrictFilter(e.target.value); setCurrentPage(1); }}
                   >
@@ -250,7 +250,7 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                 <div className="flex flex-col gap-2">
                   <span>Tỉnh/Thành</span>
                   <select 
-                    className="text-xs text-slate-900 bg-white border border-slate-300 rounded py-1 px-1 outline-none w-full font-normal"
+                    className="text-xs text-slate-900 bg-slate-50 focus:bg-white hover:bg-slate-100 border border-slate-300 rounded-lg py-1.5 px-2 outline-none w-full font-normal transition-colors focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
                     value={cityFilter}
                     onChange={(e) => { setCityFilter(e.target.value); setDistrictFilter('all'); setCurrentPage(1); }}
                   >
@@ -265,7 +265,7 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                 <div className="flex flex-col gap-2">
                   <span>Nguồn</span>
                   <select 
-                    className="text-xs text-slate-900 bg-white border border-slate-300 rounded py-1 px-1 outline-none w-full font-normal"
+                    className="text-xs text-slate-900 bg-slate-50 focus:bg-white hover:bg-slate-100 border border-slate-300 rounded-lg py-1.5 px-2 outline-none w-full font-normal transition-colors focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
                     value={dataSourceFilter}
                     onChange={(e) => { setDataSourceFilter(e.target.value); setCurrentPage(1); }}
                   >
@@ -279,7 +279,7 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                 <div className="flex flex-col gap-2">
                   <span>Trạng thái</span>
                   <select 
-                    className="text-xs text-slate-900 bg-white border border-slate-300 rounded py-1 px-1 outline-none w-full font-normal"
+                    className="text-xs text-slate-900 bg-slate-50 focus:bg-white hover:bg-slate-100 border border-slate-300 rounded-lg py-1.5 px-2 outline-none w-full font-normal transition-colors focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
                     value={dataStatusFilter}
                     onChange={(e) => { setDataStatusFilter(e.target.value); setCurrentPage(1); }}
                   >
@@ -294,7 +294,7 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                 <div className="flex flex-col gap-2">
                   <span>Hành động</span>
                   <select 
-                    className="text-xs text-slate-900 bg-white border border-slate-300 rounded py-1 px-1 outline-none w-full font-normal"
+                    className="text-xs text-slate-900 bg-slate-50 focus:bg-white hover:bg-slate-100 border border-slate-300 rounded-lg py-1.5 px-2 outline-none w-full font-normal transition-colors focus:ring-2 focus:ring-indigo-500/20 shadow-sm"
                     value={salesStatusFilter}
                     onChange={(e) => { setSalesStatusFilter(e.target.value); setCurrentPage(1); }}
                   >
@@ -308,9 +308,9 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
               </th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100">
+          <tbody className="divide-y divide-slate-100 relative">
             {paginatedLeads.map((lead, idx) => (
-              <tr key={idx} className="hover:bg-slate-50 transition-colors group">
+              <tr key={idx} className="bg-white hover:bg-slate-50/80 transition-all duration-200 group hover-lift hover:shadow-lg hover:z-10 relative">
                 <td className="p-4">
                   <input 
                     type="checkbox" 
@@ -326,7 +326,7 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                   {formatDate(lead.created_at)}
                 </td>
                 <td className="p-4 text-sm text-slate-500 truncate">
-                  <span className="bg-slate-100 px-3 py-1 rounded-full text-xs font-bold">{lead.industry}</span>
+                  <span className="pill-badge bg-indigo-50 text-indigo-700 border border-indigo-100 shadow-sm">{lead.industry}</span>
                 </td>
                 <td className="p-4 font-mono text-sm font-bold text-slate-700 truncate">
                   {lead.formatted_phone_number ? (
@@ -365,30 +365,30 @@ export default function LeadsTable({ initialLeads, isSuperAdmin, salesUsers }: {
                 </td>
                 <td className="p-4 text-center">
                   {lead.place_id?.startsWith('FB_') ? (
-                    <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-600 px-3 py-1.5 rounded-md text-xs font-bold border border-blue-200 whitespace-nowrap">
-                      Facebook
+                    <span className="pill-badge bg-blue-50 text-blue-600 border border-blue-200 shadow-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Facebook
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 bg-orange-50 text-orange-600 px-3 py-1.5 rounded-md text-xs font-bold border border-orange-200 whitespace-nowrap">
-                      Google Maps
+                    <span className="pill-badge bg-orange-50 text-orange-600 border border-orange-200 shadow-sm">
+                      <span className="w-1.5 h-1.5 rounded-full bg-orange-500"></span> Google Maps
                     </span>
                   )}
                 </td>
                 <td className="p-4 text-center">
                   {lead.status === 'verified' ? (
-                    <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-600 px-3 py-1.5 rounded-md text-xs font-bold border border-emerald-200 whitespace-nowrap">
+                    <span className="pill-badge bg-emerald-50 text-emerald-600 border border-emerald-200 shadow-sm">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Khách Xịn
                     </span>
                   ) : lead.status === 'facebook' ? (
-                    <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md text-xs font-bold border border-slate-200 whitespace-nowrap">
+                    <span className="pill-badge bg-slate-50 text-slate-600 border border-slate-200 shadow-sm">
                        Mới cào
                     </span>
                   ) : lead.status === 'has_website' ? (
-                    <span className="inline-flex items-center gap-1 bg-rose-50 text-rose-600 px-3 py-1.5 rounded-md text-xs font-bold border border-rose-200 whitespace-nowrap">
+                    <span className="pill-badge bg-rose-50 text-rose-600 border border-rose-200 shadow-sm">
                        Đã Có Web
                     </span>
                   ) : (
-                    <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-600 px-3 py-1.5 rounded-md text-xs font-bold border border-slate-200 whitespace-nowrap">
+                    <span className="pill-badge bg-slate-50 text-slate-600 border border-slate-200 shadow-sm">
                        Mới cào
                     </span>
                   )}
