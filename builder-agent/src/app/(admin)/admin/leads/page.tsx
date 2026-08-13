@@ -61,10 +61,6 @@ export default async function LeadsDashboard() {
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-slate-900 mb-2">Trung Tâm Dữ Liệu Khách Hàng</h1>
           <p className="text-slate-500 text-lg">Quản lý và theo dõi danh sách khách hàng tiềm năng được cào tự động.</p>
-          
-          <div className="bg-yellow-100 border border-yellow-300 text-yellow-800 p-4 rounded mt-4 font-mono text-sm">
-             [HỆ THỐNG DEBUG] user.role: {user.role} | isSuperAdmin: {String(isSuperAdmin)} | isSale: {String(isSale)} | userId: {user.id} | Tổng Data Tải Về: {leads.length}
-          </div>
         </div>
 
         <LeadsClientView leads={leads} isSuperAdmin={isSuperAdmin} salesUsers={salesUsers} />
