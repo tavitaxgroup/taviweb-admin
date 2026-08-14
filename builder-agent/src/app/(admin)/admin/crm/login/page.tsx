@@ -83,18 +83,18 @@ export default function LoginPage() {
             )}
 
             <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-300 ml-1">Email làm việc</label>
+              <label className="text-sm font-semibold text-slate-300 ml-1">Tài khoản</label>
               <div className="relative group/input">
                 <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-slate-500 group-focus-within/input:text-indigo-400 transition-colors">
                   <User className="w-5 h-5" />
                 </div>
                 <input
-                  type="email"
+                  type="text"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-11 pr-4 py-3.5 bg-slate-900/50 border border-slate-700/50 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/50 focus:border-indigo-500/50 transition-all shadow-inner"
-                  placeholder="admin@taviweb.com"
+                  placeholder="admin"
                 />
               </div>
             </div>
@@ -140,11 +140,11 @@ export default function LoginPage() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between items-center text-slate-300 bg-slate-900/40 p-2 rounded-lg border border-white/5">
                     <span className="text-slate-400 font-medium">Admin:</span>
-                    <span className="font-mono text-indigo-300">admin@taviweb.com <span className="text-slate-500">/</span> admin123</span>
+                    <span className="font-mono text-indigo-300">admin <span className="text-slate-500">/</span> admin123</span>
                   </div>
                   <div className="flex justify-between items-center text-slate-300 bg-slate-900/40 p-2 rounded-lg border border-white/5">
                     <span className="text-slate-400 font-medium">Sale:</span>
-                    <span className="font-mono text-indigo-300">sale@tavi.com <span className="text-slate-500">/</span> sale123</span>
+                    <span className="font-mono text-indigo-300">sale1 <span className="text-slate-500">/</span> pass1</span>
                   </div>
                 </div>
               </div>

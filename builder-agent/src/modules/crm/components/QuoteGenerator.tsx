@@ -130,8 +130,8 @@ export default function QuoteGenerator({ deal, onClose, onQuoteCreated }: QuoteG
                   <p className="text-slate-500 font-medium">Ngày lập: {new Date().toLocaleDateString('vi-VN')}</p>
                 </div>
                 <div className="text-right">
-                  <h2 className="text-xl font-bold text-indigo-700">TAVI WEB BUILDER</h2>
-                  <p className="text-sm text-slate-600 mt-1">contact@taviweb.com</p>
+                  <p className="font-semibold text-slate-800">TAVI COMPANY</p>
+                  <p className="text-sm text-slate-600 mt-1">contact@tavi.vn</p>
                   <p className="text-sm text-slate-600">+84 123 456 789</p>
                 </div>
               </div>
