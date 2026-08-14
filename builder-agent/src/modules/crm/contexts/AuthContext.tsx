@@ -14,6 +14,7 @@ export interface User {
   tenant?: {
     slug: string;
     template_key: string;
+    active_modules?: string[];
   };
 }
 
@@ -58,7 +59,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             email: 'admin@dev.local',
             role: 'admin',
             tenant_id: '6064025b-7fe4-4840-a27f-2d5da65e15fa',
-            tenant: { slug: 'tavi-admin', template_key: 'nha_khoa' }
+            tenant: { slug: 'tavi-admin', template_key: 'nha_khoa', active_modules: ['crm', 'booking', 'cms', 'lms', 'chatbot'] }
           });
         } else {
           setUser(null);
@@ -75,7 +76,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           email: 'admin@dev.local',
           role: 'admin',
           tenant_id: '6064025b-7fe4-4840-a27f-2d5da65e15fa',
-          tenant: { slug: 'tavi-admin', template_key: 'nha_khoa' }
+          tenant: { slug: 'tavi-admin', template_key: 'nha_khoa', active_modules: ['crm', 'booking', 'cms', 'lms', 'chatbot'] }
         });
       } else {
         setUser(null);

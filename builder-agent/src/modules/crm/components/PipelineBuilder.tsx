@@ -241,7 +241,7 @@ export default function PipelineBuilder() {
       await loadData();
     } catch (err) {
       console.error(err);
-      toast.error("Lỗi khi lưu: " + (err.message || JSON.stringify(err)));
+      toast.error("Lỗi khi lưu: " + ((err as any).message || JSON.stringify(err)));
     } finally {
       setIsSaving(false);
     }

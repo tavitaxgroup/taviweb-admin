@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useAuth } from '@/modules/crm/contexts/AuthContext';
-import { LayoutDashboard, Users, CalendarDays, Target, Settings, Building2, ChevronRight, Shield, History, Bot, Globe } from 'lucide-react';
+import { LayoutDashboard, Users, CalendarDays, Target, Settings, Building2, ChevronRight, Shield, History, Bot, Globe, FileText, BookOpen } from 'lucide-react';
 
 const MENU_ITEMS = [
   { name: 'Tổng quan', path: '/admin', icon: LayoutDashboard },
@@ -11,6 +11,8 @@ const MENU_ITEMS = [
   { name: 'CRM & Pipeline', path: '/admin/crm', icon: Target },
   { name: 'Leads Data', path: '/admin/leads', icon: Users },
   { name: 'Lịch hẹn', path: '/admin/booking/admin', icon: CalendarDays },
+  { name: 'AI CMS (Bài viết)', path: '/admin/cms', icon: FileText },
+  { name: 'Khóa học (LMS)', path: '/admin/lms', icon: BookOpen },
 ];
 
 const BOTTOM_MENU = [
@@ -55,6 +57,14 @@ export function AdminSidebar() {
           // RBAC: Only Super Admin (TAVI) can see SaaS Factory
           if (item.path === '/admin/workspaces' && user?.tenant_id !== '6064025b-7fe4-4840-a27f-2d5da65e15fa') return null;
           
+          // Active modules filter
+          const modules = user?.tenant?.active_modules || ['crm', 'booking', 'cms', 'lms', 'chatbot']; // Default fallback for existing sessions
+          if (item.path === '/admin/crm' && !modules.includes('crm')) return null;
+          if (item.path === '/admin/leads' && !modules.includes('crm')) return null;
+          if (item.path === '/admin/booking/admin' && !modules.includes('booking')) return null;
+          if (item.path === '/admin/cms' && !modules.includes('cms')) return null;
+          if (item.path === '/admin/lms' && !modules.includes('lms')) return null;
+
           const isActive = pathname === item.path || (item.path !== '/admin' && pathname.startsWith(item.path));
           return (
             <Link 
@@ -91,6 +101,9 @@ export function AdminSidebar() {
           if (item.path === '/admin/settings/website' && !hasPermission('manage_settings')) return null;
           if (item.path === '/admin/ai-hub' && user?.tenant_id !== '6064025b-7fe4-4840-a27f-2d5da65e15fa') return null;
           
+          const modules = user?.tenant?.active_modules || ['crm', 'booking', 'cms', 'lms', 'chatbot'];
+          if (item.path === '/admin/settings/chatbot' && !modules.includes('chatbot')) return null;
+
           const isActive = pathname === item.path || pathname.startsWith(item.path);
           return (
             <Link 

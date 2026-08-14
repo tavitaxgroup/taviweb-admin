@@ -38,6 +38,8 @@ export default async function TenantHomePage({ params }: Props) {
   if (!tenant) {
     notFound();
   }
+  
+  const hasChatbot = tenant.active_modules?.includes('chatbot');
 
   // If the tenant has a template_key, render the specific template
   if (tenant.template_key) {
@@ -69,7 +71,7 @@ export default async function TenantHomePage({ params }: Props) {
         return (
           <>
             <LivePreviewWrapper initialData={data} templateKey={tenant.template_key} />
-            <ChatbotWidget tenantId={tenant.id} />
+            {hasChatbot && <ChatbotWidget tenantId={tenant.id} />}
           </>
         );
       }
@@ -81,7 +83,7 @@ export default async function TenantHomePage({ params }: Props) {
     return (
       <>
         <CompanyHome />
-        <ChatbotWidget tenantId={tenant.id} />
+        {hasChatbot && <ChatbotWidget tenantId={tenant.id} />}
       </>
     );
   }
@@ -94,7 +96,7 @@ export default async function TenantHomePage({ params }: Props) {
           <p className="text-gray-500">Website đang trong quá trình xây dựng.</p>
         </div>
       </div>
-      <ChatbotWidget tenantId={tenant.id} />
+      {hasChatbot && <ChatbotWidget tenantId={tenant.id} />}
     </>
   );
 }
