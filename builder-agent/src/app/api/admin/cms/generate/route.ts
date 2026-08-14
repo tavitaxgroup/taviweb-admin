@@ -39,9 +39,9 @@ export async function POST(req: Request) {
       });
       text = result.text;
     } catch (err: any) {
-      console.warn('Primary model failed, falling back to gemini-3.5-pro:', err.message);
+      console.warn('Primary model failed, falling back to gemini-2.0-flash:', err.message);
       const result = await generateText({
-        model: google('gemini-3.5-pro'),
+        model: google('gemini-2.0-flash'),
         prompt: systemPrompt,
         temperature: 0.7,
       });
