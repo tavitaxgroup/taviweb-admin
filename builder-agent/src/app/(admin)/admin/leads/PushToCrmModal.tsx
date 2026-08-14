@@ -15,7 +15,7 @@ export default function PushToCrmModal({ leads, onClose, onConfirm }: PushToCrmM
   
   const [selectedPipelineId, setSelectedPipelineId] = useState<string>('');
   const [selectedStageId, setSelectedStageId] = useState<string>('');
-  const [selectedAssigneeId, setSelectedAssigneeId] = useState<string>('');
+  const [selectedAssigneeId, setSelectedAssigneeId] = useState<string>(user?.id || '');
   
   const [loading, setLoading] = useState(true);
 
@@ -116,19 +116,21 @@ export default function PushToCrmModal({ leads, onClose, onConfirm }: PushToCrmM
             </select>
           </div>
 
-          <div>
-            <label className="block text-sm font-semibold text-slate-700 mb-1">Người phụ trách (Assignee)</label>
-            <select 
-              className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-sm"
-              value={selectedAssigneeId}
-              onChange={(e) => setSelectedAssigneeId(e.target.value)}
-            >
-              <option value="">-- Chọn ngẫu nhiên --</option>
-              {users.map(u => (
-                <option key={u.id} value={u.id}>{u.name} ({u.role_data?.name || u.role})</option>
-              ))}
-            </select>
-          </div>
+          {user?.role === 'admin' && (
+            <div>
+              <label className="block text-sm font-semibold text-slate-700 mb-1">Người phụ trách (Assignee)</label>
+              <select 
+                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 outline-none focus:border-indigo-500 text-sm"
+                value={selectedAssigneeId}
+                onChange={(e) => setSelectedAssigneeId(e.target.value)}
+              >
+                <option value="">-- Chọn ngẫu nhiên --</option>
+                {users.map(u => (
+                  <option key={u.id} value={u.id}>{u.name} ({u.role_data?.name || u.role})</option>
+                ))}
+              </select>
+            </div>
+          )}
         </div>
 
         <div className="flex justify-end gap-3 pt-4 border-t border-slate-100">
