@@ -1,5 +1,7 @@
 'use client';
 
+import { useEffect } from 'react';
+
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
@@ -155,6 +157,12 @@ export default function TiptapEditor({ content, onChange }: TiptapEditorProps) {
       onChange(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (editor && content && content !== editor.getHTML()) {
+      editor.commands.setContent(content);
+    }
+  }, [content, editor]);
 
   return (
     <div className="border border-slate-200 rounded-xl bg-white shadow-sm overflow-hidden">

@@ -241,7 +241,7 @@ export default function PipelineBuilder() {
       await loadData();
     } catch (err) {
       console.error(err);
-      toast.error("Lỗi khi lưu! Hãy kiểm tra kết nối Database.");
+      toast.error("Lỗi khi lưu: " + (err.message || JSON.stringify(err)));
     } finally {
       setIsSaving(false);
     }

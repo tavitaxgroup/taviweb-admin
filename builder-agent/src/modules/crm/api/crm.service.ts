@@ -119,25 +119,37 @@ export const CRMService = {
       await supabase.from('crm_stages').delete().eq('id', st.id);
     }
 
-    // Upsert các stage mới (bỏ id ảo 's_new_' đi để db tự tạo uuid)
-    const stagesToUpsert = stages.map(s => {
+    // Separate updates (with id) and inserts (without id) to avoid null id constraint error in bulk operations
+    const stagesToUpdate: any[] = [];
+    const stagesToInsert: any[] = [];
+
+    stages.forEach(s => {
       const dbStage: any = {
         tenant_id: tenantId,
         pipeline_id: pipelineId,
         name: s.name,
-        // color: s.color, // TEMP DISABLED: Needs crm_dynamic_setup.sql run first on production!
+        // color: s.color, // TEMP DISABLED
         order: s.order
       };
       if (s.id && !s.id.startsWith('s_new_')) {
         dbStage.id = s.id;
+        stagesToUpdate.push(dbStage);
+      } else {
+        stagesToInsert.push(dbStage);
       }
-      return dbStage;
     });
 
-    if (stagesToUpsert.length > 0) {
-      const { error } = await supabase.from('crm_stages').upsert(stagesToUpsert);
+    if (stagesToUpdate.length > 0) {
+      const { error } = await supabase.from('crm_stages').upsert(stagesToUpdate);
       if (error) throw error;
-      
+    }
+    
+    if (stagesToInsert.length > 0) {
+      const { error } = await supabase.from('crm_stages').insert(stagesToInsert);
+      if (error) throw error;
+    }
+
+    if (stagesToUpdate.length > 0 || stagesToInsert.length > 0) {
       await AuditService.logActivity({
         module: 'CRM',
         action: 'UPDATE',
