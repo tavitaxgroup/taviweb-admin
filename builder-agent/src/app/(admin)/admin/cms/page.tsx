@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import { cookies } from 'next/headers';
 import jwt from 'jsonwebtoken';
+import PostActions from './PostActions';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'tavi-super-secret-key-for-jwt-123';
 
@@ -10,6 +11,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function CMSPage() {
   let posts: any[] = [];
+  let tenantSlug = '';
   
   try {
     const cookieStore = await cookies();
@@ -17,6 +19,12 @@ export default async function CMSPage() {
     
     if (token) {
       const decoded = jwt.verify(token, JWT_SECRET) as any;
+      
+      const { data: tenant } = await supabase.from('tenants').select('slug').eq('id', decoded.tenant_id).single();
+      if (tenant) {
+        tenantSlug = tenant.slug;
+      }
+
       const { data } = await supabase
         .from('posts')
         .select('*')
@@ -81,21 +89,7 @@ export default async function CMSPage() {
                       {new Date(post.created_at).toLocaleDateString('vi-VN')}
                     </td>
                     <td className="p-4 pr-6 text-right">
-                      <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link 
-                          href={`/admin/cms/editor/${post.id}`}
-                          className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"
-                          title="Sửa bài viết"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Link>
-                        <button 
-                          className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                          title="Xóa bài viết"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+                      <PostActions postId={post.id} tenantSlug={tenantSlug} postSlug={post.slug} />
                     </td>
                   </tr>
                 ))
