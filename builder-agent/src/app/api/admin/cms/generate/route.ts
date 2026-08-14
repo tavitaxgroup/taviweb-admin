@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
 import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
-import { createOpenAI } from '@ai-sdk/openai';
 
 export async function POST(req: Request) {
   try {
@@ -32,25 +31,14 @@ export async function POST(req: Request) {
       }
     `;
 
-    let text;
-    try {
-      const result = await generateText({
-        model: google('gemini-3.5-flash'),
-        prompt: systemPrompt,
-        temperature: 0.7,
-      });
-      text = result.text;
-    } catch (err: any) {
-      console.warn('Google AI failed, falling back to OpenAI gpt-4o-mini:', err.message);
-      // Fallback to OpenAI if Gemini is overloaded
-      const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
-      const result = await generateText({
-        model: openai('gpt-4o-mini'),
-        prompt: systemPrompt,
-        temperature: 0.7,
-      });
-      text = result.text;
-    }
+    // Đảm bảo GOOGLE_GENERATIVE_AI_API_KEY đã được set trong .env
+    const result = await generateText({
+      model: google('gemini-3.5-flash'),
+      prompt: systemPrompt,
+      temperature: 0.7,
+    });
+    
+    const text = result.text;
 
     let parsedResult;
     try {
