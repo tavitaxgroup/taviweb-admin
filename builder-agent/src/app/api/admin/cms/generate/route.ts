@@ -33,15 +33,15 @@ export async function POST(req: Request) {
     let text;
     try {
       const result = await generateText({
-        model: google('gemini-1.5-pro'),
+        model: google('gemini-3.5-flash'),
         prompt: systemPrompt,
         temperature: 0.7,
       });
       text = result.text;
     } catch (err: any) {
-      console.warn('Primary model failed, falling back to gemini-1.5-flash:', err.message);
+      console.warn('Primary model failed, falling back to gemini-3.5-pro:', err.message);
       const result = await generateText({
-        model: google('gemini-1.5-flash'),
+        model: google('gemini-3.5-pro'),
         prompt: systemPrompt,
         temperature: 0.7,
       });
