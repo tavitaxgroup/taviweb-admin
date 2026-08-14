@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, Save, Loader2, Image as ImageIcon, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, Save, Loader2, Image as ImageIcon, Sparkles, X, UploadCloud } from 'lucide-react';
 import Link from 'next/link';
 import { supabase } from '@/lib/supabase/client';
 import TiptapEditor from '@/components/cms/TiptapEditor';
@@ -28,6 +28,37 @@ export default function CMSEditor({ params }: { params: Promise<{ id: string }> 
   const [aiTone, setAiTone] = useState('Chuyên nghiệp, hữu ích');
   const [aiKeywords, setAiKeywords] = useState('');
   const [isGeneratingAi, setIsGeneratingAi] = useState(false);
+  const [isUploadingThumbnail, setIsUploadingThumbnail] = useState(false);
+  const thumbnailInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingThumbnail(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await res.json();
+      if (res.ok && data.url) {
+        setThumbnailUrl(data.url);
+      } else {
+        alert('Lỗi tải ảnh lên: ' + (data.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi kết nối khi tải ảnh.');
+    } finally {
+      setIsUploadingThumbnail(false);
+      if (thumbnailInputRef.current) thumbnailInputRef.current.value = '';
+    }
+  };
   
   useEffect(() => {
     if (!isNew) {
@@ -232,13 +263,30 @@ export default function CMSEditor({ params }: { params: Promise<{ id: string }> 
                 <span className="text-sm text-slate-400">Chưa có ảnh bìa</span>
               </div>
             )}
-            <input 
-              type="text" 
-              value={thumbnailUrl}
-              onChange={(e) => setThumbnailUrl(e.target.value)}
-              placeholder="Dán URL hình ảnh vào đây..."
-              className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-indigo-500 text-sm"
-            />
+            <div className="flex gap-2">
+              <input 
+                type="text" 
+                value={thumbnailUrl}
+                onChange={(e) => setThumbnailUrl(e.target.value)}
+                placeholder="Dán URL hình ảnh vào đây..."
+                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg outline-none focus:border-indigo-500 text-sm"
+              />
+              <input 
+                type="file" 
+                accept="image/*" 
+                ref={thumbnailInputRef} 
+                onChange={handleThumbnailUpload} 
+                className="hidden" 
+              />
+              <button 
+                onClick={() => thumbnailInputRef.current?.click()}
+                disabled={isUploadingThumbnail}
+                className="flex-shrink-0 flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-700 px-4 py-2 rounded-lg text-sm font-medium transition-colors"
+                title="Tải ảnh từ máy tính"
+              >
+                {isUploadingThumbnail ? <Loader2 className="w-4 h-4 animate-spin" /> : <UploadCloud className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
         </div>
       </div>

@@ -11,14 +11,23 @@ export async function POST(req: Request) {
     }
 
     const systemPrompt = `
-      Bạn là một chuyên gia Content SEO xuất sắc. Nhiệm vụ của bạn là viết một bài blog chuẩn SEO chuyên nghiệp.
-      Yêu cầu bài viết:
-      - Chủ đề: ${topic}
-      - Giọng văn: ${tone || 'Chuyên nghiệp, cung cấp thông tin hữu ích'}
-      - Từ khóa bắt buộc (nếu có): ${keywords || 'Không có'}
-      - Định dạng đầu ra: HTML thuần (sử dụng các thẻ <h1>, <h2>, <h3>, <p>, <ul>, <li>, <strong>).
-      - KHÔNG SỬ DỤNG markdown, chỉ trả về code HTML. KHÔNG có thẻ <html> hay <body>, chỉ trả về phần ruột content.
-      - Trả về thêm 1 dòng đầu tiên là tiêu đề bài viết định dạng: TITLE: <Tiêu đề của bài>
+      Bạn là một chuyên gia SEO và Content Marketing. 
+      Hãy viết một bài blog chuẩn SEO về chủ đề: "${topic}".
+      Giọng văn: "${tone}".
+      ${keywords ? `Từ khóa cần SEO: ${keywords}` : ''}
+      
+      YÊU CẦU ĐẦU RA:
+      - Bài viết phải dài, chi tiết, phân chia rõ ràng bằng các Heading (H2, H3).
+      - Nội dung phải cuốn hút, giữ chân người đọc.
+      - **QUAN TRỌNG VỀ HÌNH ẢNH:** Hãy chèn khoảng 2-3 hình ảnh minh họa phù hợp vào các đoạn văn bằng cú pháp Markdown:
+        ![mô tả ảnh ngắn gọn bằng tiếng Anh (không dấu cách, dùng dấu gạch ngang)](https://image.pollinations.ai/prompt/mô tả ảnh chi tiết bằng tiếng anh để AI vẽ, phong cách nhiếp ảnh chân thực?width=800&height=400&nologo=true)
+        Ví dụ: ![dental-clinic](https://image.pollinations.ai/prompt/modern-dental-clinic-interior-bright-lighting-professional?width=800&height=400&nologo=true)
+      
+      TRẢ VỀ DUY NHẤT 1 JSON (KHÔNG BỌC TRONG MARKDOWN, KHÔNG BACKTICKS) VỚI ĐỊNH DẠNG SAU:
+      {
+        "title": "Tiêu đề bài viết hấp dẫn (dưới 70 ký tự)",
+        "contentHtml": "Nội dung bài viết được format bằng HTML (sử dụng <h2>, <h3>, <p>, <ul>, <li>, <strong>, và <img src='...'> cho hình ảnh minh họa thay vì markdown image)"
+      }
     `;
 
     // Chúng ta dùng gemini-3.5-flash làm mặc định vì nó nhanh và rẻ.
@@ -29,27 +38,18 @@ export async function POST(req: Request) {
       temperature: 0.7,
     });
 
-    // Parse the response to extract title and html content
-    const lines = text.split('\n');
-    let title = '';
-    let contentHtml = text;
-
-    for (let i = 0; i < Math.min(5, lines.length); i++) {
-      if (lines[i].trim().startsWith('TITLE:')) {
-        title = lines[i].replace('TITLE:', '').trim();
-        // Xóa dòng TITLE khỏi contentHtml
-        lines.splice(i, 1);
-        contentHtml = lines.join('\n');
-        break;
-      }
+    let parsedResult;
+    try {
+      // Find the first { and last } to extract JSON in case AI adds markdown formatting
+      const jsonStr = text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1);
+      parsedResult = JSON.parse(jsonStr);
+    } catch (e) {
+      console.error("Failed to parse JSON from AI response:", text);
+      throw new Error("AI trả về sai định dạng");
     }
 
-    if (!title) {
-      title = topic; // Fallback title
-    }
-
-    // Làm sạch HTML nếu AI lỡ bọc trong markdown code block
-    contentHtml = contentHtml.replace(/```html/gi, '').replace(/```/g, '').trim();
+    const title = parsedResult.title || topic;
+    const contentHtml = parsedResult.contentHtml || text;
 
     return NextResponse.json({
       title,

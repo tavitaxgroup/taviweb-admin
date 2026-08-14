@@ -1,12 +1,12 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { useEditor, EditorContent } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Image from '@tiptap/extension-image';
 import Youtube from '@tiptap/extension-youtube';
-import { Bold, Italic, Strikethrough, Heading1, Heading2, List, ListOrdered, Quote, Undo, Redo, Image as ImageIcon, Video as YoutubeIcon } from 'lucide-react';
+import { Bold, Italic, Strikethrough, Heading1, Heading2, List, ListOrdered, Quote, Undo, Redo, Image as ImageIcon, Video as YoutubeIcon, Loader2 } from 'lucide-react';
 
 interface TiptapEditorProps {
   content: string;
@@ -18,10 +18,48 @@ const MenuBar = ({ editor }: { editor: any }) => {
     return null;
   }
 
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData
+      });
+      
+      const data = await res.json();
+      if (res.ok && data.url) {
+        editor.chain().focus().setImage({ src: data.url }).run();
+      } else {
+        alert('Lỗi tải ảnh lên: ' + (data.error || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Lỗi kết nối khi tải ảnh.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
   const addImage = () => {
-    const url = window.prompt('URL hình ảnh:');
-    if (url) {
-      editor.chain().focus().setImage({ src: url }).run();
+    // Prompt url fallback if they prefer
+    const confirmUpload = window.confirm('Bạn muốn tải ảnh từ máy tính lên không?\n(Chọn OK để Tải lên, Cancel để dán Link)');
+    if (confirmUpload) {
+      fileInputRef.current?.click();
+    } else {
+      const url = window.prompt('URL hình ảnh:');
+      if (url) {
+        editor.chain().focus().setImage({ src: url }).run();
+      }
     }
   };
 
@@ -109,8 +147,18 @@ const MenuBar = ({ editor }: { editor: any }) => {
 
       <div className="w-px h-6 bg-slate-300 mx-1"></div>
 
-      <button onClick={addImage} className={btnClass} title="Chèn ảnh">
-        <ImageIcon className="w-4 h-4" />
+      <div className="w-px h-6 bg-slate-300 mx-1"></div>
+
+      <input 
+        type="file" 
+        accept="image/*" 
+        ref={fileInputRef} 
+        onChange={handleImageUpload} 
+        className="hidden" 
+      />
+
+      <button onClick={addImage} disabled={isUploading} className={btnClass} title="Chèn ảnh">
+        {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <ImageIcon className="w-4 h-4" />}
       </button>
       <button onClick={addYoutubeVideo} className={btnClass} title="Chèn video YouTube">
         <YoutubeIcon className="w-4 h-4" />
