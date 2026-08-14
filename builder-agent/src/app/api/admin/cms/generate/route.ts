@@ -20,9 +20,10 @@ export async function POST(req: Request) {
       YÊU CẦU ĐẦU RA:
       - Bài viết phải dài, chi tiết, phân chia rõ ràng bằng các Heading (H2, H3).
       - Nội dung phải cuốn hút, giữ chân người đọc.
-      - **QUAN TRỌNG VỀ HÌNH ẢNH:** Hãy chèn khoảng 2-3 hình ảnh minh họa phù hợp vào các đoạn văn bằng cú pháp Markdown:
-        ![mô tả ảnh ngắn gọn bằng tiếng Anh (không dấu cách, dùng dấu gạch ngang)](https://image.pollinations.ai/prompt/mô tả ảnh chi tiết bằng tiếng anh để AI vẽ, phong cách nhiếp ảnh chân thực?width=800&height=400&nologo=true)
-        Ví dụ: ![dental-clinic](https://image.pollinations.ai/prompt/modern-dental-clinic-interior-bright-lighting-professional?width=800&height=400&nologo=true)
+      - **HÌNH ẢNH MINH HỌA:** Bạn chỉ việc tạo ra một đường link (URL) ảnh dựa trên từ khóa tiếng Anh, không được dùng công cụ vẽ ảnh. 
+        Hãy chèn 2-3 thẻ <img src="..."> vào nội dung bài viết theo mẫu sau:
+        <img src="https://image.pollinations.ai/prompt/dien-ta-chi-tiet-anh-bang-tieng-anh?width=800&height=400&nologo=true" alt="mô tả ngắn">
+        Ví dụ: <img src="https://image.pollinations.ai/prompt/modern-dental-clinic-interior-bright-lighting-professional?width=800&height=400&nologo=true" alt="dental clinic">
       
       TRẢ VỀ DUY NHẤT 1 JSON (KHÔNG BỌC TRONG MARKDOWN, KHÔNG BACKTICKS) VỚI ĐỊNH DẠNG SAU:
       {
