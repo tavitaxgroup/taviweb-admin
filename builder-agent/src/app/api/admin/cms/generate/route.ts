@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { generateText } from 'ai';
 import { google } from '@ai-sdk/google';
+import { createOpenAI } from '@ai-sdk/openai';
 
 export async function POST(req: Request) {
   try {
@@ -39,9 +40,11 @@ export async function POST(req: Request) {
       });
       text = result.text;
     } catch (err: any) {
-      console.warn('Primary model failed, falling back to gemini-2.0-flash:', err.message);
+      console.warn('Google AI failed, falling back to OpenAI gpt-4o-mini:', err.message);
+      // Fallback to OpenAI if Gemini is overloaded
+      const openai = createOpenAI({ apiKey: process.env.OPENAI_API_KEY });
       const result = await generateText({
-        model: google('gemini-2.0-flash'),
+        model: openai('gpt-4o-mini'),
         prompt: systemPrompt,
         temperature: 0.7,
       });
